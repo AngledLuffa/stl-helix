@@ -1,3 +1,4 @@
+import argparse
 import math
 
 def generate_quad(a, b, c, d):
@@ -49,11 +50,7 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
     
     return location
     
-def generate_helix(helix_radius, tube_radius, wall_thickness,
-                   start_angle, end_angle,
-                   tube_sides, helix_sides,
-                   vertical_displacement,
-                   rotations):
+def generate_helix(args):
     """
     helix_radius is the measurement from the axis to the center of any part of the ramp
     tube_radius is the measurement from the center of ramp to its outer wall
@@ -71,40 +68,43 @@ def generate_helix(helix_radius, tube_radius, wall_thickness,
       tube_radius*2 means the next layer will be barely touching the previous layer
     rotations is how far around to go.  will be discretized using helix_sides
     """
-    if wall_thickness >= tube_radius:
+    if args.wall_thickness >= args.tube_radius:
         raise RuntimeError("TODO Not implemented")
 
+    start_angle = args.start_angle
+    end_angle = args.end_angle
     if end_angle < start_angle:
         start_angle, end_angle = end_angle, start_angle
 
     if end_angle >= start_angle + 360:
         start_angle = 0
         end_angle = 360
-        num_tube_subdivisions = tube_sides
+        num_tube_subdivisions = args.tube_sides
         full_tube = True
     else:
-        num_tube_subdivisions = math.ceil((end_angle - start_angle) * tube_sides / 360)
+        num_tube_subdivisions = math.ceil((end_angle - start_angle) * args.tube_sides / 360)
         full_tube = False
     print("Num tube: {}".format(num_tube_subdivisions))
 
-    num_helix_subdivisions = math.ceil(rotations * helix_sides)
+    num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
     print("Num helix: {}".format(num_helix_subdivisions))
     if num_helix_subdivisions <= 0:
         raise ValueError("Must complete some positive fraction of a rotation")
 
     def call_coordinates(tube_subdivision, helix_subdivision, inside):
-        return coordinates(helix_radius=helix_radius,
-                           tube_radius=tube_radius,
-                           wall_thickness=wall_thickness,
+        return coordinates(helix_radius=args.helix_radius,
+                           tube_radius=args.tube_radius,
+                           wall_thickness=args.wall_thickness,
                            start_angle=start_angle,
                            end_angle=end_angle,
-                           tube_sides=tube_sides,
-                           helix_sides=helix_sides,
-                           vertical_displacement=vertical_displacement,
+                           tube_sides=args.tube_sides,
+                           helix_sides=args.helix_sides,
+                           vertical_displacement=args.vertical_displacement,
                            tube_subdivision=tube_subdivision,
                            helix_subdivision=helix_subdivision,
                            inside=inside)
     
+
     for tube_subdivision in range(num_tube_subdivisions):
         for helix_subdivision in range(num_helix_subdivisions):
             #print("Iterating over tube {} helix {}".format(tube_subdivision, helix_subdivision))
@@ -150,6 +150,7 @@ def generate_helix(helix_radius, tube_radius, wall_thickness,
 def write_stl(triangles, filename):
     with open(filename, "w") as fout:
         for triangle in triangles:
+            # facet normal of 0 0 0 is often used as a convention - processing program can figure it out
             fout.write("facet normal 0 0 0\n")
             fout.write("    outer loop\n")
             for vertex in triangle:
@@ -157,10 +158,47 @@ def write_stl(triangles, filename):
             fout.write("    endloop\n")
             fout.write("endfacet\n")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
+    parser.add_argument('--helix_radius', default=19, type=float,
+                        help='measurement from the axis to the center of any part of the ramp')
+    parser.add_argument('--tube_radius', default=13, type=float,
+                        help='measurement from the center of ramp to its outer wall')
+    parser.add_argument('--wall_thickness', default=2, type=float,
+                        help='how thick to make the wall. special case: if wall_thickness >= tube_radius, there is no inner opening')
+    parser.add_argument('--start_angle', default=0, type=float,
+                        help='angle to the start of the ramp.  0 represents the part furthest from the axis, 180 represents closest to the axis, -90 represents the top of the ramp, 90 represents the bottom.  0..180 represents the bottom of a ramp with no cover.  -90..90 will look like a loop-d-loop')
+    parser.add_argument('--end_angle', default=180, type=float,
+                        help='angle to the end of the ramp.  same values as start_angle')
+    parser.add_argument('--tube_sides', default=64, type=int,
+                        help='how many sides a complete tube would have.  start_angle and end_angle are discretized to these subdivisions')
+    parser.add_argument('--helix_sides', default=64, type=int,
+                        help='how many sides it takes to go around the axis once')
+    parser.add_argument('--vertical_displacement', default=26, type=float,
+                        help='how far to move up in one complete rotation.  tube_radius*2 means the next layer will be barely touching the previous layer')
+    parser.add_argument('--rotations', default=1, type=float,
+                        help='rotations is how far around to go.  will be discretized using helix_sides')
+
+    args = parser.parse_args()
+    return args
+
+def print_args(args):
+    """
+    For record keeping purposes, print out the arguments
+    """
+    args = vars(args)
+    keys = sorted(args.keys())
+    print('ARGS:')
+    for k in keys:
+        print('%s: %s' % (k, args[k]))
+
+def main():
+    args = parse_args()
+    print_args(args)
+
+    write_stl(generate_helix(args), "foo.stl")
+    #write_stl(generate_cube(10), 'cube.stl')
+
+            
 if __name__ == '__main__':
-    write_stl(generate_helix(helix_radius=19, tube_radius=13, wall_thickness=2,
-                             start_angle=-90, end_angle=90, tube_sides=64, helix_sides=64,
-                             vertical_displacement=26,
-                             rotations=1),
-              "foo.stl")
-    write_stl(generate_cube(10), 'cube.stl')
+    main()
