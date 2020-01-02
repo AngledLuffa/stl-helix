@@ -69,7 +69,11 @@ def generate_helix(args):
     rotations is how far around to go.  will be discretized using helix_sides
     """
     if args.wall_thickness >= args.tube_radius:
-        raise RuntimeError("TODO Not implemented")
+        has_inner_wall = False
+        wall_thickness = args.tube_radius
+    else:
+        has_inner_wall = True
+        wall_thickness = args.wall_thickness
 
     start_angle = args.start_angle
     end_angle = args.end_angle
@@ -94,7 +98,7 @@ def generate_helix(args):
     def call_coordinates(tube_subdivision, helix_subdivision, inside):
         return coordinates(helix_radius=args.helix_radius,
                            tube_radius=args.tube_radius,
-                           wall_thickness=args.wall_thickness,
+                           wall_thickness=wall_thickness,
                            start_angle=start_angle,
                            end_angle=end_angle,
                            tube_sides=args.tube_sides,
@@ -115,10 +119,11 @@ def generate_helix(args):
                           call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
                           call_coordinates(tube_subdivision, helix_subdivision+1, False)))
             # inside wall
-            quads.append((call_coordinates(tube_subdivision, helix_subdivision, True),
-                          call_coordinates(tube_subdivision, helix_subdivision+1, True),
-                          call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
-                          call_coordinates(tube_subdivision+1, helix_subdivision, True)))
+            if has_inner_wall:
+                quads.append((call_coordinates(tube_subdivision, helix_subdivision, True),
+                              call_coordinates(tube_subdivision, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision, True)))
             # start tube wall
             if tube_subdivision == 0 and not full_tube:
                 quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
