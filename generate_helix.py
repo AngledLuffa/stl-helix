@@ -164,6 +164,8 @@ def write_stl(triangles, filename):
             fout.write("endfacet\n")
 
 def parse_args():
+    # TODO: add an argument which does the math for rotations if you give it the angle of helix you want, for example
+    #   add an argument for the slope of the ramp instead of vertical_displacement
     parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
     parser.add_argument('--helix_radius', default=19, type=float,
                         help='measurement from the axis to the center of any part of the ramp')
