@@ -21,7 +21,8 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
                 start_angle, end_angle,
                 tube_sides, helix_sides,
                 vertical_displacement,
-                tube_subdivision, helix_subdivision, inside):
+                tube_subdivision, helix_subdivision,
+                slope_angle, inside):
     #print("GENERATING: {} {} {} {} {} {} {} {} {} {} {}".format(helix_radius, tube_radius, wall_thickness,
     #                                                            start_angle, end_angle,
     #                                                            tube_sides, helix_sides,
@@ -44,12 +45,29 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
     x_disp = radial_disp * math.cos(helix_angle / 180 * math.pi)
     y_disp = radial_disp * math.sin(helix_angle / 180 * math.pi)
 
+    forward_disp = vertical_disp * math.sin(slope_angle / 180 * math.pi)
+    vertical_disp = vertical_disp * math.cos(slope_angle / 180 * math.pi)
+    x_disp = x_disp + forward_disp * math.sin(helix_angle / 180 * math.pi)
+    y_disp = y_disp - forward_disp * math.cos(helix_angle / 180 * math.pi)
+
     location = (location[0] + x_disp,
                 location[1] + y_disp,
                 location[2] + vertical_disp)
     
     return location
-    
+
+def calculate_slope_angle(tube_radius, vertical_displacement):
+    """
+    tube_radius is adjacent, vertical_displacement is opposite
+    returns asin in degrees
+    this is the slope of the ramp
+    """
+    tube_distance = tube_radius * math.pi * 2
+    slope_distance = (tube_distance ** 2 + vertical_displacement ** 2) ** 0.5
+    # currently in radians
+    slope_angle = math.asin(vertical_displacement / slope_distance)
+    return slope_angle / math.pi * 180
+
 def generate_helix(args):
     """
     helix_radius is the measurement from the axis to the center of any part of the ramp
@@ -68,6 +86,13 @@ def generate_helix(args):
       tube_radius*2 means the next layer will be barely touching the previous layer
     rotations is how far around to go.  will be discretized using helix_sides
     """
+    # slope_angle is the angle of the slope as it goes up the spiral
+    # faces will be tilted this much to allow better connections with
+    # the next piece
+    slope_angle = calculate_slope_angle(args.tube_radius,
+                                        args.vertical_displacement)
+    print("Slope angle: ", slope_angle)
+    
     if args.wall_thickness >= args.tube_radius:
         has_inner_wall = False
         wall_thickness = args.tube_radius
@@ -106,6 +131,7 @@ def generate_helix(args):
                            vertical_displacement=args.vertical_displacement,
                            tube_subdivision=tube_subdivision,
                            helix_subdivision=helix_subdivision,
+                           slope_angle=slope_angle,
                            inside=inside)
     
 
