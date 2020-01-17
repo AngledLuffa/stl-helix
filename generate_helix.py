@@ -45,6 +45,9 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
     x_disp = radial_disp * math.cos(helix_angle / 180 * math.pi)
     y_disp = radial_disp * math.sin(helix_angle / 180 * math.pi)
 
+    # FIXME: this displacement should be done first and then the
+    # resulting vector rotated around the axis.  As it is now, there
+    # is some tilting occurring as it rotates around the axis
     forward_disp = vertical_disp * math.sin(slope_angle / 180 * math.pi)
     vertical_disp = vertical_disp * math.cos(slope_angle / 180 * math.pi)
     x_disp = x_disp + forward_disp * math.sin(helix_angle / 180 * math.pi)
