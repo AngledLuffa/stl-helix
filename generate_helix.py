@@ -212,6 +212,9 @@ def parse_args():
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
 
+    parser.add_argument('--output_name', default='foo.stl',
+                        help='Where to put the stl')
+
     args = parser.parse_args()
     return args
 
@@ -229,7 +232,7 @@ def main():
     args = parse_args()
     print_args(args)
 
-    write_stl(generate_helix(args), "foo.stl")
+    write_stl(generate_helix(args), args.output_name)
     #write_stl(generate_cube(10), 'cube.stl')
 
             
