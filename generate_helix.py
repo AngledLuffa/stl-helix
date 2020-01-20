@@ -23,15 +23,23 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
                 vertical_displacement,
                 tube_subdivision, helix_subdivision,
                 slope_angle, inside):
-    #print("GENERATING: {} {} {} {} {} {} {} {} {} {} {}".format(helix_radius, tube_radius, wall_thickness,
-    #                                                            start_angle, end_angle,
-    #                                                            tube_sides, helix_sides,
-    #                                                            vertical_displacement,
-    #                                                            tube_subdivision, helix_subdivision, inside))
-    distance = helix_radius + tube_radius
-    location = (distance, distance, tube_radius)   # x, y.  axis is pointing up
-    location = (location[0], location[1],          # move up by the location in the helix
-                location[2] + vertical_displacement * helix_subdivision / helix_sides)
+    #print("GENERATING: {} {} {} {} {} {} {} {} {} {} {} {}".format(
+    #    helix_radius, tube_radius, wall_thickness,
+    #    start_angle, end_angle,
+    #    tube_sides, helix_sides,
+    #    vertical_displacement,
+    #    tube_subdivision, helix_subdivision,
+    #    slope_angle, inside))
+    
+    # to make the math easy, we start from 0, 0, do some rotations,
+    # and then translate by center so it is all positive
+    center = helix_radius + tube_radius
+    
+    # we do the initial calculations with the axis pointing up
+    # at (0, 0)
+    location = (0, 0, # move up by the location in the helix
+                tube_radius +
+                vertical_displacement * helix_subdivision / helix_sides)
     tube_angle = start_angle + 360 / tube_sides * tube_subdivision
     if tube_angle > end_angle:
         tube_angle = end_angle
@@ -39,24 +47,40 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
 
     if inside:
         tube_radius = tube_radius - wall_thickness
-    
-    vertical_disp = -tube_radius * math.sin(tube_angle / 180 * math.pi)
-    radial_disp = helix_radius + math.cos(tube_angle / 180 * math.pi) * tube_radius
-    x_disp = radial_disp * math.cos(helix_angle / 180 * math.pi)
-    y_disp = radial_disp * math.sin(helix_angle / 180 * math.pi)
 
-    # FIXME: this displacement should be done first and then the
-    # resulting vector rotated around the axis.  As it is now, there
-    # is some tilting occurring as it rotates around the axis
-    forward_disp = vertical_disp * math.sin(slope_angle / 180 * math.pi)
-    vertical_disp = vertical_disp * math.cos(slope_angle / 180 * math.pi)
-    x_disp = x_disp + forward_disp * math.sin(helix_angle / 180 * math.pi)
-    y_disp = y_disp - forward_disp * math.cos(helix_angle / 180 * math.pi)
+    # we will figure out x, y, z as if we had not rotated around the
+    # axis at all.  then we will rotate the resulting vector
+    x_disp = helix_radius
+        
+    x_disp = x_disp + tube_radius * math.cos(tube_angle / 180 * math.pi)
+    vert_disp = -tube_radius * math.sin(tube_angle / 180 * math.pi)
+    # tilt the tube a bit so that things going down the ramp
+    # are going straight when they come out of the ramp
+    y_disp = -vert_disp * math.sin(slope_angle / 180 * math.pi)
+    z_disp =  vert_disp * math.cos(slope_angle / 180 * math.pi)
 
-    location = (location[0] + x_disp,
-                location[1] + y_disp,
-                location[2] + vertical_disp)
+    #print("    ", x_disp, vert_disp, y_disp, z_disp)
+    #print("    ", helix_angle / 180 * math.pi)
+    r_x_disp = (x_disp * math.cos(helix_angle / 180 * math.pi) -
+                y_disp * math.sin(helix_angle / 180 * math.pi))
+    r_y_disp = (x_disp * math.sin(helix_angle / 180 * math.pi) +
+                y_disp * math.cos(helix_angle / 180 * math.pi))
+    #print("    ", r_x_disp, r_y_disp)
+
+    location = (location[0] + r_x_disp,
+                location[1] + r_y_disp,
+                location[2] + z_disp)
+
+    #print("    ", location)
     
+    # adjust the center to be positive so there are no
+    # negative numbers
+    location = (location[0] + center,
+                location[1] + center,
+                location[2])
+    
+    #print("    ", location)
+
     return location
 
 def calculate_slope_angle(tube_radius, vertical_displacement):
