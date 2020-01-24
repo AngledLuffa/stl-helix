@@ -83,14 +83,14 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
 
     return location
 
-def calculate_slope_angle(tube_radius, vertical_displacement):
+def calculate_slope_angle(helix_radius, vertical_displacement):
     """
     tube_radius is adjacent, vertical_displacement is opposite
     returns asin in degrees
     this is the slope of the ramp
     """
-    tube_distance = tube_radius * math.pi * 2
-    slope_distance = (tube_distance ** 2 + vertical_displacement ** 2) ** 0.5
+    helix_distance = helix_radius * math.pi * 2
+    slope_distance = (helix_distance ** 2 + vertical_displacement ** 2) ** 0.5
     # currently in radians
     slope_angle = math.asin(vertical_displacement / slope_distance)
     return slope_angle / math.pi * 180
@@ -116,9 +116,9 @@ def generate_helix(args):
     # slope_angle is the angle of the slope as it goes up the spiral
     # faces will be tilted this much to allow better connections with
     # the next piece
-    slope_angle = calculate_slope_angle(args.tube_radius,
+    slope_angle = calculate_slope_angle(args.helix_radius,
                                         args.vertical_displacement)
-    print("Slope angle: ", slope_angle)
+    print("Slope angle:", slope_angle)
     
     if args.wall_thickness >= args.tube_radius:
         has_inner_wall = False
