@@ -222,7 +222,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
     parser.add_argument('--helix_radius', default=19, type=float,
                         help='measurement from the axis to the center of any part of the ramp')
-    parser.add_argument('--tube_radius', default=13, type=float,
+    parser.add_argument('--tube_radius', default=12.5, type=float,
                         help='measurement from the center of ramp to its outer wall')
     parser.add_argument('--wall_thickness', default=2, type=float,
                         help='how thick to make the wall. special case: if wall_thickness >= tube_radius, there is no inner opening')
@@ -234,7 +234,7 @@ def parse_args():
                         help='how many sides a complete tube would have.  start_angle and end_angle are discretized to these subdivisions')
     parser.add_argument('--helix_sides', default=64, type=int,
                         help='how many sides it takes to go around the axis once')
-    parser.add_argument('--vertical_displacement', default=26, type=float,
+    parser.add_argument('--vertical_displacement', default=25, type=float,
                         help='how far to move up in one complete rotation.  tube_radius*2 means the next layer will be barely touching the previous layer')
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
