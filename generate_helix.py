@@ -2,10 +2,18 @@ import argparse
 import math
 
 def generate_quad(a, b, c, d):
+    """
+    Given four points of a quadrilateral in clockwise order, yields
+    two triangles in clockwise order
+    """
     yield((a, b, d))
     yield((b, c, d))
 
 def generate_cube(size):
+    """
+    Generates the facets for a cube of the given size.
+    Mostly for debugging the stl writing.
+    """
     sides = [((0, 0, 0), (size, 0, 0), (size, 0, size), (0, 0, size)),  # front
              ((size, 0, 0), (size, size, 0), (size, size, size), (size, 0, size)), # right side
              ((0, 0, 0), (0, 0, size), (0, size, size), (0, size, 0)), # left side
@@ -206,6 +214,9 @@ def generate_helix(args):
                     yield triangle
     
 def write_stl(triangles, filename):
+    """
+    Given a list of triangles, writes each facet to the given filename
+    """
     with open(filename, "w") as fout:
         for triangle in triangles:
             # facet normal of 0 0 0 is often used as a convention - processing program can figure it out
