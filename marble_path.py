@@ -155,6 +155,21 @@ def add_tube_arguments(parser):
                         help='how many sides a complete tube would have.  tube_start_angle and tube_end_angle are discretized to these subdivisions')
 
 
+def write_stl(triangles, filename):
+    """
+    Given a list of triangles, writes each facet to the given filename
+    """
+    with open(filename, "w") as fout:
+        for triangle in triangles:
+            # facet normal of 0 0 0 is often used as a convention - processing program can figure it out
+            fout.write("facet normal 0 0 0\n")
+            fout.write("    outer loop\n")
+            for vertex in triangle:
+                fout.write("        vertex %f %f %f\n" % vertex)
+            fout.write("    endloop\n")
+            fout.write("endfacet\n")
+
+
 def print_args(args):
     """
     For record keeping purposes, print out the arguments

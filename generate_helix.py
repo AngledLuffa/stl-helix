@@ -114,20 +114,6 @@ def generate_helix(args):
         yield triangle
 
     
-def write_stl(triangles, filename):
-    """
-    Given a list of triangles, writes each facet to the given filename
-    """
-    with open(filename, "w") as fout:
-        for triangle in triangles:
-            # facet normal of 0 0 0 is often used as a convention - processing program can figure it out
-            fout.write("facet normal 0 0 0\n")
-            fout.write("    outer loop\n")
-            for vertex in triangle:
-                fout.write("        vertex %f %f %f\n" % vertex)
-            fout.write("    endloop\n")
-            fout.write("endfacet\n")
-
 def parse_args():
     # TODO: add an argument which does the math for rotations if you give it the angle of helix you want, for example
     #   add an argument for the slope of the ramp instead of vertical_displacement
@@ -154,7 +140,7 @@ def main():
     args = parse_args()
     marble_path.print_args(args)
 
-    write_stl(generate_helix(args), args.output_name)
+    marble_path.write_stl(generate_helix(args), args.output_name)
 
             
 if __name__ == '__main__':
