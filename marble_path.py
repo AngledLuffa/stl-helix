@@ -84,9 +84,48 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 
 def generate_path(x_t, y_t, z_t, r_t,
-                  tube_function,
-                  num_tube_subdivisions, num_helix_subdivisions,
-                  has_inner_wall, full_tube):
+                  tube_args, num_helix_subdivisions, slope_angle):
+    """
+    tube_args should be args including the tube arguments from below
+    """
+    if tube_args.wall_thickness >= tube_args.tube_radius:
+        has_inner_wall = False
+        wall_thickness = tube_args.tube_radius
+    else:
+        has_inner_wall = True
+        wall_thickness = tube_args.wall_thickness
+
+    tube_start_angle = tube_args.tube_start_angle
+    tube_end_angle = tube_args.tube_end_angle
+    if tube_end_angle < tube_start_angle:
+        tube_start_angle, tube_end_angle = tube_end_angle, tube_start_angle
+
+    if tube_end_angle >= tube_start_angle + 360:
+        tube_start_angle = 0
+        tube_end_angle = 360
+        num_tube_subdivisions = tube_args.tube_sides
+        full_tube = True
+    else:
+        num_tube_subdivisions = math.ceil((tube_end_angle - tube_start_angle) * tube_args.tube_sides / 360)
+        full_tube = False
+    print("Num tube: {}".format(num_tube_subdivisions))
+
+    def tube_function(tube_subdivision, inside, rotation):
+        """
+        Using the parameters given to the helix, create a function which
+        returns the x, y, z offset from the tube coordinates.
+        """
+        return tube_coordinates(tube_radius=tube_args.tube_radius,
+                                wall_thickness=wall_thickness,
+                                tube_start_angle=tube_start_angle,
+                                tube_end_angle=tube_end_angle,
+                                tube_sides=tube_args.tube_sides,
+                                tube_subdivision=tube_subdivision,
+                                slope_angle=slope_angle,
+                                inside=inside,
+                                rotation=rotation)
+
+    
     def call_coordinates(tube_subdivision, helix_subdivision, inside):
         return coordinates(x_t=x_t,
                            y_t=y_t,
