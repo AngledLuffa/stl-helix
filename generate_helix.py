@@ -21,13 +21,13 @@ def generate_helix(args):
     tube_radius is the measurement from the center of ramp to its outer wall
     wall_thickness is how thick to make the wall
       special case: if wall_thickness >= tube_radius, there is no inner opening
-    start_angle and end_angle represent which part of the ramp to draw.
+    tube_start_angle and tube_end_angle represent which part of the ramp to draw.
       0 represents the part furthest from the axis
       180 represents the part closest to the axis
       0..180 covers the bottom of the arc.  for the top, for example, do 180..0
       special case: if 0..360 or any rotation of that is supplied, the entire circle is drawn
     tube_sides is how many sides a complete tube would have.
-      start_angle and end_angle are discretized to these subdivisions
+      tube_start_angle and tube_end_angle are discretized to these subdivisions
     helix_sides is how many sides a complete helix rotation has
     vertical_displacement is how far to move up in one complete rotation
       tube_radius*2 means the next layer will be barely touching the previous layer
@@ -47,18 +47,18 @@ def generate_helix(args):
         has_inner_wall = True
         wall_thickness = args.wall_thickness
 
-    start_angle = args.start_angle
-    end_angle = args.end_angle
-    if end_angle < start_angle:
-        start_angle, end_angle = end_angle, start_angle
+    tube_start_angle = args.tube_start_angle
+    tube_end_angle = args.tube_end_angle
+    if tube_end_angle < tube_start_angle:
+        tube_start_angle, tube_end_angle = tube_end_angle, tube_start_angle
 
-    if end_angle >= start_angle + 360:
-        start_angle = 0
-        end_angle = 360
+    if tube_end_angle >= tube_start_angle + 360:
+        tube_start_angle = 0
+        tube_end_angle = 360
         num_tube_subdivisions = args.tube_sides
         full_tube = True
     else:
-        num_tube_subdivisions = math.ceil((end_angle - start_angle) * args.tube_sides / 360)
+        num_tube_subdivisions = math.ceil((tube_end_angle - tube_start_angle) * args.tube_sides / 360)
         full_tube = False
     print("Num tube: {}".format(num_tube_subdivisions))
 
@@ -96,8 +96,8 @@ def generate_helix(args):
         """
         return marble_path.tube_coordinates(tube_radius=args.tube_radius,
                                             wall_thickness=wall_thickness,
-                                            start_angle=start_angle,
-                                            end_angle=end_angle,
+                                            tube_start_angle=tube_start_angle,
+                                            tube_end_angle=tube_end_angle,
                                             tube_sides=args.tube_sides,
                                             tube_subdivision=tube_subdivision,
                                             slope_angle=slope_angle,

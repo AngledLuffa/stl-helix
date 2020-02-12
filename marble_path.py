@@ -25,7 +25,7 @@ def generate_cube(size):
             yield triangle
 
 def tube_coordinates(tube_radius, wall_thickness,
-                     start_angle, end_angle, tube_sides,
+                     tube_start_angle, tube_end_angle, tube_sides,
                      tube_subdivision, slope_angle, inside, rotation):
     """
     Calculate the x,y,z based on the tube position.
@@ -36,9 +36,9 @@ def tube_coordinates(tube_radius, wall_thickness,
       For a zigzag, you will not want to rotate at all.
       For an arbitrary curve, you probably want to be normal to the current direction.
     """
-    tube_angle = start_angle + 360 / tube_sides * tube_subdivision
-    if tube_angle > end_angle:
-        tube_angle = end_angle
+    tube_angle = tube_start_angle + 360 / tube_sides * tube_subdivision
+    if tube_angle > tube_end_angle:
+        tube_angle = tube_end_angle
 
     if inside:
         tube_radius = tube_radius - wall_thickness
@@ -147,12 +147,12 @@ def add_tube_arguments(parser):
                         help='measurement from the center of ramp to its outer wall')
     parser.add_argument('--wall_thickness', default=2, type=float,
                         help='how thick to make the wall. special case: if wall_thickness >= tube_radius, there is no inner opening')
-    parser.add_argument('--start_angle', default=0, type=float,
+    parser.add_argument('--tube_start_angle', default=0, type=float,
                         help='angle to the start of the ramp.  0 represents the part furthest from the axis, 180 represents closest to the axis, -90 represents the top of the ramp, 90 represents the bottom.  0..180 represents the bottom of a ramp with no cover.  -90..90 will look like a loop-d-loop')
-    parser.add_argument('--end_angle', default=180, type=float,
-                        help='angle to the end of the ramp.  same values as start_angle')
+    parser.add_argument('--tube_end_angle', default=180, type=float,
+                        help='angle to the end of the ramp.  same values as tube_start_angle')
     parser.add_argument('--tube_sides', default=64, type=int,
-                        help='how many sides a complete tube would have.  start_angle and end_angle are discretized to these subdivisions')
+                        help='how many sides a complete tube would have.  tube_start_angle and tube_end_angle are discretized to these subdivisions')
 
                     
 
