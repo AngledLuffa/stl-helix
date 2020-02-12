@@ -69,7 +69,7 @@ def generate_helix(args):
     
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_helix_subdivisions=num_helix_subdivisions,
+                                              num_time_steps=num_helix_subdivisions,
                                               slope_angle=slope_angle):
         yield triangle
 
