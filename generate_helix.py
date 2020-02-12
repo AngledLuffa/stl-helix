@@ -66,34 +66,18 @@ def coordinates(helix_radius, tube_function, tube_radius,
                 vertical_displacement,
                 tube_subdivision, helix_subdivision,
                 slope_angle, inside):
-    #print("GENERATING: {} {} {} {} {} {} {} {} {} {} {} {}".format(
-    #    helix_radius, tube_radius, wall_thickness,
-    #    start_angle, end_angle,
-    #    tube_sides, helix_sides,
-    #    vertical_displacement,
-    #    tube_subdivision, helix_subdivision,
-    #    slope_angle, inside))
-    
-    # to make the math easy, we start from 0, 0, do some rotations,
-    # and then translate by center so it is all positive
-    center = helix_radius + tube_radius
-    
     # we do the initial calculations with the axis pointing up
     # at (0, 0)
-    location = (0, 0, # move up by the location in the helix
-                tube_radius +
-                vertical_displacement * helix_subdivision / helix_sides)
     helix_angle = 360 / helix_sides * helix_subdivision
-
-    #print("    ", x_disp, vert_disp, y_disp, z_disp)
-    #print("    ", helix_angle / 180 * math.pi)
     r_x_disp = helix_radius * math.cos(helix_angle / 180 * math.pi)
     r_y_disp = helix_radius * math.sin(helix_angle / 180 * math.pi)
-    #print("    ", r_x_disp, r_y_disp)
 
-    location = (location[0] + r_x_disp,
-                location[1] + r_y_disp,
-                location[2])
+    # helix_radius + tube_radius so that everything is positive
+    location = (helix_radius + tube_radius + r_x_disp,
+                helix_radius + tube_radius + r_y_disp,
+                # move up by the location in the helix
+                # tube_radius included again to keep everything positive
+                tube_radius + vertical_displacement * helix_subdivision / helix_sides)
 
     tube_offset = tube_function(tube_subdivision=tube_subdivision,
                                 inside=inside,
@@ -102,16 +86,6 @@ def coordinates(helix_radius, tube_function, tube_radius,
     location = (location[0] + tube_offset[0],
                 location[1] + tube_offset[1],
                 location[2] + tube_offset[2])
-
-    #print("    ", location)
-    
-    # adjust the center to be positive so there are no
-    # negative numbers
-    location = (location[0] + center,
-                location[1] + center,
-                location[2])
-    
-    #print("    ", location)
 
     return location
 
