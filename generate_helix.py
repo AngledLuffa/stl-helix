@@ -95,6 +95,65 @@ def calculate_slope_angle(helix_radius, vertical_displacement):
     slope_angle = math.asin(vertical_displacement / slope_distance)
     return slope_angle / math.pi * 180
 
+def generate_path(x_t, y_t, z_t, r_t,
+                  tube_function,
+                  num_tube_subdivisions, num_helix_subdivisions,
+                  has_inner_wall, full_tube):
+    def call_coordinates(tube_subdivision, helix_subdivision, inside):
+        return coordinates(x_t=x_t,
+                           y_t=y_t,
+                           z_t=z_t,
+                           r_t=r_t,
+                           tube_function=tube_function,
+                           tube_subdivision=tube_subdivision,
+                           inside=inside,
+                           time_t=helix_subdivision)
+
+    
+    for tube_subdivision in range(num_tube_subdivisions):
+        for helix_subdivision in range(num_helix_subdivisions):
+            #print("Iterating over tube {} helix {}".format(tube_subdivision, helix_subdivision))
+            quads = []
+            # outside wall
+            quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
+                          call_coordinates(tube_subdivision+1, helix_subdivision, False),
+                          call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
+                          call_coordinates(tube_subdivision, helix_subdivision+1, False)))
+            # inside wall
+            if has_inner_wall:
+                quads.append((call_coordinates(tube_subdivision, helix_subdivision, True),
+                              call_coordinates(tube_subdivision, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision, True)))
+            # start tube wall
+            if tube_subdivision == 0 and not full_tube:
+                quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
+                              call_coordinates(tube_subdivision, helix_subdivision+1, False),
+                              call_coordinates(tube_subdivision, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision, helix_subdivision, True)))
+            # end tube wall
+            if tube_subdivision == num_tube_subdivisions-1 and not full_tube:
+                quads.append((call_coordinates(tube_subdivision+1, helix_subdivision, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
+                              call_coordinates(tube_subdivision+1, helix_subdivision, False)))
+            # start helix wall
+            if helix_subdivision == 0:
+                quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
+                              call_coordinates(tube_subdivision, helix_subdivision, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision, True),
+                              call_coordinates(tube_subdivision+1, helix_subdivision, False)))
+            # end helix wall
+            if helix_subdivision == num_helix_subdivisions-1:
+                quads.append((call_coordinates(tube_subdivision, helix_subdivision+1, True),
+                              call_coordinates(tube_subdivision, helix_subdivision+1, False),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
+                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True)))
+            for quad in quads:
+                for triangle in generate_quad(*quad):
+                    yield triangle
+    
+
 def generate_helix(args):
     """
     helix_radius is the measurement from the axis to the center of any part of the ramp
@@ -161,7 +220,9 @@ def generate_helix(args):
 
     def z_t(helix_subdivision):
         # tube_radius included again to keep everything positive
-        return args.tube_radius + args.vertical_displacement * helix_subdivision / args.helix_sides
+        # TODO: need to look for negative slope and possibly increase
+        # all values by the maximum negative displacement
+        return args.tube_radius + math.sin(slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
 
     def r_t(helix_subdivision):
         helix_angle = 360 / args.helix_sides * helix_subdivision
@@ -181,60 +242,15 @@ def generate_helix(args):
                                 slope_angle=slope_angle,
                                 inside=inside,
                                 rotation=rotation)
-    
-    def call_coordinates(tube_subdivision, helix_subdivision, inside):
-        return coordinates(x_t=x_t,
-                           y_t=y_t,
-                           z_t=z_t,
-                           r_t=r_t,
-                           tube_function=tube_function,
-                           tube_subdivision=tube_subdivision,
-                           inside=inside,
-                           time_t=helix_subdivision)
 
-    
-    for tube_subdivision in range(num_tube_subdivisions):
-        for helix_subdivision in range(num_helix_subdivisions):
-            #print("Iterating over tube {} helix {}".format(tube_subdivision, helix_subdivision))
-            quads = []
-            # outside wall
-            quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
-                          call_coordinates(tube_subdivision+1, helix_subdivision, False),
-                          call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
-                          call_coordinates(tube_subdivision, helix_subdivision+1, False)))
-            # inside wall
-            if has_inner_wall:
-                quads.append((call_coordinates(tube_subdivision, helix_subdivision, True),
-                              call_coordinates(tube_subdivision, helix_subdivision+1, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision, True)))
-            # start tube wall
-            if tube_subdivision == 0 and not full_tube:
-                quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
-                              call_coordinates(tube_subdivision, helix_subdivision+1, False),
-                              call_coordinates(tube_subdivision, helix_subdivision+1, True),
-                              call_coordinates(tube_subdivision, helix_subdivision, True)))
-            # end tube wall
-            if tube_subdivision == num_tube_subdivisions-1 and not full_tube:
-                quads.append((call_coordinates(tube_subdivision+1, helix_subdivision, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
-                              call_coordinates(tube_subdivision+1, helix_subdivision, False)))
-            # start helix wall
-            if helix_subdivision == 0:
-                quads.append((call_coordinates(tube_subdivision, helix_subdivision, False),
-                              call_coordinates(tube_subdivision, helix_subdivision, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision, True),
-                              call_coordinates(tube_subdivision+1, helix_subdivision, False)))
-            # end helix wall
-            if helix_subdivision == num_helix_subdivisions-1:
-                quads.append((call_coordinates(tube_subdivision, helix_subdivision+1, True),
-                              call_coordinates(tube_subdivision, helix_subdivision+1, False),
-                              call_coordinates(tube_subdivision+1, helix_subdivision+1, False),
-                              call_coordinates(tube_subdivision+1, helix_subdivision+1, True)))
-            for quad in quads:
-                for triangle in generate_quad(*quad):
-                    yield triangle
+    for triangle in generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
+                                  tube_function=tube_function,
+                                  num_tube_subdivisions=num_tube_subdivisions,
+                                  num_helix_subdivisions=num_helix_subdivisions,
+                                  has_inner_wall=has_inner_wall,
+                                  full_tube=full_tube):
+        yield triangle
+
     
 def write_stl(triangles, filename):
     """
