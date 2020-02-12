@@ -61,9 +61,8 @@ def tube_coordinates(tube_radius, wall_thickness,
     return (r_x_disp, r_y_disp, z_disp)
 
             
-def coordinates(helix_radius, tube_radius, wall_thickness,
-                start_angle, end_angle,
-                tube_sides, helix_sides,
+def coordinates(helix_radius, tube_function, tube_radius,
+                helix_sides,
                 vertical_displacement,
                 tube_subdivision, helix_subdivision,
                 slope_angle, inside):
@@ -96,15 +95,9 @@ def coordinates(helix_radius, tube_radius, wall_thickness,
                 location[1] + r_y_disp,
                 location[2])
 
-    tube_offset = tube_coordinates(tube_radius=tube_radius,
-                                   wall_thickness=wall_thickness,
-                                   start_angle=start_angle,
-                                   end_angle=end_angle,
-                                   tube_sides=tube_sides,
-                                   tube_subdivision=tube_subdivision,
-                                   slope_angle=slope_angle,
-                                   inside=inside,
-                                   rotation=helix_angle)
+    tube_offset = tube_function(tube_subdivision=tube_subdivision,
+                                inside=inside,
+                                rotation=helix_angle)
 
     location = (location[0] + tube_offset[0],
                 location[1] + tube_offset[1],
@@ -186,13 +179,25 @@ def generate_helix(args):
     if num_helix_subdivisions <= 0:
         raise ValueError("Must complete some positive fraction of a rotation")
 
+    def tube_function(tube_subdivision, inside, rotation):
+        """
+        Using the parameters given to the helix, create a function which
+        returns the x, y, z offset from the tube coordinates.
+        """
+        return tube_coordinates(tube_radius=args.tube_radius,
+                                wall_thickness=wall_thickness,
+                                start_angle=start_angle,
+                                end_angle=end_angle,
+                                tube_sides=args.tube_sides,
+                                tube_subdivision=tube_subdivision,
+                                slope_angle=slope_angle,
+                                inside=inside,
+                                rotation=rotation)
+    
     def call_coordinates(tube_subdivision, helix_subdivision, inside):
         return coordinates(helix_radius=args.helix_radius,
+                           tube_function=tube_function,
                            tube_radius=args.tube_radius,
-                           wall_thickness=wall_thickness,
-                           start_angle=start_angle,
-                           end_angle=end_angle,
-                           tube_sides=args.tube_sides,
                            helix_sides=args.helix_sides,
                            vertical_displacement=args.vertical_displacement,
                            tube_subdivision=tube_subdivision,
