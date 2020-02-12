@@ -61,27 +61,21 @@ def tube_coordinates(tube_radius, wall_thickness,
     return (r_x_disp, r_y_disp, z_disp)
 
             
-def coordinates(helix_radius, tube_function, tube_radius,
-                helix_sides,
-                vertical_displacement,
-                tube_subdivision, helix_subdivision,
-                slope_angle, inside):
-    # we do the initial calculations with the axis pointing up
-    # at (0, 0)
-    helix_angle = 360 / helix_sides * helix_subdivision
-    r_x_disp = helix_radius * math.cos(helix_angle / 180 * math.pi)
-    r_y_disp = helix_radius * math.sin(helix_angle / 180 * math.pi)
-
-    # helix_radius + tube_radius so that everything is positive
-    location = (helix_radius + tube_radius + r_x_disp,
-                helix_radius + tube_radius + r_y_disp,
-                # move up by the location in the helix
-                # tube_radius included again to keep everything positive
-                tube_radius + vertical_displacement * helix_subdivision / helix_sides)
+def coordinates(x_t, y_t, z_t, r_t,
+                tube_function, tube_subdivision, inside,
+                time_t):
+    """
+    Given the functions describing x, y, z, and r, along with a
+    function describing how to build the tube, calculate the current
+    location offset by the tube location
+    """
+    location = (x_t(time_t),
+                y_t(time_t),
+                z_t(time_t))
 
     tube_offset = tube_function(tube_subdivision=tube_subdivision,
                                 inside=inside,
-                                rotation=helix_angle)
+                                rotation=r_t(time_t))
 
     location = (location[0] + tube_offset[0],
                 location[1] + tube_offset[1],
@@ -153,6 +147,26 @@ def generate_helix(args):
     if num_helix_subdivisions <= 0:
         raise ValueError("Must complete some positive fraction of a rotation")
 
+    def x_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
+        # helix_radius + tube_radius so that everything is positive
+        return args.helix_radius + args.tube_radius + r_x_disp
+    
+    def y_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
+        # helix_radius + tube_radius so that everything is positive
+        return args.helix_radius + args.tube_radius + r_y_disp
+
+    def z_t(helix_subdivision):
+        # tube_radius included again to keep everything positive
+        return args.tube_radius + args.vertical_displacement * helix_subdivision / args.helix_sides
+
+    def r_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        return helix_angle
+    
     def tube_function(tube_subdivision, inside, rotation):
         """
         Using the parameters given to the helix, create a function which
@@ -169,17 +183,16 @@ def generate_helix(args):
                                 rotation=rotation)
     
     def call_coordinates(tube_subdivision, helix_subdivision, inside):
-        return coordinates(helix_radius=args.helix_radius,
+        return coordinates(x_t=x_t,
+                           y_t=y_t,
+                           z_t=z_t,
+                           r_t=r_t,
                            tube_function=tube_function,
-                           tube_radius=args.tube_radius,
-                           helix_sides=args.helix_sides,
-                           vertical_displacement=args.vertical_displacement,
                            tube_subdivision=tube_subdivision,
-                           helix_subdivision=helix_subdivision,
-                           slope_angle=slope_angle,
-                           inside=inside)
-    
+                           inside=inside,
+                           time_t=helix_subdivision)
 
+    
     for tube_subdivision in range(num_tube_subdivisions):
         for helix_subdivision in range(num_helix_subdivisions):
             #print("Iterating over tube {} helix {}".format(tube_subdivision, helix_subdivision))
