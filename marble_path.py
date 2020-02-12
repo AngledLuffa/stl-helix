@@ -154,6 +154,17 @@ def add_tube_arguments(parser):
     parser.add_argument('--tube_sides', default=64, type=int,
                         help='how many sides a complete tube would have.  tube_start_angle and tube_end_angle are discretized to these subdivisions')
 
+
+def print_args(args):
+    """
+    For record keeping purposes, print out the arguments
+    """
+    args = vars(args)
+    keys = sorted(args.keys())
+    print('ARGS:')
+    for k in keys:
+        print('%s: %s' % (k, args[k]))
+
                     
 
 def main():

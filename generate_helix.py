@@ -150,19 +150,9 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def print_args(args):
-    """
-    For record keeping purposes, print out the arguments
-    """
-    args = vars(args)
-    keys = sorted(args.keys())
-    print('ARGS:')
-    for k in keys:
-        print('%s: %s' % (k, args[k]))
-
 def main():
     args = parse_args()
-    print_args(args)
+    marble_path.print_args(args)
 
     write_stl(generate_helix(args), args.output_name)
 
