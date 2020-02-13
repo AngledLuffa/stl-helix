@@ -131,6 +131,15 @@ def generate_astroid(args):
                                               slope_angle=0.0):
         yield triangle
 
+
+def closest_approach_to_radius(closest_approach, astroid_power):
+    # closest approach is at 45 degrees
+    # so x, y = a cos^k t
+    #    x, y = a / sqrt(2)^k
+    #    d = sqrt(x^2 + y^2) = sqrt(2) x
+    #    closest_approach / sqrt(2) = a / sqrt(2)^k
+    #    a = closest_approach * sqrt(2)^(k-1)
+    return closest_approach * 2 ** ((astroid_power - 1) / 2)
      
 
 def parse_args():
@@ -141,7 +150,9 @@ def parse_args():
     # subject start from the outer radius.  for example,
     # https://en.wikipedia.org/wiki/Astroid
     parser.add_argument('--outer_radius', default=52, type=float,
-                        help='Measurement from the center to the tip of the astroid.  inner_radius will be 1/2 this')
+                        help='Measurement from the center to the tip of the astroid.  inner_radius will be 1/2 this (for a power 3 astroid)')
+    parser.add_argument('--closest_approach', default=None, type=float,
+                        help='Measurement from 0,0 to the closest point of the tube center.  Will override outer_radius.  26 for a 31mm connector connecting exactly to the tube')
     parser.add_argument('--subdivisions_per_side', default=50, type=int,
                         help='Subdivisions for each of the 4 sides of the astroid.  Note that there will also be rounded corners adding more subdivisions')
     parser.add_argument('--astroid_power', default=3, type=int,
@@ -152,6 +163,9 @@ def parse_args():
 
     args = parser.parse_args()
 
+    if args.closest_approach is not None:
+        args.outer_radius = closest_approach_to_radius(args.closest_approach, args.astroid_power)
+    
     if args.outer_radius / 2 < args.tube_radius:
         raise ValueError("Impossible to make an astroid where the tube radius {} is greater than the inner radius {}".format(args.tube_radius, args.outer_radius / 2))
     
