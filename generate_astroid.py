@@ -12,34 +12,47 @@ import marble_path
 # so the inner radius is half the outer radius
 
 def astroid_step(outer_radius, corner_t, corner_rotation, astroid_power, time_step, subdivisions_per_side):
+    quadrant = math.floor(time_step / (subdivisions_per_side * 3)) % 4
+    time_step = time_step % (subdivisions_per_side * 3)
+
     # in this time span, we are on the astroid itself.  return the astroid calculation
     if time_step >= subdivisions_per_side and time_step <= subdivisions_per_side * 2:
         time_step = time_step - subdivisions_per_side
         astroid_t = (90 - corner_t * 2) / subdivisions_per_side * time_step + corner_t
-        return (outer_radius * math.cos(astroid_t / 180 * math.pi) ** astroid_power,
-                outer_radius * math.sin(astroid_t / 180 * math.pi) ** astroid_power)
-    # to do the rounded corners, we will simply put a circle centered
-    # on the axis at the location where the astroid is cut off
+        location = (outer_radius * math.cos(astroid_t / 180 * math.pi) ** astroid_power,
+                    outer_radius * math.sin(astroid_t / 180 * math.pi) ** astroid_power)
+    elif time_step < subdivisions_per_side:
+        # to do the rounded corners, we will simply put a circle centered
+        # on the axis at the location where the astroid is cut off
 
-    # actually this is just the tube radius
-    radius = outer_radius * math.sin(corner_t * math.pi / 180) ** astroid_power
-    if time_step < subdivisions_per_side:
+        # actually this is just the tube radius
+        radius = outer_radius * math.sin(corner_t * math.pi / 180) ** astroid_power
+        
         center = (outer_radius * math.cos(corner_t / 180 * math.pi) ** astroid_power,
                   outer_radius * math.sin(corner_t / 180 * math.pi) ** astroid_power)
         center = (center[0] - math.cos(corner_rotation / 180 * math.pi) * radius,
                   center[1] - math.sin(corner_rotation / 180 * math.pi) * radius)
         angle = corner_rotation * time_step / subdivisions_per_side * math.pi / 180
-        return (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
+        location = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
     else:
+        radius = outer_radius * math.sin(corner_t * math.pi / 180) ** astroid_power
+
         center = (outer_radius * math.sin(corner_t / 180 * math.pi) ** astroid_power,
                   outer_radius * math.cos(corner_t / 180 * math.pi) ** astroid_power)
         center = (center[0] - math.sin(corner_rotation / 180 * math.pi) * radius,
                   center[1] - math.cos(corner_rotation / 180 * math.pi) * radius)
         time_step = time_step - subdivisions_per_side * 2
         angle = (90 - corner_rotation + corner_rotation * time_step / subdivisions_per_side) * math.pi / 180
-        center = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
-        return center
-    
+        location = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
+
+    if quadrant == 0:
+        return location
+    elif quadrant == 1:
+        return (-location[1], location[0])
+    elif quadrant == 2:
+        return (-location[0], -location[1])
+    else:
+        return (location[1], -location[0])
 
 def astroid_derivative(outer_radius, theta, astroid_power):
     # astroid is f(t) = (a cos^3, a sin^3)
@@ -58,16 +71,20 @@ def get_normal_rotation(outer_radius, theta, astroid_power):
     return math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5) * 180 / math.pi
 
 def tube_angle(outer_radius, corner_t, corner_rotation, astroid_power, time_step, subdivisions_per_side):
+    quadrant = math.floor(time_step / (subdivisions_per_side * 3)) % 4
+    time_step = time_step % (subdivisions_per_side * 3)
+    
     if time_step < subdivisions_per_side:
-        return corner_rotation * time_step / subdivisions_per_side
-    if time_step > subdivisions_per_side * 2:
+        rotation = corner_rotation * time_step / subdivisions_per_side
+    elif time_step > subdivisions_per_side * 2:
         time_step = time_step - subdivisions_per_side * 2
-        return (90 - corner_rotation) + corner_rotation * time_step / subdivisions_per_side
+        rotation = (90 - corner_rotation) + corner_rotation * time_step / subdivisions_per_side
+    else:
+        time_step = time_step - subdivisions_per_side
+        astroid_t = (90 - corner_t * 2) / subdivisions_per_side * time_step + corner_t
+        rotation = get_normal_rotation(outer_radius, astroid_t, astroid_power)
 
-    time_step = time_step - subdivisions_per_side
-    astroid_t = (90 - corner_t * 2) / subdivisions_per_side * time_step + corner_t
-    return get_normal_rotation(outer_radius, astroid_t, astroid_power)
-
+    return rotation + quadrant * 90
 
 def find_corner(outer_radius, tube_radius, astroid_power):
     """
@@ -105,7 +122,7 @@ def generate_astroid(args):
     # we will need to keep in mind the angle of the tube at that point
     corner_t, corner_rotation = find_corner(args.outer_radius, args.tube_radius, args.astroid_power)
 
-    num_time_steps = args.subdivisions_per_side * 3   # the extra factor of 3 is for the rounded corners
+    num_time_steps = args.subdivisions_per_side * 12   # the extra factor of 3 is for the rounded corners
 
     #for i in range(num_time_steps):
     #    print(i,
