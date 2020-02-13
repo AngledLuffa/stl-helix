@@ -173,7 +173,7 @@ def parse_args():
     parser.add_argument('--astroid_power', default=3, type=int,
                         help='Exponent on the various astroid equations.  3 is disappointingly non-curved')
 
-    parser.add_argument('--slope_angle', default=10.0, type=float,
+    parser.add_argument('--slope_angle', default=8.0, type=float,
                         help='Angle to go down when traveling')
     
     parser.add_argument('--output_name', default='astroid.stl',
