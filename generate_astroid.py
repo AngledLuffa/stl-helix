@@ -129,16 +129,19 @@ def generate_astroid(args):
     #          astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, i, args.subdivisions_per_side),
     #          tube_angle(args.outer_radius, corner_t, corner_rotation, args.astroid_power, i, args.subdivisions_per_side))
 
+    # start at 45 degrees so we can connect easily to the post in the middle
+    time_step_offset = int(args.subdivisions_per_side * 1.5)
+    
     def x_t(time_step):
-        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step, args.subdivisions_per_side)[0]
+        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)[0]
     
     def y_t(time_step):
-        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step, args.subdivisions_per_side)[1]
+        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)[1]
 
     z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
-        return tube_angle(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step, args.subdivisions_per_side)
+        return tube_angle(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)
     
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
