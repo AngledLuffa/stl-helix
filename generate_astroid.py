@@ -134,10 +134,8 @@ def generate_astroid(args):
     
     def y_t(time_step):
         return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step, args.subdivisions_per_side)[1]
-    
-    def z_t(time_step):
-        # TODO: add a slope
-        return 0.0
+
+    z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
         return tube_angle(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step, args.subdivisions_per_side)
@@ -175,6 +173,9 @@ def parse_args():
     parser.add_argument('--astroid_power', default=3, type=int,
                         help='Exponent on the various astroid equations.  3 is disappointingly non-curved')
 
+    parser.add_argument('--slope_angle', default=10.0, type=float,
+                        help='Angle to go down when traveling')
+    
     parser.add_argument('--output_name', default='astroid.stl',
                         help='Where to put the stl')
 

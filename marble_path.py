@@ -24,6 +24,49 @@ def generate_cube(size):
         for triangle in generate_quad(*side):
             yield triangle
 
+def calculate_arclengths(x_t, y_t, num_time_steps):
+    """
+    Numerically calculate the arclength at each time step from 0..num_time_steps
+    Returns a list of length num_time_steps+1
+    """
+    arclength = 0.0
+    x2 = x_t(0)
+    y2 = y_t(0)
+    arclengths = [0.0]
+    for i in range(0, num_time_steps):
+        for j in range(1000):
+            t1 = i + j / 1000
+            t2 = i + (j + 1) / 1000
+        
+            x1 = x2
+            x2 = x_t(t2)
+        
+            y1 = y2
+            y2 = y_t(t2)
+
+            arclength = arclength + ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+        arclengths.append(arclength)
+    return arclengths
+        
+def arclength_slope_function(x_t, y_t, num_time_steps, slope_angle):
+    """
+    Comes up with a function z(t) which works on the domain [0, num_time_steps]
+
+    Does this by numerically integrating the arclength of x(t), y(t)
+    then caching the arclength traveled for the various time steps
+    """
+    arclengths = calculate_arclengths(x_t, y_t, num_time_steps)
+    slope_angle = slope_angle / 180 * math.pi
+    zs = [-arc * math.tan(slope_angle) for arc in arclengths]
+
+    def z_t(time_step):
+        if time_step < 0 or time_step > num_time_steps:
+            raise ValueError("time_step out of domain for z_t")
+        # TODO: interpolate time_step?
+        return zs[time_step]
+
+    return z_t
+            
 def tube_coordinates(tube_radius, wall_thickness,
                      tube_start_angle, tube_end_angle, tube_sides,
                      tube_subdivision, slope_angle, inside, rotation):
