@@ -28,7 +28,7 @@ def generate_zigzag(args):
         yield triangle    
     
 def parse_args():
-    parser = argparse.ArgumentParser(description='Arguments for an stl astroid.')
+    parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
     marble_path.add_tube_arguments(parser)
 
