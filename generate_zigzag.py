@@ -32,9 +32,9 @@ def parse_args():
 
     marble_path.add_tube_arguments(parser)
 
-    parser.add_argument('--zigzag_length', default=-5, type=int,
+    parser.add_argument('--zigzag_length', default=-5, type=float,
                         help='How far a zigzag goes in the y direction.  Negative means go down first')
-    parser.add_argument('--zigzag_width', default=30, type=int,
+    parser.add_argument('--zigzag_width', default=30, type=float,
                         help='How far a zigzag goes in the x direction (for both up and down)')
     parser.add_argument('--num_zigzags', default=5, type=int,
                         help='How many zigzags to make')
