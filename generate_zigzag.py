@@ -19,12 +19,12 @@ def generate_zigzag(args):
     z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
-        return -90
+        return 90
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=num_time_steps,
-                                              slope_angle=-args.slope_angle):
+                                              slope_angle=args.slope_angle):
         yield triangle    
     
 def parse_args():
