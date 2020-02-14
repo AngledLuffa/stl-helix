@@ -47,6 +47,12 @@ def parse_args():
     parser.add_argument('--output_name', default='zigzag.stl',
                         help='Where to put the stl')
 
+    # Generally we find that 12.5 works great for the tube - walls of
+    # thickness 2 led to the narbles rolling great without taking up
+    # too much space.  The default slant of the zigzag means a
+    # slightly higher default width is better
+    parser.set_defaults(tube_radius=13.25)
+
     args = parser.parse_args()
     return args
     
