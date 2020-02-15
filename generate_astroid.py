@@ -2,6 +2,11 @@ import argparse
 import math
 import marble_path
 
+from enum import Enum
+
+class Cusp(Enum):
+    OFFSET = 1
+    CHOP = 2
 
 # astroid has parametric equations as follows:
 # x = a cos^3 t
@@ -11,7 +16,8 @@ import marble_path
 
 # so the inner radius is half the outer radius
 
-def astroid_step(outer_radius, corner_t, corner_rotation, astroid_power, time_step, subdivisions_per_side):
+def astroid_step(outer_radius, cusp_method, tube_radius, corner_t, corner_rotation,
+                 astroid_power, time_step, subdivisions_per_side):
     quadrant = math.floor(time_step / (subdivisions_per_side * 3)) % 4
     time_step = time_step % (subdivisions_per_side * 3)
 
@@ -21,29 +27,33 @@ def astroid_step(outer_radius, corner_t, corner_rotation, astroid_power, time_st
         astroid_t = (90 - corner_t * 2) / subdivisions_per_side * time_step + corner_t
         location = (outer_radius * math.cos(astroid_t / 180 * math.pi) ** astroid_power,
                     outer_radius * math.sin(astroid_t / 180 * math.pi) ** astroid_power)
+
+        if cusp_method is Cusp.OFFSET:
+            location = (location[0] + tube_radius, location[1] + tube_radius)
     elif time_step < subdivisions_per_side:
         # to do the rounded corners, we will simply put a circle centered
         # on the axis at the location where the astroid is cut off
 
-        # actually this is just the tube radius
-        radius = outer_radius * math.sin(corner_t * math.pi / 180) ** astroid_power
-        
         center = (outer_radius * math.cos(corner_t / 180 * math.pi) ** astroid_power,
                   outer_radius * math.sin(corner_t / 180 * math.pi) ** astroid_power)
-        center = (center[0] - math.cos(corner_rotation / 180 * math.pi) * radius,
-                  center[1] - math.sin(corner_rotation / 180 * math.pi) * radius)
+        center = (center[0] - math.cos(corner_rotation / 180 * math.pi) * tube_radius,
+                  center[1] - math.sin(corner_rotation / 180 * math.pi) * tube_radius)
         angle = corner_rotation * time_step / subdivisions_per_side * math.pi / 180
-        location = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
+        location = (center[0] + math.cos(angle) * tube_radius,
+                    center[1] + math.sin(angle) * tube_radius)
+        if cusp_method is Cusp.OFFSET:
+            location = (location[0] + tube_radius, location[1] + tube_radius)
     else:
-        radius = outer_radius * math.sin(corner_t * math.pi / 180) ** astroid_power
-
         center = (outer_radius * math.sin(corner_t / 180 * math.pi) ** astroid_power,
                   outer_radius * math.cos(corner_t / 180 * math.pi) ** astroid_power)
-        center = (center[0] - math.sin(corner_rotation / 180 * math.pi) * radius,
-                  center[1] - math.cos(corner_rotation / 180 * math.pi) * radius)
+        center = (center[0] - math.sin(corner_rotation / 180 * math.pi) * tube_radius,
+                  center[1] - math.cos(corner_rotation / 180 * math.pi) * tube_radius)
         time_step = time_step - subdivisions_per_side * 2
         angle = (90 - corner_rotation + corner_rotation * time_step / subdivisions_per_side) * math.pi / 180
-        location = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
+        location = (center[0] + math.cos(angle) * tube_radius,
+                    center[1] + math.sin(angle) * tube_radius)
+        if cusp_method is Cusp.OFFSET:
+            location = (location[0] + tube_radius, location[1] + tube_radius)
 
     if quadrant == 0:
         return location
@@ -65,6 +75,9 @@ def astroid_derivative(outer_radius, theta, astroid_power):
 
 
 def get_normal_rotation(outer_radius, theta, astroid_power):
+    # note that these extremes can happen when cusp_method=OFFSET
+    if theta == 0.0:
+        return 90.0
     # note that we drop the - because we want to rotate to the left by a positive amount
     dx, dy = astroid_derivative(outer_radius, theta, astroid_power)
     dx = -dx
@@ -112,7 +125,7 @@ def find_corner(outer_radius, tube_radius, astroid_power):
         else:
             lower_bound = current_test
     return upper_bound, get_normal_rotation(outer_radius, upper_bound, astroid_power)
-    
+
 
 def generate_astroid(args):
     # there are 4 corners in the astroid
@@ -120,7 +133,15 @@ def generate_astroid(args):
     # to do this, we first calculate where the corners occur
     # this happens when the tube on one side of the corner touches the tube on the other
     # we will need to keep in mind the angle of the tube at that point
-    corner_t, corner_rotation = find_corner(args.outer_radius, args.tube_radius, args.astroid_power)
+    if args.cusp_method is Cusp.CHOP:
+        corner_t, corner_rotation = find_corner(args.outer_radius, args.tube_radius, args.astroid_power)
+        x_offset = y_offset = 0
+    elif args.cusp_method is Cusp.OFFSET:
+        corner_t = 0.0
+        corner_rotation = 90.0
+        x_offset = y_offset = args.tube_radius
+    else:
+        raise ValueError('Not supported: %s' % args.cusp_method)
 
     num_time_steps = args.subdivisions_per_side * 12   # the extra factor of 3 is for the rounded corners
 
@@ -131,13 +152,30 @@ def generate_astroid(args):
 
     # start at 45 degrees so we can connect easily to the post in the middle
     time_step_offset = int(args.subdivisions_per_side * 1.5)
-    
+
+    # TODO: might be nice to make a combined x_y_t that saves on these calculations
     def x_t(time_step):
-        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)[0]
+        return astroid_step(outer_radius=args.outer_radius,
+                            cusp_method=args.cusp_method,
+                            tube_radius=args.tube_radius,
+                            corner_t=corner_t,
+                            corner_rotation=corner_rotation,
+                            astroid_power=args.astroid_power,
+                            time_step=time_step + time_step_offset,
+                            subdivisions_per_side=args.subdivisions_per_side)[0]
     
     def y_t(time_step):
-        return astroid_step(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)[1]
+        return astroid_step(outer_radius=args.outer_radius,
+                            cusp_method=args.cusp_method,
+                            tube_radius=args.tube_radius,
+                            corner_t=corner_t,
+                            corner_rotation=corner_rotation,
+                            astroid_power=args.astroid_power,
+                            time_step=time_step + time_step_offset,
+                            subdivisions_per_side=args.subdivisions_per_side)[1]
 
+    # TODO FIXME: the arclength calculation doesn't seem to be working
+    # for the corners, or maybe there is just a discontinuity there
     z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
@@ -175,6 +213,9 @@ def parse_args():
                         help='Subdivisions for each of the 4 sides of the astroid.  Note that there will also be rounded corners adding more subdivisions')
     parser.add_argument('--astroid_power', default=3, type=int,
                         help='Exponent on the various astroid equations.  3 is disappointingly non-curved')
+
+    parser.add_argument('--cusp_method', default=Cusp.OFFSET, type=lambda x: Cusp[x.upper()],
+                        help='How to handle the corners.  OFFSET = offset by tube width, CHOP = chop when the cusp is too close to the axis')
 
     parser.add_argument('--slope_angle', default=8.0, type=float,
                         help='Angle to go down when traveling')
