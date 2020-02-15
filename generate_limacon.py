@@ -52,13 +52,16 @@ def generate_limacon(args):
         r = args.constant_factor - args.cosine_factor * math.cos(theta)
         return math.sin(theta) * r
 
-    min_x = min(x_t(x) for x in range(0, args.time_steps+1))
-    max_x = max(x_t(x) for x in range(0, args.time_steps+1))
-    x_scale = args.width / (max_x - min_x)
-
     min_y = min(y_t(y) for y in range(0, args.time_steps+1))
     max_y = max(y_t(y) for y in range(0, args.time_steps+1))
     y_scale = args.length / (max_y - min_y)
+
+    min_x = min(x_t(x) for x in range(0, args.time_steps+1))
+    max_x = max(x_t(x) for x in range(0, args.time_steps+1))
+    if args.width is None:
+        x_scale = y_scale
+    else:
+        x_scale = args.width / (max_x - min_x)
 
     def scaled_x_t(time_step):
         return (x_t(time_step) - min_x) * x_scale
@@ -101,8 +104,8 @@ def parse_args():
 
     parser.add_argument('--length', default=134, type=float,
                         help='Distance from one end to the other, ignoring the tube')
-    parser.add_argument('--width', default=60, type=float,
-                        help='Distance from left to right, ignoring the tube')
+    parser.add_argument('--width', default=None, type=float,
+                        help='Distance from left to right, ignoring the tube.  If None, the curve will be scaled to match the length')
     
     args = parser.parse_args()
     if args.cosine_factor == 1.0:
