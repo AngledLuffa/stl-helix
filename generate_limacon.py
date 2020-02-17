@@ -140,7 +140,7 @@ def parse_args():
     parser.add_argument('--cosine_factor', default=2, type=float,
                         help='The b in the "a - b cos(theta)"')
     
-    parser.add_argument('--slope_angle', default=11, type=float,
+    parser.add_argument('--slope_angle', default=12, type=float,
                         help='Angle to go down when traveling')
 
     parser.add_argument('--time_steps', default=200, type=int,
