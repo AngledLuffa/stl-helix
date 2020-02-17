@@ -75,6 +75,9 @@ def generate_limacon(args):
         theta = theta_t(time_step)
         return get_normal_rotation(theta, x_scale, y_scale, args.constant_factor, args.cosine_factor)
 
+    print("Center of tube at time step 0: ", scaled_x_t(0), scaled_y_t(0))
+    print("Angle of tube: ", r_t(0))
+
     for triangle in marble_path.generate_path(x_t=scaled_x_t, y_t=scaled_y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=args.time_steps,
