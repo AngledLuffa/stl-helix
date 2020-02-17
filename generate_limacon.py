@@ -35,7 +35,7 @@ def get_normal_rotation(theta, x_scale, y_scale, a, b):
 
 def generate_limacon(args):
     # the domain of the limacon will be -domain_size to +domain_size
-    domain_size = math.pi / 2 + 0.3
+    domain_size = args.domain_size
     min_time = -domain_size
     time_step_width = (domain_size * 2) / (args.time_steps)
 
@@ -80,7 +80,48 @@ def generate_limacon(args):
                                               num_time_steps=args.time_steps,
                                               slope_angle=-args.slope_angle):
         yield triangle    
+
+
+def balance_domain(constant_factor, cosine_factor):
+    """
+    Given the parameters of the curve, find a theta for which the mass
+    on both sides of the line between the endpoints is balanced.
+
+    Calculation method is to sum x * m (approximated numerically) and
+    return when sum(x * m) / m crosses x.  We note that the theta
+    where the x derivative is 0 is a good place to start looking for
+    this crossing, since it is impossible to be balanced before then.
+
+    -math.sin(theta) * (a - b * math.cos(theta)) + b * math.cos(theta) * math.sin(theta) = 0
+       -> drop the sin, since this will not be theta = 0 or theta = pi
+    -a + 2b * math.cos(theta) = 0
+    math.cos(theta) = a/2b
+    theta = math.acos(a/2b)
+
+    As an approximation, we treat the tube as a point mass, although
+    this changes the effect of the tube.
+
+    return value is theta, in radians
+    """
+    mass = 0.0
+    torque = 0.0
+    theta = math.acos(constant_factor / 2.0 / cosine_factor)
+    for i in range(math.floor(math.pi * 2 * 1000)):
+        t = i / 1000
+        x1 = math.cos(t) * (constant_factor - cosine_factor * math.cos(t))
+        x2 = math.cos(t+0.001) * (constant_factor - cosine_factor * math.cos(t + 0.001))
+        y1 = math.cos(t) * (constant_factor - cosine_factor * math.cos(t))
+        y2 = math.cos(t+0.001) * (constant_factor - cosine_factor * math.cos(t + 0.001))
+        delta_mass = ((y2 - y1) ** 2 + (x2 - x1) ** 2) ** 0.5
+        mass = mass + delta_mass
+        torque = torque + x1 * delta_mass
+        if t > theta and torque / mass > x1:
+            print("Balanced at t =", t)
+            return t
+    raise ValueError("Could not find balance point!")
+
     
+        
     
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl limacon.  Graph of r = a - b cos(theta)')
@@ -106,6 +147,15 @@ def parse_args():
                         help='Distance from one end to the other, ignoring the tube')
     parser.add_argument('--width', default=None, type=float,
                         help='Distance from left to right, ignoring the tube.  If None, the curve will be scaled to match the length')
+
+    parser.add_argument('--domain_size', default=1.806, type=float,
+                        help='Theta goes from -domain_size to domain_size')
+    parser.add_argument('--auto_domain', dest='auto_domain',
+                        default=True, action='store_true',
+                        help='Dynamically calculate the domain by trying to balance the torque')
+    parser.add_argument('--no_auto_domain', dest='auto_domain',
+                        action='store_false',
+                        help="Don't dynamically calculate the domain by trying to balance the torque")
     
     args = parser.parse_args()
     if args.cosine_factor == 1.0:
@@ -116,6 +166,10 @@ def parse_args():
         raise ValueError("You can simply mirror the resulting curve and set cosine_factor > 0.0")
     if args.cosine_factor < 1.0:
         raise ValueError("0.0<b<1.0 not implemented yet")
+
+    if args.auto_domain:
+        args.domain_size = balance_domain(args.constant_factor, args.cosine_factor)
+    
     return args
 
 
@@ -127,4 +181,3 @@ def main():
             
 if __name__ == '__main__':
     main()
-
