@@ -24,6 +24,15 @@ def astroid_step(outer_radius, cusp_method, tube_radius, corner_t, corner_rotati
     # in this time span, we are on the astroid itself.  return the astroid calculation
     if time_step >= subdivisions_per_side and time_step <= subdivisions_per_side * 2:
         time_step = time_step - subdivisions_per_side
+        # TODO: maybe we can set corner_t earlier for this method and
+        # then process the center of the circles on the ends differently
+        # the issue is that going all the way to 0 angle and then
+        # starting the curve again makes a bit of a discontinuity
+        # where the tube is "going backwards" and that effect
+        # dominates the very short distances covered by the circular
+        # caps on the tube.  (that's the theory, at least)
+        if cusp_method is Cusp.OFFSET:
+            corner_t = 90 / subdivisions_per_side
         astroid_t = (90 - corner_t * 2) / subdivisions_per_side * time_step + corner_t
         location = (outer_radius * math.cos(astroid_t / 180 * math.pi) ** astroid_power,
                     outer_radius * math.sin(astroid_t / 180 * math.pi) ** astroid_power)
@@ -83,7 +92,10 @@ def get_normal_rotation(outer_radius, theta, astroid_power):
     dx = -dx
     return math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5) * 180 / math.pi
 
-def tube_angle(outer_radius, corner_t, corner_rotation, astroid_power, time_step, subdivisions_per_side):
+def tube_angle(outer_radius, cusp_method, corner_t, corner_rotation,
+               astroid_power, time_step, subdivisions_per_side):
+    if cusp_method is Cusp.OFFSET:
+        corner_t = 90 / subdivisions_per_side
     quadrant = math.floor(time_step / (subdivisions_per_side * 3)) % 4
     time_step = time_step % (subdivisions_per_side * 3)
     
@@ -174,12 +186,16 @@ def generate_astroid(args):
                             time_step=time_step + time_step_offset,
                             subdivisions_per_side=args.subdivisions_per_side)[1]
 
-    # TODO FIXME: the arclength calculation doesn't seem to be working
-    # for the corners, or maybe there is just a discontinuity there
     z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
-        return tube_angle(args.outer_radius, corner_t, corner_rotation, args.astroid_power, time_step + time_step_offset, args.subdivisions_per_side)
+        return tube_angle(outer_radius=args.outer_radius,
+                          cusp_method=args.cusp_method,
+                          corner_t=corner_t,
+                          corner_rotation=corner_rotation,
+                          astroid_power=args.astroid_power,
+                          time_step=time_step + time_step_offset,
+                          subdivisions_per_side=args.subdivisions_per_side)
     
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
