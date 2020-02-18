@@ -188,13 +188,22 @@ def generate_astroid(args):
         yield triangle
 
 
-def closest_approach_to_radius(closest_approach, astroid_power):
+def closest_approach_to_radius(cusp_method, tube_radius, closest_approach, astroid_power):
     # closest approach is at 45 degrees
     # so x, y = a cos^k t
     #    x, y = a / sqrt(2)^k
     #    d = sqrt(x^2 + y^2) = sqrt(2) x
     #    closest_approach / sqrt(2) = a / sqrt(2)^k
     #    a = closest_approach * sqrt(2)^(k-1)
+    if cusp_method is Cusp.OFFSET:
+        # factor of sqrt(2) is because we move by tube_radius in both x & y
+        closest_approach = closest_approach - tube_radius * 2 ** 0.5
+        if closest_approach <= 0:
+            raise ValueError("Not enough room for Cusp.OFFSET")
+    elif cusp_method is Cusp.CHOP:
+        pass
+    else:
+        raise ValueError("Cusp method {} not handled".format(cusp_method))
     return closest_approach * 2 ** ((astroid_power - 1) / 2)
      
 
@@ -226,9 +235,10 @@ def parse_args():
     args = parser.parse_args()
 
     if args.closest_approach is not None:
-        args.outer_radius = closest_approach_to_radius(args.closest_approach, args.astroid_power)
+        args.outer_radius = closest_approach_to_radius(args.cusp_method, args.tube_radius,
+                                                       args.closest_approach, args.astroid_power)
     
-    if args.outer_radius / 2 < args.tube_radius:
+    if args.outer_radius / 2 < args.tube_radius and args.cusp_method is not Cusp.OFFSET:
         raise ValueError("Impossible to make an astroid where the tube radius {} is greater than the inner radius {}".format(args.tube_radius, args.outer_radius / 2))
     
     return args
