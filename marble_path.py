@@ -84,10 +84,6 @@ def tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
         tube_angle = tube_end_angle
     tube_angle = tube_angle / 180 * math.pi
 
-    if inside:
-        # TODO: wall_thickness needs to scale with the ellipse eccentricity
-        tube_radius = tube_radius - wall_thickness
-
     # we will figure out x, y, z as if we had not rotated around the
     # axis at all.  then we will rotate the resulting vector
 
@@ -95,6 +91,14 @@ def tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
     # more efficient?
     ellipse_A = 1.0 / (1 - tube_eccentricity ** 2) ** 0.5
     ellipse_r = ellipse_A / (ellipse_A ** 2 * math.cos(tube_angle) ** 2 + math.sin(tube_angle) ** 2) ** 0.5
+
+    if inside:
+        # the factor of ellipse_r will go back into the wall_thickness
+        # in a moment.  without this, the wall becomes super thick at
+        # the bottom of an ellipse
+        wall_thickness = wall_thickness / ellipse_r
+        tube_radius = tube_radius - wall_thickness
+
     x_disp = tube_radius * math.cos(tube_angle) * ellipse_r
     vert_disp = -tube_radius * math.sin(tube_angle) * ellipse_r
 
