@@ -85,6 +85,7 @@ def tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
     tube_angle = tube_angle / 180 * math.pi
 
     if inside:
+        # TODO: wall_thickness needs to scale with the ellipse eccentricity
         tube_radius = tube_radius - wall_thickness
 
     # we will figure out x, y, z as if we had not rotated around the
