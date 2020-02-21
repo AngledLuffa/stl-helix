@@ -67,7 +67,7 @@ def arclength_slope_function(x_t, y_t, num_time_steps, slope_angle):
 
     return z_t
             
-def tube_coordinates(tube_radius, wall_thickness,
+def tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
                      tube_start_angle, tube_end_angle, tube_sides,
                      tube_subdivision, slope_angle, inside, rotation):
     """
@@ -82,14 +82,21 @@ def tube_coordinates(tube_radius, wall_thickness,
     tube_angle = tube_start_angle + 360 / tube_sides * tube_subdivision
     if tube_angle > tube_end_angle:
         tube_angle = tube_end_angle
+    tube_angle = tube_angle / 180 * math.pi
 
     if inside:
         tube_radius = tube_radius - wall_thickness
 
     # we will figure out x, y, z as if we had not rotated around the
     # axis at all.  then we will rotate the resulting vector
-    x_disp = tube_radius * math.cos(tube_angle / 180 * math.pi)
-    vert_disp = -tube_radius * math.sin(tube_angle / 180 * math.pi)
+
+    # TODO: cache the eccentricity computations or otherwise make them
+    # more efficient?
+    ellipse_A = 1.0 / (1 - tube_eccentricity ** 2) ** 0.5
+    ellipse_r = ellipse_A / (ellipse_A ** 2 * math.cos(tube_angle) ** 2 + math.sin(tube_angle) ** 2) ** 0.5
+    x_disp = tube_radius * math.cos(tube_angle) * ellipse_r
+    vert_disp = -tube_radius * math.sin(tube_angle) * ellipse_r
+
     # tilt the tube a bit so that things going down the ramp
     # are going straight when they come out of the ramp
     y_disp = -vert_disp * math.sin(slope_angle / 180 * math.pi)
@@ -159,6 +166,7 @@ def generate_path(x_t, y_t, z_t, r_t,
         returns the x, y, z offset from the tube coordinates.
         """
         return tube_coordinates(tube_radius=tube_args.tube_radius,
+                                tube_eccentricity=tube_args.tube_eccentricity,
                                 wall_thickness=wall_thickness,
                                 tube_start_angle=tube_start_angle,
                                 tube_end_angle=tube_end_angle,
@@ -222,7 +230,13 @@ def generate_path(x_t, y_t, z_t, r_t,
             for quad in quads:
                 for triangle in generate_quad(*quad):
                     yield triangle
-    
+
+def parse_eccentricity(e):
+    e = float(e)
+    if e < 0.0 or e >= 1:
+        raise ValueError("Eccentricity must be 0 <= e < 1, got %f" % e)
+    # TODO: maybe let <0 represent a flatter than expected tube?
+    return e
 
 def add_tube_arguments(parser):
     parser.add_argument('--tube_radius', default=12.5, type=float,
@@ -235,6 +249,8 @@ def add_tube_arguments(parser):
                         help='angle to the end of the ramp.  same values as tube_start_angle')
     parser.add_argument('--tube_sides', default=64, type=int,
                         help='how many sides a complete tube would have.  tube_start_angle and tube_end_angle are discretized to these subdivisions')
+    parser.add_argument('--tube_eccentricity', default=0.0, type=parse_eccentricity,
+                        help='How much of an ellipse to make the tube.  0.0 is a circle.  Must be 0 <= e < 1')
 
 
 def write_stl(triangles, filename):
