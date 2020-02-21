@@ -54,6 +54,8 @@ def parse_args():
     # too much space.  The default slant of the zigzag means a
     # slightly higher default width is better
     parser.set_defaults(tube_radius=13.25)
+    parser.set_defaults(tube_method=marble_path.Tube.OVAL)
+    parser.set_defaults(tube_wall_height=6)
 
     args = parser.parse_args()
     return args
