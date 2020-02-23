@@ -202,7 +202,7 @@ def generate_astroid(args):
         if time_step < args.subdivisions_per_side:
             return (-90 + time_step / args.subdivisions_per_side * 45, 180)
         else:
-            return (-tube_lip, 180)
+            return (-45, 180)
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
