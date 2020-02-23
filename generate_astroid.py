@@ -250,7 +250,7 @@ def parse_args():
     parser.add_argument('--cusp_method', default=Cusp.OFFSET, type=lambda x: Cusp[x.upper()],
                         help='How to handle the corners.  OFFSET = offset by tube width, CHOP = chop when the cusp is too close to the axis')
 
-    parser.add_argument('--slope_angle', default=8.0, type=float,
+    parser.add_argument('--slope_angle', default=7.0, type=float,
                         help='Angle to go down when traveling')
     
     parser.add_argument('--output_name', default='astroid.stl',
