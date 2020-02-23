@@ -1,8 +1,6 @@
 import argparse
 import marble_path
 
-# TODO: allow for deeper tubes?
-
 def generate_zigzag(args):
     num_time_steps = args.subdivisions_per_zigzag * args.num_zigzags
     y_delta = args.zigzag_length / args.subdivisions_per_zigzag * 2
