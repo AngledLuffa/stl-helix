@@ -33,13 +33,6 @@ def generate_helix(args):
       tube_radius*2 means the next layer will be barely touching the previous layer
     rotations is how far around to go.  will be discretized using helix_sides
     """
-    # slope_angle is the angle of the slope as it goes up the spiral
-    # faces will be tilted this much to allow better connections with
-    # the next piece
-    slope_angle = calculate_slope_angle(args.helix_radius,
-                                        args.vertical_displacement)
-    print("Slope angle:", slope_angle)
-    
     num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
     print("Num helix: {}".format(num_helix_subdivisions))
     if num_helix_subdivisions <= 0:
@@ -61,7 +54,7 @@ def generate_helix(args):
         # tube_radius included again to keep everything positive
         # TODO: need to look for negative slope and possibly increase
         # all values by the maximum negative displacement
-        return args.tube_radius + math.sin(slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
+        return args.tube_radius + math.sin(args.slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
 
     def r_t(helix_subdivision):
         helix_angle = 360 / args.helix_sides * helix_subdivision
@@ -70,13 +63,12 @@ def generate_helix(args):
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=num_helix_subdivisions,
-                                              slope_angle=slope_angle):
+                                              slope_angle=args.slope_angle):
         yield triangle
 
     
 def parse_args():
     # TODO: add an argument which does the math for rotations if you give it the angle of helix you want, for example
-    #   add an argument for the slope of the ramp instead of vertical_displacement
     parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
 
     marble_path.add_tube_arguments(parser)
@@ -85,8 +77,10 @@ def parse_args():
                         help='measurement from the axis to the center of any part of the ramp')    
     parser.add_argument('--helix_sides', default=64, type=int,
                         help='how many sides it takes to go around the axis once')
-    parser.add_argument('--vertical_displacement', default=25, type=float,
+    parser.add_argument('--vertical_displacement', default=None, type=float,
                         help='how far to move up in one complete rotation.  tube_radius*2 means the next layer will be barely touching the previous layer')
+    parser.add_argument('--slope_angle', default=2.0, type=float,
+                        help='Angle to tilt the curve')
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
 
@@ -94,6 +88,16 @@ def parse_args():
                         help='Where to put the stl')
 
     args = parser.parse_args()
+
+    if args.vertical_displacement is not None:
+        # slope_angle is the angle of the slope as it goes up the spiral
+        # faces will be tilted this much to allow better connections with
+        # the next piece
+        slope_angle = calculate_slope_angle(args.helix_radius,
+                                            args.vertical_displacement)
+        print("Derived slope angle:", slope_angle)
+        args.slope_angle = slope_angle
+    
     return args
 
 def main():
