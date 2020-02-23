@@ -48,7 +48,7 @@ def generate_zigzag(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
-    marble_path.add_tube_arguments(parser)
+    marble_path.add_tube_arguments(parser, default_slope_angle=5.0)
 
     parser.add_argument('--zigzag_length', default=-5, type=float,
                         help='How far a zigzag goes in the y direction.  Negative means go down first')
@@ -58,9 +58,6 @@ def parse_args():
                         help='How many zigzags to make')
     parser.add_argument('--subdivisions_per_zigzag', default=40, type=int,
                         help='Subdivisions for each of the zigzags.  Half up and half down')
-
-    parser.add_argument('--slope_angle', default=5, type=float,
-                        help='Angle to go down when traveling')
 
     parser.add_argument('--output_name', default='zigzag.stl',
                         help='Where to put the stl')

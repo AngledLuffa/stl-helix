@@ -129,8 +129,7 @@ def balance_domain(constant_factor, cosine_factor):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl limacon.  Graph of r = a - b cos(theta)')
 
-    marble_path.add_tube_arguments(parser)
-    
+    marble_path.add_tube_arguments(parser, default_slope_angle=12.0)
 
     parser.add_argument('--output_name', default='limacon.stl',
                         help='Where to put the stl')
@@ -140,9 +139,6 @@ def parse_args():
     parser.add_argument('--cosine_factor', default=2, type=float,
                         help='The b in the "a - b cos(theta)"')
     
-    parser.add_argument('--slope_angle', default=12, type=float,
-                        help='Angle to go down when traveling')
-
     parser.add_argument('--time_steps', default=200, type=int,
                         help='How refined to make the limacon')
 

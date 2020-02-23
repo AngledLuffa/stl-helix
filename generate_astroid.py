@@ -234,7 +234,7 @@ def closest_approach_to_radius(cusp_method, tube_radius, closest_approach, astro
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl astroid.')
 
-    marble_path.add_tube_arguments(parser)
+    marble_path.add_tube_arguments(parser, default_slope_angle=7.0)
     # outer_radius used for measurements because most articles on the
     # subject start from the outer radius.  for example,
     # https://en.wikipedia.org/wiki/Astroid
@@ -250,9 +250,6 @@ def parse_args():
     parser.add_argument('--cusp_method', default=Cusp.OFFSET, type=lambda x: Cusp[x.upper()],
                         help='How to handle the corners.  OFFSET = offset by tube width, CHOP = chop when the cusp is too close to the axis')
 
-    parser.add_argument('--slope_angle', default=7.0, type=float,
-                        help='Angle to go down when traveling')
-    
     parser.add_argument('--output_name', default='astroid.stl',
                         help='Where to put the stl')
 
