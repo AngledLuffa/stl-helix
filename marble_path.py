@@ -90,7 +90,7 @@ def rotate_tube(x_disp, y_disp, z_disp, rotation):
 
 
 def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
-                          tube_sides, tube_subdivision,
+                          num_tube_subdivisions, tube_subdivision,
                           slope_angle, inside, rotation):
     """
     Calculate the x,y,z of an oval tube based on the tube parameters.
@@ -104,7 +104,7 @@ def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
         tube_radius = tube_radius - wall_thickness
     
     tube_arclength = 2 * wall_height + math.pi * tube_radius
-    tube_position = tube_subdivision / tube_sides
+    tube_position = tube_subdivision / num_tube_subdivisions
 
     if tube_position < wall_height / tube_arclength:
         x_disp = tube_radius
@@ -127,7 +127,7 @@ def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
 
 def ellipse_tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
                              tube_start_angle, tube_end_angle,
-                             tube_sides, tube_subdivision,
+                             num_tube_subdivisions, tube_subdivision,
                              slope_angle, inside, rotation):
     """
     Calculate the x,y,z of an ellipse tube based on the tube parameters.
@@ -138,9 +138,11 @@ def ellipse_tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
       For a zigzag, you will not want to rotate at all.
       For an arbitrary curve, you probably want to be normal to the current direction.
     """
-    tube_angle = tube_start_angle + 360 / tube_sides * tube_subdivision
+    # TODO: maybe vary num_tube_subdivisions if the angle is changing?
+    tube_angle = tube_start_angle + (tube_end_angle - tube_start_angle) / num_tube_subdivisions * tube_subdivision
     if tube_angle > tube_end_angle:
         tube_angle = tube_end_angle
+
     tube_angle = tube_angle / 180 * math.pi
 
     # we will figure out x, y, z as if we had not rotated around the
@@ -179,7 +181,8 @@ def coordinates(x_t, y_t, z_t, r_t,
 
     tube_offset = tube_function(tube_subdivision=tube_subdivision,
                                 inside=inside,
-                                rotation=r_t(time_t))
+                                rotation=r_t(time_t),
+                                time_t=time_t)
 
     location = (location[0] + tube_offset[0],
                 location[1] + tube_offset[1],
@@ -189,9 +192,13 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 
 def generate_path(x_t, y_t, z_t, r_t,
-                  tube_args, num_time_steps, slope_angle):
+                  tube_args, num_time_steps, slope_angle,
+                  tube_angle_t=None):
     """
     tube_args should be args including the tube arguments from below
+    tube_angle_t, if it exists, is a function returning (start, end)
+      and overrides tube_args.tube_start_angle and tube_end_angle for the ellipse
+      TODO: add a flag to ignore that if desired
     """
     if tube_args.wall_thickness >= tube_args.tube_radius:
         has_inner_wall = False
@@ -216,18 +223,22 @@ def generate_path(x_t, y_t, z_t, r_t,
             full_tube = False
         print("Num tube: {}".format(num_tube_subdivisions))
 
-        def tube_function(tube_subdivision, inside, rotation):
+        if tube_angle_t is None:
+            tube_angle_t = lambda x: (tube_start_angle, tube_end_angle)
+
+        def tube_function(tube_subdivision, inside, rotation, time_t):
             """
             Using the parameters given to the helix, create a function which
             returns the x, y, z offset from the tube coordinates.
             This will be an ellipsoid shell
             """
+            tube_start_angle, tube_end_angle = tube_angle_t(time_t)
             return ellipse_tube_coordinates(tube_radius=tube_args.tube_radius,
                                             tube_eccentricity=tube_args.tube_eccentricity,
                                             wall_thickness=wall_thickness,
                                             tube_start_angle=tube_start_angle,
                                             tube_end_angle=tube_end_angle,
-                                            tube_sides=tube_args.tube_sides,
+                                            num_tube_subdivisions=num_tube_subdivisions,
                                             tube_subdivision=tube_subdivision,
                                             slope_angle=slope_angle,
                                             inside=inside,
@@ -239,14 +250,14 @@ def generate_path(x_t, y_t, z_t, r_t,
         # ... and we need to print the tube ceiling
         full_tube = False
         
-        def tube_function(tube_subdivision, inside, rotation):
+        def tube_function(tube_subdivision, inside, rotation, time_t):
             """
             Create an oval instead.
             """
             return oval_tube_coordinates(tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
-                                         tube_sides=tube_args.tube_sides,
+                                         num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
                                          slope_angle=slope_angle,
                                          inside=inside,
