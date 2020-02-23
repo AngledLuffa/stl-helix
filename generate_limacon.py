@@ -159,7 +159,9 @@ def parse_args():
     parser.add_argument('--no_auto_domain', dest='auto_domain',
                         action='store_false',
                         help="Don't dynamically calculate the domain by trying to balance the torque")
-    
+
+    parser.set_defaults(tube_start_angle=-60)
+
     args = parser.parse_args()
     if args.cosine_factor == 1.0:
         raise ValueError("Sorry, but b=1.0 causes a discontinuity in the derivative")
