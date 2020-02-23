@@ -1,6 +1,24 @@
 import argparse
 import marble_path
 
+"""
+The defaults for this script produce the middle portion of a zigzag.
+
+The zigzag produced is suitable for two posts 134mm apart
+(the standard width of a two post narble toy)
+
+Angle of the zigs for these defaults: 19.471.  Rotating by this much
+makes it easier to assemble.  Then you can put one post at 0,0 and use
+the pythagorean theorem to place the other post.  Need to wiggle it
+around some so that the out post has the zigzag centered.
+
+Default tube_radius 13.25 so that the rotated tube is still 25mm wide
+
+Minor issue with a basic half circle tube: roughly 5% of marbles would
+bounce out of the piece.  Fixed it by adding deeper walls.
+
+"""
+
 def generate_zigzag(args):
     num_time_steps = args.subdivisions_per_zigzag * args.num_zigzags
     y_delta = args.zigzag_length / args.subdivisions_per_zigzag * 2
