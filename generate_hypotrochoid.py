@@ -108,6 +108,8 @@ def parse_args():
                         help='Scale the shape by this much in the x direction')
     parser.add_argument('--y_scale', default=6, type=float,
                         help='Scale the shape by this much in the y direction')
+    parser.add_argument('--scale', default=None, type=float,
+                        help='Scale both directions by this much')
 
     parser.add_argument('--start_t', default=math.pi / 3, type=float,
                         help='Time to start the equation')
@@ -123,10 +125,14 @@ def parse_args():
     # TODO: add a macro argument for a flower, an N pointed star, etc
     # TODO: for the flower, calculate N from the value of a/b: b /
     #       gcd(a, b).  use that for end_t.  calculate start_t
-    # TODO: add a macro argument for scaling
     # TODO: add a argument for making the closest approach of an hypotrochoid with a-b!=c exactly tangent
 
     args = parser.parse_args()
+
+    if args.scale is not None:
+        args.x_scale = args.scale
+        args.y_scale = args.scale
+    
     return args
 
 def main():
