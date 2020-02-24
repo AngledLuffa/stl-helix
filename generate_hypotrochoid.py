@@ -59,33 +59,15 @@ def generate_hypotrochoid(args):
         return args.y_scale * ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
     
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
-
-    def r_t(time_step):
-        t = time_t(time_step)
-        dx = -(A - B) * math.sin(t) - C * ((A - B) / B) * math.sin((A - B) * t / B)
-        dx = dx * args.x_scale
-        dy =  (A - B) * math.cos(t) - C * ((A - B) / B) * math.cos((A - B) * t / B)
-        dy = dy * args.y_scale
-
-        if dx == 0.0 and dy == 0.0:
-            raise ValueError("Need to fix a discontinuity in the derivative")
-
-        # TODO: refactor this
-        rotation = math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5)
-        if dx > 0 and dy > 0:
-            # this gives us a negative rotation, meaning to the right
-            rotation = -rotation
-        elif dx > 0 and dy < 0:
-            rotation = rotation + math.pi
-        elif dx < 0 and dy > 0:
-            rotation = -rotation
-        else: # dx < 0 and dy < 0
-            rotation = rotation + math.pi
-
-        return rotation * 180 / math.pi
-
-    #for i in range(args.num_time_steps):
-    #    print(i, x_t(i), y_t(i), z_t(i), r_t(i))
+    r_t = marble_path.numerical_rotation_function(x_t, y_t)
+    
+    # can calculate dx & dy like this
+    # but when adding regularization, that becomes hideous
+    #t = time_t(time_step)
+    #dx = -(A - B) * math.sin(t) - C * ((A - B) / B) * math.sin((A - B) * t / B)
+    #dx = dx * args.x_scale
+    #dy =  (A - B) * math.cos(t) - C * ((A - B) / B) * math.cos((A - B) * t / B)
+    #dy = dy * args.y_scale
     
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,

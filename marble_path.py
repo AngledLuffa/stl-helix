@@ -73,6 +73,37 @@ def arclength_slope_function(x_t, y_t, num_time_steps, slope_angle):
 
     return z_t
 
+def numerical_rotation_function(x_t, y_t, epsilon=0.001):
+    """
+    Returns a function r(t) which calculates the rotation of a tube based on its x, y functions.
+    """
+    def r_t(time_step):
+        x2 = x_t(time_step + epsilon)
+        x1 = x_t(time_step - epsilon)
+        dx = (x2 - x1) / (epsilon * 2)
+
+        y2 = y_t(time_step + epsilon)
+        y1 = y_t(time_step - epsilon)
+        dy = (y2 - y1) / (epsilon * 2)
+
+        if dx == 0 and dy == 0:
+            raise ValueError("derivative has a discontinuity at %f" % time_step)
+        
+        rotation = math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5)
+        if dx > 0 and dy > 0:
+            # this gives us a negative rotation, meaning to the right
+            rotation = -rotation
+        elif dx > 0 and dy < 0:
+            rotation = rotation + math.pi
+        elif dx < 0 and dy > 0:
+            rotation = -rotation
+        else: # dx < 0 and dy < 0
+            rotation = rotation + math.pi
+
+        return rotation * 180 / math.pi
+    return r_t
+
+
 def slope_tube(vert_disp, slope_angle):
     # tilt the tube a bit so that things going down the ramp
     # are going straight when they come out of the ramp
