@@ -3,6 +3,20 @@ import math
 
 import marble_path
 
+"""
+
+to make a 3 lobed flower:
+this is the ramp
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --tube_end_angle 240 --slope_angle 12 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
+
+complete circle tube.  chop everything except the middle.  this produces the tunnels through the post
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --tube_end_angle 360 --slope_angle 12 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
+
+make this a hole, use it for the negative space in the post
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6 --tube_radius 10.5 --wall_thickness 11  --tube_end_angle 360 --slope_angle 12
+
+angle is, not surprisingly, about 60 on the upper connection
+"""
 
 def get_normal_rotation(theta, x_scale, y_scale, a, b):
     # there is a discontinuity in the derivative at theta = 0.0
@@ -81,7 +95,7 @@ def generate_hypotrochoid(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
+    marble_path.add_tube_arguments(parser, default_slope_angle=12.0)
 
     parser.add_argument('--hypoA', default=9, type=float,
                         help='value A in the hypo formula')
@@ -90,9 +104,9 @@ def parse_args():
     parser.add_argument('--hypoC', default=6, type=float,
                         help='value C in the hypo formula')
 
-    parser.add_argument('--x_scale', default=5, type=float,
+    parser.add_argument('--x_scale', default=6, type=float,
                         help='Scale the shape by this much in the x direction')
-    parser.add_argument('--y_scale', default=5, type=float,
+    parser.add_argument('--y_scale', default=6, type=float,
                         help='Scale the shape by this much in the y direction')
 
     parser.add_argument('--start_t', default=math.pi / 3, type=float,
