@@ -9,11 +9,16 @@ to make a 3 lobed flower:
 this is the ramp
 python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 240 --slope_angle 12
 
+problem: the ramp has some obvious kinks in the corners
+so we can add some regularization
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 10  --tube_end_angle 240 --slope_angle 12 --regularization 0.07
+
 complete circle tube.  chop everything except the middle.  this produces the tunnels through the post
-python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 10  --tube_end_angle 360 --slope_angle 12 --regularization 0.07
 
 make this a hole, use it for the negative space in the post
-python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12 --tube_radius 10.5 --wall_thickness 11
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 10  --tube_end_angle 360 --slope_angle 12 --regularization 0.07  --tube_radius 10.5 --wall_thickness 11
+
 
 angle is, not surprisingly, about 60 on the upper connection
 
@@ -52,14 +57,44 @@ def generate_hypotrochoid(args):
 
     def x_t(time_step):
         t = time_t(time_step)
-        return args.x_scale * ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
+        return ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
 
     def y_t(time_step):
         t = time_t(time_step)
-        return args.y_scale * ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+        return ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+
+    def reg_x_t(time_step):
+        x = x_t(time_step)
+        y = y_t(time_step)
+
+        length = (x ** 2 + y ** 2) ** 0.5
+        if length < 1:
+            length = 0
+        else:
+            length = length - 1
+        reg = 1 / (args.regularization * length + 1)
+        return x * reg
     
-    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
-    r_t = marble_path.numerical_rotation_function(x_t, y_t)
+    def reg_y_t(time_step):
+        x = x_t(time_step)
+        y = y_t(time_step)
+
+        length = (x ** 2 + y ** 2) ** 0.5
+        if length < 1:
+            length = 0
+        else:
+            length = length - 1
+        reg = 1 / (args.regularization * length + 1)
+        return y * reg
+
+    def scale_x_t(time_step):
+        return reg_x_t(time_step) * args.scale
+    
+    def scale_y_t(time_step):
+        return reg_y_t(time_step) * args.scale
+    
+    z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, args.num_time_steps, args.slope_angle)
+    r_t = marble_path.numerical_rotation_function(scale_x_t, scale_y_t)
     
     # can calculate dx & dy like this
     # but when adding regularization, that becomes hideous
@@ -69,7 +104,7 @@ def generate_hypotrochoid(args):
     #dy =  (A - B) * math.cos(t) - C * ((A - B) / B) * math.cos((A - B) * t / B)
     #dy = dy * args.y_scale
     
-    for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
+    for triangle in marble_path.generate_path(x_t=scale_x_t, y_t=scale_y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=args.num_time_steps,
                                               slope_angle=args.slope_angle):
@@ -102,6 +137,9 @@ def parse_args():
                         help='Time to start the equation')
     parser.add_argument('--num_time_steps', default=250, type=int,
                         help='Number of time steps in the whole curve')
+
+    parser.add_argument('--regularization', default=0.0, type=float,
+                        help='Hypotrochoids often get long lobes.  This can help smooth them out')
 
     parser.add_argument('--output_name', default='hypo.stl',
                         help='Where to put the stl')
