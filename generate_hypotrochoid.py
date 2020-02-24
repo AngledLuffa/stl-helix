@@ -7,15 +7,18 @@ import marble_path
 
 to make a 3 lobed flower:
 this is the ramp
-python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --tube_end_angle 240 --slope_angle 12 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 240 --slope_angle 12
 
 complete circle tube.  chop everything except the middle.  this produces the tunnels through the post
-python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --tube_end_angle 360 --slope_angle 12 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12
 
 make this a hole, use it for the negative space in the post
-python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6 --tube_radius 10.5 --wall_thickness 11  --tube_end_angle 360 --slope_angle 12
+python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --end_t 7.3303 --scale 6  --tube_end_angle 360 --slope_angle 12 --tube_radius 10.5 --wall_thickness 11
 
 angle is, not surprisingly, about 60 on the upper connection
+
+to make a 4 lobed flower:
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 9 --tube_end_angle 240 --slope_angle 8 --scale 4 --start_t 0.7854 --end_t 7.0686
 """
 
 def get_normal_rotation(theta, x_scale, y_scale, a, b):
