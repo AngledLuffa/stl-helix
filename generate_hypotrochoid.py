@@ -81,7 +81,7 @@ def generate_hypotrochoid(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=5.0)
+    marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
 
     parser.add_argument('--hypoA', default=9, type=float,
                         help='value A in the hypo formula')
@@ -90,16 +90,16 @@ def parse_args():
     parser.add_argument('--hypoC', default=6, type=float,
                         help='value C in the hypo formula')
 
-    parser.add_argument('--x_scale', default=10, type=float,
+    parser.add_argument('--x_scale', default=5, type=float,
                         help='Scale the shape by this much in the x direction')
-    parser.add_argument('--y_scale', default=10, type=float,
+    parser.add_argument('--y_scale', default=5, type=float,
                         help='Scale the shape by this much in the y direction')
 
     parser.add_argument('--start_t', default=math.pi / 3, type=float,
                         help='Time to start the equation')
     parser.add_argument('--end_t', default=math.pi * 7 / 3, type=float,
                         help='Time to start the equation')
-    parser.add_argument('--num_time_steps', default=400, type=int,
+    parser.add_argument('--num_time_steps', default=250, type=int,
                         help='Number of time steps in the whole curve')
 
     parser.add_argument('--output_name', default='hypo.stl',
