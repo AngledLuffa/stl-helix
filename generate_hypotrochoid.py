@@ -182,8 +182,6 @@ def parse_args():
 
 
     # TODO: add a macro argument for a flower, an N pointed star, etc
-    # TODO: for the flower, calculate N from the value of a/b: b /
-    #       gcd(a, b).  use that for end_t.  calculate start_t
     # TODO: add a argument for making the closest approach of an hypotrochoid with a-b!=c exactly tangent
 
     args = parser.parse_args()
