@@ -9,11 +9,15 @@ Generates a cycloid of the form (t + sin(4t), 1 - cos(4t))
 Note that other arguments can make pretty interesting curves as well
 
 p67 of Practical Handbook of Curve Dewsign and Generation
+
+a possibly interesting variant:
+  t - sin 4t, cos 3t
+from -5pi/4 to pi/4
 """
 
 def generate_cycloid(args):
-    min_t = -args.domain - args.extra_t
-    max_t = args.domain + args.extra_t
+    min_t = args.min_domain - args.extra_t
+    max_t = args.max_domain + args.extra_t
     def time_t(time_step):
         return min_t + (max_t - min_t) * time_step / args.num_time_steps
 
@@ -21,26 +25,40 @@ def generate_cycloid(args):
 
     def x_t(time_step):
         t = time_t(time_step)
-        if t < -args.domain or t > args.domain:
+        if t < args.min_domain or t > args.max_domain:
             return t * scale
         return (t + args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
 
     def y_t(time_step):
         t = time_t(time_step)
-        if t < -args.domain or t > args.domain:
-            return 0.0
-        if t < 0:
+        if t < args.min_domain:
+            t = args.min_domain
+        elif t > args.max_domain:
+            t = args.max_domain
+        if t < 0 and args.use_sign:
             sign = -1
         else:
             sign = 1
-        return (sign * (1 - math.cos(args.y_t_coeff * t))) * scale * args.y_scale
+        return (sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t))) * scale * args.y_scale
 
     #for i in range(args.num_time_steps + 1):
     #    print(i, time_t(i), x_t(i), y_t(i))
 
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
+
+    x0 = x_t(0)
+    y0 = y_t(0)
+    z0 = z_t(0)
+    x1 = x_t(args.num_time_steps)
+    y1 = y_t(args.num_time_steps)
+    z1 = z_t(args.num_time_steps)
     
+    print("X,Y,Z of start:   %.4f %.4f %.4f" % (x0, y0, z0))
+    print("X,Y,Z of end:     %.4f %.4f %.4f" % (x1, y1, z1))
+    print("dx, dy, dz:       %.4f %.4f %.4f" % ((x1 - x0), (y1 - y0), (z1 - z0)))
+    print("Corner to corner: %.4f" % ((y1 - y0) ** 2 + (x1 - x0) ** 2) ** 0.5)
+
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=args.num_time_steps,
@@ -53,14 +71,31 @@ def parse_args():
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
 
     parser.add_argument('--domain', default=None, type=float,
-                      help='-domain..domain is where the graph occurs.  If left None, will be derived from the coefficients')
+                        help='If set, the domain will be -domain..domain')
+    parser.add_argument('--min_domain', default=None, type=float,
+                        help='t0 in the domain [t0, t1]')
+    parser.add_argument('--max_domain', default=None, type=float,
+                        help='t1 in the domain [t0, t1].  If left None, will be derived from the coefficients')
 
     parser.add_argument('--x_coeff', default=1, type=float,
                       help='Coefficient A of x=t+A sin(Bt)')
     parser.add_argument('--x_t_coeff', default=4, type=int,
                       help='Coefficient B of x=t+A sin(Bt)')
+    parser.add_argument('--y0', default=1, type=float,
+                        help='Coefficient y0 of y = y0 + C cos(Dt)')
+    parser.add_argument('--y_coeff', default=-1, type=float,
+                        help='Coefficient C of y = y0 + C cos(Dt)')
     parser.add_argument('--y_t_coeff', default=4, type=int,
-                      help='Coefficient C of y=1-cos(Ct)')
+                      help='Coefficient D of y=y0 + C cos(Dt)')
+
+    parser.add_argument('--use_sign', dest='use_sign',
+                        default=True, action='store_true',
+                        help='multiply y by sign(t)')
+    parser.add_argument('--no_use_sign', dest='use_sign',
+                        action='store_false',
+                        help="Don't multiply y by sign(t)")
+    
+    
     parser.add_argument('--num_time_steps', default=400, type=int,
                       help='Number of time steps to model')
 
@@ -78,9 +113,20 @@ def parse_args():
 
     args = parser.parse_args()
 
-    if args.domain is None:
-        args.domain = math.pi * 2 / math.gcd(args.x_t_coeff, args.y_t_coeff)
-    
+    if args.domain is not None:
+        args.min_domain = -args.domain
+        args.max_domain = args.domain
+
+    if args.min_domain is None or args.max_domain is None:
+        width = math.pi * 4 / math.gcd(args.x_t_coeff, args.y_t_coeff)
+        if args.min_domain is None and args.max_domain is None:
+            args.min_domain = -width / 2
+            args.max_domain =  width / 2
+        elif args.min_domain is None:
+            args.min_domain = args.max_domain - width
+        else:
+            args.max_domain = args.min_domain + width
+            
     return args
     
 
