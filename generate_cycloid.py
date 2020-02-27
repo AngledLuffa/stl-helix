@@ -13,6 +13,8 @@ p67 of Practical Handbook of Curve Dewsign and Generation
 a possibly interesting variant:
   t - sin 4t, cos 3t
 from -5pi/4 to pi/4
+
+python generate_cycloid.py --extra_t 0.0 --min_domain -3.927 --max_domain 0.7854 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 225.6846 --no_use_sign
 """
 
 def generate_cycloid(args):
