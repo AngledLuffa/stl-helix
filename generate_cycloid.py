@@ -66,8 +66,7 @@ def generate_cycloid(args):
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps,
-                                              slope_angle=-args.slope_angle):
+                                              num_time_steps=args.num_time_steps):
         yield triangle    
     
 def parse_args():

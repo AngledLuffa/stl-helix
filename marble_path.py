@@ -223,7 +223,7 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 
 def generate_path(x_t, y_t, z_t, r_t,
-                  tube_args, num_time_steps, slope_angle,
+                  tube_args, num_time_steps,
                   tube_angle_t=None):
     """
     tube_args should be args including the tube arguments from below
@@ -271,7 +271,7 @@ def generate_path(x_t, y_t, z_t, r_t,
                                             tube_end_angle=tube_end_angle,
                                             num_tube_subdivisions=num_tube_subdivisions,
                                             tube_subdivision=tube_subdivision,
-                                            slope_angle=slope_angle,
+                                            slope_angle=tube_args.slope_angle,
                                             inside=inside,
                                             rotation=rotation)
     elif tube_args.tube_method is Tube.OVAL:
@@ -290,7 +290,7 @@ def generate_path(x_t, y_t, z_t, r_t,
                                          wall_thickness=wall_thickness,
                                          num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
-                                         slope_angle=slope_angle,
+                                         slope_angle=tube_args.slope_angle,
                                          inside=inside,
                                          rotation=rotation)
 

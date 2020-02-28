@@ -81,8 +81,7 @@ def generate_limacon(args):
 
     for triangle in marble_path.generate_path(x_t=scaled_x_t, y_t=scaled_y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.time_steps,
-                                              slope_angle=-args.slope_angle):
+                                              num_time_steps=args.time_steps):
         yield triangle    
 
 
