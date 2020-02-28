@@ -54,7 +54,9 @@ def calculate_arclengths(x_t, y_t, num_time_steps):
         arclengths.append(arclength)
     return arclengths
         
-def arclength_slope_function(x_t, y_t, num_time_steps, slope_angle):
+def arclength_slope_function(x_t, y_t, num_time_steps,
+                             slope_angle=None,
+                             slope_angle_t=None):
     """
     Comes up with a function z(t) which works on the domain [0, num_time_steps]
 
@@ -62,8 +64,15 @@ def arclength_slope_function(x_t, y_t, num_time_steps, slope_angle):
     then caching the arclength traveled for the various time steps
     """
     arclengths = calculate_arclengths(x_t, y_t, num_time_steps)
-    slope_angle = slope_angle / 180 * math.pi
-    zs = [-arc * math.tan(slope_angle) for arc in arclengths]
+    if slope_angle is not None:
+        angle = slope_angle / 180 * math.pi
+    zs = [0.0]
+    for t, (arc1, arc2) in enumerate(zip(arclengths[:-1], arclengths[1:])):
+        if slope_angle_t is not None:
+            angle = slope_angle_t(t) / 180 * math.pi
+        delta_arc = arc1 - arc2   # flipping the negative: positive angle means down
+        delta_z = math.tan(angle) * delta_arc
+        zs.append(delta_z + zs[-1])
 
     def z_t(time_step):
         if time_step < 0 or time_step > num_time_steps:
@@ -224,12 +233,15 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 def generate_path(x_t, y_t, z_t, r_t,
                   tube_args, num_time_steps,
-                  tube_angle_t=None):
+                  tube_angle_t=None,
+                  slope_angle_t=None):
     """
     tube_args should be args including the tube arguments from below
     tube_angle_t, if it exists, is a function returning (start, end)
       and overrides tube_args.tube_start_angle and tube_end_angle for the ellipse
       TODO: add a flag to ignore that if desired
+    slope_angle_t is a function returning the angle up/down of the path.
+      if None, args.slope_angle is used instead
     """
     if tube_args.wall_thickness >= tube_args.tube_radius:
         has_inner_wall = False
@@ -243,6 +255,9 @@ def generate_path(x_t, y_t, z_t, r_t,
     if tube_end_angle < tube_start_angle:
         tube_start_angle, tube_end_angle = tube_end_angle, tube_start_angle
 
+    if slope_angle_t is None:
+        slope_angle_t = lambda x: tube_args.slope_angle
+        
     if tube_args.tube_method is Tube.ELLIPSE:
         if tube_end_angle >= tube_start_angle + 360:
             tube_start_angle = 0
@@ -271,7 +286,7 @@ def generate_path(x_t, y_t, z_t, r_t,
                                             tube_end_angle=tube_end_angle,
                                             num_tube_subdivisions=num_tube_subdivisions,
                                             tube_subdivision=tube_subdivision,
-                                            slope_angle=tube_args.slope_angle,
+                                            slope_angle=slope_angle_t(time_t),
                                             inside=inside,
                                             rotation=rotation)
     elif tube_args.tube_method is Tube.OVAL:
@@ -290,7 +305,7 @@ def generate_path(x_t, y_t, z_t, r_t,
                                          wall_thickness=wall_thickness,
                                          num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
-                                         slope_angle=tube_args.slope_angle,
+                                         slope_angle=slope_angle_t(time_t),
                                          inside=inside,
                                          rotation=rotation)
 
