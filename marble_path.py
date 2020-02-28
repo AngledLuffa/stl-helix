@@ -224,6 +224,10 @@ def coordinates(x_t, y_t, z_t, r_t,
                                 rotation=r_t(time_t),
                                 time_t=time_t)
 
+    #print("%.4f %d    %.4f %.4f %.4f   %.4f %.4f %.4f" %
+    #      (time_t, tube_subdivision, location[0], location[1], location[2],
+    #       tube_offset[0], tube_offset[1], tube_offset[2]))
+
     location = (location[0] + tube_offset[0],
                 location[1] + tube_offset[1],
                 location[2] + tube_offset[2])
@@ -321,8 +325,8 @@ def generate_path(x_t, y_t, z_t, r_t,
                            time_t=time_step)
 
     
-    for tube_subdivision in range(num_tube_subdivisions):
-        for time_step in range(num_time_steps):
+    for time_step in range(num_time_steps):
+        for tube_subdivision in range(num_tube_subdivisions):
             #print("Iterating over tube {} helix {}".format(tube_subdivision, time_step))
             quads = []
             # outside wall
