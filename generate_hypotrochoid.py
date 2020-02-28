@@ -117,10 +117,10 @@ def generate_hypotrochoid(args):
         return y * reg
 
     def scale_x_t(time_step):
-        return reg_x_t(time_step) * args.scale
+        return reg_x_t(time_step) * args.x_scale
     
     def scale_y_t(time_step):
-        return reg_y_t(time_step) * args.scale
+        return reg_y_t(time_step) * args.y_scale
     
     z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, args.num_time_steps, args.slope_angle)
     r_t = marble_path.numerical_rotation_function(scale_x_t, scale_y_t)
