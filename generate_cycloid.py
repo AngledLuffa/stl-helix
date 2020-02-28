@@ -5,6 +5,8 @@ import marble_path
 
 """
 Generates a cycloid of the form (t + sin(4t), 1 - cos(4t))
+There is a loop here from .16675 to 1.40405 which must go down >= 23mm
+(Also the negative of that obviously needs to happen as well)
 
 Note that other arguments can make pretty interesting curves as well
 
@@ -49,9 +51,28 @@ def generate_cycloid(args):
         return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
                 scale * args.y_scale)
 
-    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
+    # TODO: parametrize this, probably by giving intervals and then
+    # using the arclength function to figure out what angle is needed
+    # to get the desired drop
+    def slope_angle_t(time_step):
+        t = abs(time_t(time_step))
+        if t < .16675 or t > 1.40405:
+            return 2.0
+        t = t - 0.16675
+        t = t / 1.2373
+        if t < 0.2:
+            return 2.0 + t * 55
+        if t > 0.8:
+            return 2.0 + (1.0 - t) * 55
+        return 13.0
+    
+    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
+                                               slope_angle_t=slope_angle_t)
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
+    #for i in range(args.num_time_steps+1):
+    #    print("%.4f %.4f %.4f %.4f" % (time_t(i), x_t(i), y_t(i), z_t(i)))
+    
     x0 = x_t(0)
     y0 = y_t(0)
     z0 = z_t(0)
@@ -66,7 +87,8 @@ def generate_cycloid(args):
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps):
+                                              num_time_steps=args.num_time_steps,
+                                              slope_angle_t=slope_angle_t):
         yield triangle    
     
 def parse_args():
@@ -103,7 +125,7 @@ def parse_args():
     parser.add_argument('--num_time_steps', default=400, type=int,
                       help='Number of time steps to model')
 
-    parser.add_argument('--extra_t', default=0.4, type=float,
+    parser.add_argument('--extra_t', default=0.5, type=float,
                         help='Extra time to build the model as a straight line before & after the domain')
 
     parser.add_argument('--width', default=134.0, type=float,
