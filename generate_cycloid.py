@@ -14,7 +14,10 @@ a possibly interesting variant:
   t - sin 4t, cos 3t
 from -5pi/4 to pi/4
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -3.927 --max_domain 0.7854 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 225.6846 --no_use_sign
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708
+
+note that the graph curves so much in the middle section that there is a kink
+perhaps regularize in x from -.6187 to .6187
 """
 
 def generate_cycloid(args):
@@ -29,7 +32,8 @@ def generate_cycloid(args):
         t = time_t(time_step)
         if t < args.min_domain or t > args.max_domain:
             return t * scale
-        return (t + args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
+        reg = (1.0 - args.sigmoid_regularization) + args.sigmoid_regularization * math.exp(4 * t ** 2) / (1.0 + math.exp(4 * t ** 2))
+        return (t + reg * args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
 
     def y_t(time_step):
         t = time_t(time_step)
@@ -41,10 +45,8 @@ def generate_cycloid(args):
             sign = -1
         else:
             sign = 1
-        return (sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t))) * scale * args.y_scale
-
-    #for i in range(args.num_time_steps + 1):
-    #    print(i, time_t(i), x_t(i), y_t(i))
+        return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
+                scale * args.y_scale)
 
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
@@ -86,9 +88,9 @@ def parse_args():
     parser.add_argument('--y0', default=1, type=float,
                         help='Coefficient y0 of y = y0 + C cos(Dt)')
     parser.add_argument('--y_coeff', default=-1, type=float,
-                        help='Coefficient C of y = y0 + C cos(Dt)')
+                        help='Coefficient C of y(t) = y0 + C cos(Dt)')
     parser.add_argument('--y_t_coeff', default=4, type=int,
-                      help='Coefficient D of y=y0 + C cos(Dt)')
+                      help='Coefficient D of y(t) = y0 + C cos(Dt)')
 
     parser.add_argument('--use_sign', dest='use_sign',
                         default=True, action='store_true',
@@ -108,6 +110,11 @@ def parse_args():
                         help='How far apart to make the endpoints of the curve.  Note that the curve itself may extend past the endpoints')
     parser.add_argument('--y_scale', default=0.8, type=float,
                         help='Make the model a little squished or stretched vertically')
+    parser.add_argument('--y_phase', default=0.0, type=float,
+                        help='Adjust the phase of y(t) = y0 + C cos(Dt + phase)')
+
+    parser.add_argument('--sigmoid_regularization', default=0.0, type=float,
+                        help='How much to use regularization around x=0.  Idea is to make squiggle with loops not have sharp corners')
 
     # TODO: refactor the output_name
     parser.add_argument('--output_name', default='cycloid.stl',
