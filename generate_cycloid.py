@@ -14,10 +14,11 @@ a possibly interesting variant:
   t - sin 4t, cos 3t
 from -5pi/4 to pi/4
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708
+the regularization here is because otherwise the graph curves so much in the middle section that there is a kink
+the phase change means it can go from -3pi/4 to 3pi/4
 
-note that the graph curves so much in the middle section that there is a kink
-perhaps regularize in x from -.6187 to .6187
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
 """
 
 def generate_cycloid(args):
