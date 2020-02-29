@@ -8,6 +8,9 @@ Generates a cycloid of the form (t + sin(4t), 1 - cos(4t))
 There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
+To get walls to hopefully stop the marble from jumping:
+python generate_cycloid.py --slope_angle 3.0 --tube_method oval --tube_wall_height 6
+
 Note that other arguments can make pretty interesting curves as well
 
 p67 of Practical Handbook of Curve Dewsign and Generation
@@ -22,6 +25,70 @@ the phase change means it can go from -3pi/4 to 3pi/4
 python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4
 python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
 """
+
+def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
+    total_drop = 0.0
+    delta_time_step = end_time_step - start_time_step
+    for time_step in range(delta_time_step):
+        if time_step < delta_time_step * 0.2:
+            slope = min_angle + (max_angle - min_angle) * time_step / (delta_time_step * 0.2)
+        elif time_step > delta_time_step * 0.8:
+            slope = min_angle + (max_angle - min_angle) * (delta_time_step - time_step) / (delta_time_step * 0.2)
+        else:
+            slope = max_angle
+        total_drop = total_drop + (arclengths[time_step + start_time_step + 1] - arclengths[time_step + start_time_step]) * math.tan(slope * math.pi / 180)
+    #print("Total drop for angle", max_angle, "is", total_drop)
+    return total_drop
+    
+
+def get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz):
+    total_drop = get_drop(arclengths, slope_angle, slope_angle, start_time_step, end_time_step)
+    if total_drop > needed_dz:
+        return
+
+    total_drop = get_drop(arclengths, slope_angle, 45, start_time_step, end_time_step)
+    if total_drop < needed_dz:
+        raise ValueError("Even an angle of 45 is not sufficient to achieve this drop")
+
+    min_angle = slope_angle
+    max_angle = 45
+    while max_angle - min_angle > 0.01:
+        test_angle = (max_angle + min_angle) / 2
+        total_drop = get_drop(arclengths, slope_angle, test_angle, start_time_step, end_time_step)
+        if total_drop < needed_dz:
+            min_angle = test_angle
+        else:
+            max_angle = test_angle
+    return (max_angle + min_angle) / 2.0    
+
+def get_time_step(times, t):
+    # TODO: implement binary search?
+    if times[0] > t:
+        return 0
+    if times[-1] < t:
+        return len(times) - 1
+    for i in range(len(times)):
+        if times[i] <= t and times[i+1] > t:
+            return i
+    raise AssertionError("Oops")
+
+def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed_dz):
+    start_time_step = get_time_step(times, start_t)
+    end_time_step = get_time_step(times, end_t)
+    if end_time_step < start_time_step:
+        end_time_step, start_time_step = start_time_step, end_time_step
+
+    best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz)
+
+    delta_time_step = end_time_step - start_time_step
+    for time_step in range(delta_time_step+1):
+        if time_step < delta_time_step * 0.2:
+            new_slope = slope_angle + (best_angle - slope_angle) * time_step / (delta_time_step * 0.2)
+        elif time_step > delta_time_step * 0.8:
+            new_slope = slope_angle + (best_angle - slope_angle) * (delta_time_step - time_step) / (delta_time_step * 0.2)
+        else:
+            new_slope = best_angle
+        slopes[time_step+start_time_step] = max(new_slope, slopes[time_step+start_time_step])
 
 def generate_cycloid(args):
     min_t = args.min_domain - args.extra_t
@@ -54,17 +121,13 @@ def generate_cycloid(args):
     # TODO: parametrize this, probably by giving intervals and then
     # using the arclength function to figure out what angle is needed
     # to get the desired drop
-    def slope_angle_t(time_step):
-        t = abs(time_t(time_step))
-        if t < .16675 or t > 1.40405:
-            return 2.0
-        t = t - 0.16675
-        t = t / 1.2373
-        if t < 0.2:
-            return 2.0 + t * 55
-        if t > 0.8:
-            return 2.0 + (1.0 - t) * 55
-        return 13.0
+    arclengths = marble_path.calculate_arclengths(x_t, y_t, args.num_time_steps)
+    times = [time_t(t) for t in range(args.num_time_steps+1)]
+    slopes = [args.slope_angle for t in range(args.num_time_steps+1)]
+    update_slopes(slopes, arclengths, times, args.slope_angle, .16675, 1.40405, 25)
+    update_slopes(slopes, arclengths, times, args.slope_angle, -1.40405, -.16675, 25)
+
+    slope_angle_t = lambda time_step_t: slopes[time_step_t]
     
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
                                                slope_angle_t=slope_angle_t)
