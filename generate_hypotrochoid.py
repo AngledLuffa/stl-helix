@@ -6,6 +6,7 @@ import marble_path
 """
 
 to make a 3 lobed flower:
+------------------------
 this is the ramp
 python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 --scale 6  --tube_end_angle 240 --slope_angle 12
 
@@ -27,29 +28,33 @@ to make a 4 lobed flower:
 python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 9 --tube_end_angle 240 --slope_angle 8 --scale 4 --start_t 0.7854
 
 5 lobed flower:
+--------------
 this is a solid tube for the links
-python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.35 --scale 8.5 --start_t 0.6283
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 0.6283 --regularization 0.01
 
-height is 136.75
+slight regularization is needed to fit in a Dremel 3d40
+height is 136.51
 put it at x=0,y=0,z=15
 the hole in the middle will make it perfect for connecting to the
   previous piece at 150mm up and the next piece at 18mm
 
-cut off the top of the tube
-python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.35 --scale 8.5 --start_t 0.6283 --end_t 6.2
-z=27.37: still fits
+cut off the bottom of the tube
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 0.6283 --end_t 6.2 --regularization 0.01
+new height: 123.34
+so make z=15+136.51-123.34=28.17
+z=28.17
 
-cut off the bottom of the tube as well
-python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.35 --scale 8.5 --start_t 1.2 --end_t 6.2
+cut off the top of the tube as well
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 1.2 --end_t 6.2 --regularization 0.01
 
-connector tube will go at x=56,y=62.55
+connector tube will go at x=51.89,y=58.30
 
 actual ramp:
-python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 240 --slope_angle 7.35 --scale 8.5 --start_t 0.6283
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 240 --slope_angle 7.71 --scale 8.5 --start_t 0.6283 --regularization 0.01
 this goes at 0,0,15
 
 hole that goes down the middle:
-python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.35 --scale 8.5 --start_t 0.6283  --tube_radius 10.5 --wall_thickness 11
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 0.6283  --regularization 0.01  --tube_radius 10.5 --wall_thickness 11
 this goes at 2,2,17
 
 rotation on post: 36 degrees
