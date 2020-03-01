@@ -1,4 +1,5 @@
 import argparse
+import ast
 import math
 
 import marble_path
@@ -9,7 +10,7 @@ There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
 To get walls to hopefully stop the marble from jumping:
-python generate_cycloid.py --slope_angle 3.0 --tube_method oval --tube_wall_height 6
+python generate_cycloid.py --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))"
 
 Note that other arguments can make pretty interesting curves as well
 
@@ -118,14 +119,13 @@ def generate_cycloid(args):
         return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
                 scale * args.y_scale)
 
-    # TODO: parametrize this, probably by giving intervals and then
-    # using the arclength function to figure out what angle is needed
-    # to get the desired drop
     arclengths = marble_path.calculate_arclengths(x_t, y_t, args.num_time_steps)
     times = [time_t(t) for t in range(args.num_time_steps+1)]
     slopes = [args.slope_angle for t in range(args.num_time_steps+1)]
-    update_slopes(slopes, arclengths, times, args.slope_angle, .16675, 1.40405, 25)
-    update_slopes(slopes, arclengths, times, args.slope_angle, -1.40405, -.16675, 25)
+    if args.overlaps:
+        for start_t, end_t in args.overlaps:
+            # for the basic 2 loop cycloid, want +/- .16675, 1.40405
+            update_slopes(slopes, arclengths, times, args.slope_angle, start_t, end_t, 25)
 
     slope_angle_t = lambda time_step_t: slopes[time_step_t]
     
@@ -153,7 +153,14 @@ def generate_cycloid(args):
                                               num_time_steps=args.num_time_steps,
                                               slope_angle_t=slope_angle_t):
         yield triangle    
-    
+
+def parse_overlaps(overlap_str):
+    overlap_tuple = ast.literal_eval(overlap_str)
+    for i in overlap_tuple:
+        if len(i) != 2:
+            raise ValueError('Overlaps need to be a tuple of tuples')
+    return overlap_tuple
+        
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
 
@@ -200,6 +207,9 @@ def parse_args():
 
     parser.add_argument('--sigmoid_regularization', default=0.0, type=float,
                         help='How much to use regularization around x=0.  Idea is to make squiggle with loops not have sharp corners')
+
+    parser.add_argument('--overlaps', default=None, type=parse_overlaps,
+                        help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
 
     # TODO: refactor the output_name
     parser.add_argument('--output_name', default='cycloid.stl',
