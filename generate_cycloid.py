@@ -23,8 +23,29 @@ from -5pi/4 to pi/4
 the regularization here is because otherwise the graph curves so much in the middle section that there is a kink
 the phase change means it can go from -3pi/4 to 3pi/4
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 222 --no_use_sign --y_scale 1.0 --y_phase 1.5708 --sigmoid_regularization 0.4 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
+loops in this cycloid:
+0.95215~0.95216   ..  2.18944~2.18945
+
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6
+
+this will be good on & off holes
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
+
+this will clear up tiny notches
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 4 --tube_method oval --tube_wall_height 10
+
+put the first squiggle at
+0, 0, 16.47
+it is 231.68 x 136.21 x 78.90
+posts at -8.85, 91.92, 50 and 209.53, 13.28, 0
+tube is 18.5 high
+
+squiggle for the holes:
+229.40 x 132.21 x 81.40
+tube is 22 high
+so it goes at 1.99, 2, 18.47
+
+using the "tiny notches" one still leaves a few rough parts to clean up
 """
 
 def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
@@ -80,6 +101,9 @@ def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed
         end_time_step, start_time_step = start_time_step, end_time_step
 
     best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz)
+    if best_angle is None:
+        print("Nothing to do for the overlap at interval %.4f, %.4f" % (start_t, end_t))
+        return
 
     delta_time_step = end_time_step - start_time_step
     for time_step in range(delta_time_step+1):
@@ -125,7 +149,7 @@ def generate_cycloid(args):
     if args.overlaps:
         for start_t, end_t in args.overlaps:
             # for the basic 2 loop cycloid, want +/- .16675, 1.40405
-            update_slopes(slopes, arclengths, times, args.slope_angle, start_t, end_t, 25)
+            update_slopes(slopes, arclengths, times, args.slope_angle, start_t, end_t, args.overlap_separation)
 
     slope_angle_t = lambda time_step_t: slopes[time_step_t]
     
@@ -210,6 +234,8 @@ def parse_args():
 
     parser.add_argument('--overlaps', default=None, type=parse_overlaps,
                         help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
+    parser.add_argument('--overlap_separation', default=25.0, type=float,
+                        help='Required vertical distance between loops')
 
     # TODO: refactor the output_name
     parser.add_argument('--output_name', default='cycloid.stl',
