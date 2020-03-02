@@ -14,7 +14,7 @@ python generate_cycloid.py --slope_angle 3.0 --tube_method oval --tube_wall_heig
 
 Note that other arguments can make pretty interesting curves as well
 
-p67 of Practical Handbook of Curve Dewsign and Generation
+p67 of Practical Handbook of Curve Design and Generation
 
 a possibly interesting variant:
   t - sin 4t, cos 3t
@@ -26,13 +26,13 @@ the phase change means it can go from -3pi/4 to 3pi/4
 loops in this cycloid:
 0.95215~0.95216   ..  2.18944~2.18945
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --reg_y 0.1 --reg_power 2  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6
 
 this will be good on & off holes
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
 
 this will clear up tiny notches
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --sigmoid_regularization 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 4 --tube_method oval --tube_wall_height 10
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 4 --tube_method oval --tube_wall_height 10
 
 put the first squiggle at
 0, 0, 16.47
@@ -127,7 +127,7 @@ def generate_cycloid(args):
         t = time_t(time_step)
         if t < args.min_domain or t > args.max_domain:
             return t * scale
-        reg = (1.0 - args.sigmoid_regularization) + args.sigmoid_regularization * math.exp(4 * t ** 2) / (1.0 + math.exp(4 * t ** 2))
+        reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
         return (t + reg * args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
 
     def y_t(time_step):
@@ -140,8 +140,9 @@ def generate_cycloid(args):
             sign = -1
         else:
             sign = 1
+        reg = (1.0 - args.reg_y) + args.reg_y * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
         return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
-                scale * args.y_scale)
+                scale * args.y_scale * reg)
 
     arclengths = marble_path.calculate_arclengths(x_t, y_t, args.num_time_steps)
     times = [time_t(t) for t in range(args.num_time_steps+1)]
@@ -229,8 +230,12 @@ def parse_args():
     parser.add_argument('--y_phase', default=0.0, type=float,
                         help='Adjust the phase of y(t) = y0 + C cos(Dt + phase)')
 
-    parser.add_argument('--sigmoid_regularization', default=0.0, type=float,
-                        help='How much to use regularization around x=0.  Idea is to make squiggle with loops not have sharp corners')
+    parser.add_argument('--reg_x', default=0.0, type=float,
+                        help='How much to use regularization on x around t=0.  Idea is to make squiggle with loops not have sharp corners')
+    parser.add_argument('--reg_y', default=0.0, type=float,
+                        help='How much to use regularization on y around t=0.  Idea is to make squiggle with loops not have sharp corners')
+    parser.add_argument('--reg_power', default=4.0, type=float,
+                        help='How tightly to apply the reg around t=0.  Higher t means less wide effect')
 
     parser.add_argument('--overlaps', default=None, type=parse_overlaps,
                         help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
