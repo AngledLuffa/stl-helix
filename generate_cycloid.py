@@ -26,13 +26,15 @@ the phase change means it can go from -3pi/4 to 3pi/4
 loops in this cycloid:
 0.95215~0.95216   ..  2.18944~2.18945
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --reg_y 0.1 --reg_power 2  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2.5
+
 
 this will be good on & off holes
 python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
 
 this will clear up tiny notches
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 4 --tube_method oval --tube_wall_height 10
+
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 5 --tube_radius 10.5 --tube_wall_height 10
 
 put the first squiggle at
 0, 0, 16.47
@@ -191,6 +193,7 @@ def parse_args():
 
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
 
+    # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,
                         help='If set, the domain will be -domain..domain')
     parser.add_argument('--min_domain', default=None, type=float,
@@ -198,6 +201,7 @@ def parse_args():
     parser.add_argument('--max_domain', default=None, type=float,
                         help='t1 in the domain [t0, t1].  If left None, will be derived from the coefficients')
 
+    # Parameters for the equation of this curve
     parser.add_argument('--x_coeff', default=1, type=float,
                       help='Coefficient A of x=t+A sin(Bt)')
     parser.add_argument('--x_t_coeff', default=4, type=int,
@@ -225,6 +229,7 @@ def parse_args():
 
     parser.add_argument('--width', default=134.0, type=float,
                         help='How far apart to make the endpoints of the curve.  Note that the curve itself may extend past the endpoints')
+
     parser.add_argument('--y_scale', default=0.8, type=float,
                         help='Make the model a little squished or stretched vertically')
     parser.add_argument('--y_phase', default=0.0, type=float,
