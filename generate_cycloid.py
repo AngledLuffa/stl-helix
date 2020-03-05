@@ -49,6 +49,12 @@ so it goes at 1.99, 2, 18.47
 """
 
 def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
+    """
+    Given a set of arclengths, the start & end times, and the angles
+    to gradually transition between, return the total drop for that span.
+
+    TODO: refactor with the code that assigns the actual angles in update_slopes?
+    """
     total_drop = 0.0
     delta_time_step = end_time_step - start_time_step
     for time_step in range(delta_time_step):
@@ -64,6 +70,11 @@ def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
     
 
 def get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz):
+    """
+    Get the drop angle needed to gradually achieve the desired dz in the given time span
+
+    Works by using binary search between the base slope_angle and 45 degrees down
+    """
     total_drop = get_drop(arclengths, slope_angle, slope_angle, start_time_step, end_time_step)
     if total_drop > needed_dz:
         return
@@ -84,6 +95,9 @@ def get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, need
     return (max_angle + min_angle) / 2.0    
 
 def get_time_step(times, t):
+    """
+    Given a list mapping time step to actual t, return the time step closest to the desired t
+    """
     # TODO: implement binary search?
     if times[0] > t:
         return 0
@@ -95,6 +109,10 @@ def get_time_step(times, t):
     raise AssertionError("Oops")
 
 def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed_dz):
+    """
+    Update a list of slopes, changing the slopes in a way such that
+    between start_t and end_t, the path goes down by needed_dz
+    """
     start_time_step = get_time_step(times, start_t)
     end_time_step = get_time_step(times, end_t)
     if end_time_step < start_time_step:
