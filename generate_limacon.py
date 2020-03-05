@@ -9,9 +9,8 @@ def limacon_derivative(theta, x_scale, y_scale, a, b):
     # x(t) =  -math.sin(theta) * (a - b * math.cos(theta)) + b * math.cos(theta) * math.sin(theta)
     # y(t) =   math.cos(theta) * (a - b * math.cos(theta)) + b * math.sin(theta) * math.sin(theta)
     # and then of course we scale it by x_scale, y_scale
-    # FIXME: is this not scaled??  lucky that it works in the case x_scale == y_scale
-    return (-math.sin(theta) * (a - b * math.cos(theta)) + b * math.cos(theta) * math.sin(theta),
-             math.cos(theta) * (a - b * math.cos(theta)) + b * math.sin(theta) * math.sin(theta))
+    return (x_scale * (-math.sin(theta) * (a - b * math.cos(theta)) + b * math.cos(theta) * math.sin(theta)),
+            y_scale * ( math.cos(theta) * (a - b * math.cos(theta)) + b * math.sin(theta) * math.sin(theta)))
 
 
 def get_normal_rotation(theta, x_scale, y_scale, a, b):
