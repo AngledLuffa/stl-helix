@@ -5,7 +5,19 @@ import marble_path
 """
 p173 has some interesting alterations to trig waves
 
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 6 --tube_method oval --tube_wall_height 8 --wall_thickness 3
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 9 --tube_method oval --tube_wall_height 8 --wall_thickness 3
+
+this is
+x(t) = t + math.sin(t) ** 2
+y(t) = 3 math.sin(t)
+
+from 0 to 4pi
+
+issue here: for some reason the corresponding inner tube has some
+holes.  Could possibly fix that by merging neighboring tube chunks
+using a 3d union algorithm.  Fortunately they have libraries for that
+rather just doing it ourselves
+
 """
 
 def generate_trig(args):
@@ -15,15 +27,13 @@ def generate_trig(args):
     def time_t(time_step):
         return min_t + (max_t - min_t) * time_step / args.num_time_steps
 
-    scale = args.width / (max_t - min_t)
-
     def x_t(time_step):
         t = time_t(time_step)
-        return scale * (t + math.sin(t) ** args.power)
+        return args.scale * (t + math.sin(t) ** args.power)
 
     def y_t(time_step):
         t = time_t(time_step)
-        return scale * args.y_coeff * math.sin(t)
+        return args.scale * args.y_coeff * math.sin(t)
 
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
                                                slope_angle=args.slope_angle)
@@ -59,10 +69,20 @@ def parse_args():
     parser.add_argument('--width', default=134.0, type=float,
                         help='How far apart to make the endpoints of the curve.  Note that the curve itself may extend past the endpoints')
 
+    parser.add_argument('--scale', default=None, type=float,
+                        help='Multiple all samples by this value.  If set to None, will be calculated from the width.')
+
     parser.add_argument('--output_name', default='trig.stl',
                         help='Where to put the stl')
     
     args = parser.parse_args()
+
+    if args.scale is None:
+        max_t = args.end_t
+        min_t = args.start_t
+        args.scale = args.width / (max_t - min_t)
+        print("Calculated scale to be ", args.scale)
+    
     return args
     
     
