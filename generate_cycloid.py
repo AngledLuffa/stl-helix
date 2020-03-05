@@ -46,8 +46,6 @@ squiggle for the holes:
 229.40 x 132.21 x 81.40
 tube is 22 high
 so it goes at 1.99, 2, 18.47
-
-using the "tiny notches" one still leaves a few rough parts to clean up
 """
 
 def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
