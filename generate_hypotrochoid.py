@@ -25,7 +25,13 @@ angle is, not surprisingly, about 60 on the upper connection
 
 TODO:
 to make a 4 lobed flower:
-python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 9 --tube_end_angle 240 --slope_angle 8 --scale 4 --start_t 0.7854
+
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --tube_end_angle 240 --slope_angle 8 --scale 6 --start_t 0.7854 --tube_method OVAL --tube_wall_height 6
+
+needs overlaps, like in the cycloid
+also needs some sort of bend into the middle
+lobes will need regularization
+and ideally we can make it exactly touch the outside of the post
 
 5 lobed flower:
 --------------
