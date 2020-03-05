@@ -156,7 +156,8 @@ def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
     else:
         # angle should go from 0..pi
         tube_position = tube_position - wall_height / tube_arclength
-        tube_position = tube_position / (1.0 - wall_height * 2 / tube_arclength)
+        if wall_height * 2 / tube_arclength < 1.0:
+            tube_position = tube_position / (1.0 - wall_height * 2 / tube_arclength)
         tube_angle = math.pi * tube_position
         x_disp = tube_radius * math.cos(tube_angle)
         vert_disp = -tube_radius * math.sin(tube_angle) - wall_height
