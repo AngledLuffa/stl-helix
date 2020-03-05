@@ -4,6 +4,10 @@ import math
 import marble_path
 
 """
+Generates a hypotrochoid, a curve on a circle defined by 3 parameters.
+
+x(t) = ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
+y(t) = ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
 
 to make a 3 lobed flower:
 ------------------------
@@ -38,8 +42,13 @@ TODO:
 -----
 inside out flower
 
+three leaves:
 python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
 
+two leaves:
+python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
+
+maybe should have a round path so that the transition to the pole is smooth
 
 5 lobed flower:
 --------------
@@ -103,6 +112,9 @@ def generate_hypotrochoid(args):
     B = args.hypoB
     C = args.hypoC
 
+    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
+    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
+    
     def x_t(time_step):
         t = time_t(time_step)
         return ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
@@ -217,7 +229,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    marble_path.print_args(args)
+    marble_path.print_args(args)    
 
     marble_path.write_stl(generate_hypotrochoid(args), args.output_name)
 
