@@ -99,10 +99,10 @@ def numerical_rotation_function(x_t, y_t, epsilon=0.001):
             raise ValueError("derivative has a discontinuity at %f" % time_step)
         
         rotation = math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5)
-        if dx > 0 and dy > 0:
+        if dx >= 0 and dy > 0:
             # this gives us a negative rotation, meaning to the right
             rotation = -rotation
-        elif dx > 0 and dy < 0:
+        elif dx >= 0 and dy < 0:
             rotation = rotation + math.pi
         elif dx < 0 and dy > 0:
             rotation = -rotation
