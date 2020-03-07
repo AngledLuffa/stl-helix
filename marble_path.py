@@ -236,10 +236,10 @@ def coordinates(x_t, y_t, z_t, r_t,
     return location
 
 
-def generate_path(x_t, y_t, z_t, r_t,
-                  tube_args, num_time_steps,
-                  tube_angle_t=None,
-                  slope_angle_t=None):
+def compose_triangles(x_t, y_t, z_t, r_t,
+                      tube_args, num_time_steps,
+                      tube_angle_t=None,
+                      slope_angle_t=None):
     """
     tube_args should be args including the tube arguments from below
     tube_angle_t, if it exists, is a function returning (start, end)
@@ -382,6 +382,18 @@ def generate_path(x_t, y_t, z_t, r_t,
                          call_coordinates(tube_subdivision+1, time_step+1, False),
                          call_coordinates(tube_subdivision+1, time_step+1, True))
 
+    return vertex_list, triangle_list
+                
+def generate_path(x_t, y_t, z_t, r_t,
+                  tube_args, num_time_steps,
+                  tube_angle_t=None,
+                  slope_angle_t=None):
+    vertex_list, triangle_list = compose_triangles(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
+                                                   tube_args=tube_args,
+                                                   num_time_steps=num_time_steps,
+                                                   tube_angle_t=tube_angle_t,
+                                                   slope_angle_t=slope_angle_t)
+                
     for left, right, top in triangle_list:
         yield (vertex_list[left], vertex_list[right], vertex_list[top])
                 
