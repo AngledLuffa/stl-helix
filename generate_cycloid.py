@@ -112,7 +112,7 @@ def generate_cycloid(args):
                                               tube_args=args,
                                               num_time_steps=args.num_time_steps,
                                               slope_angle_t=slope_angle_t):
-        yield triangle    
+        yield triangle
 
 def parse_overlaps(overlap_str):
     overlap_tuple = ast.literal_eval(overlap_str)
