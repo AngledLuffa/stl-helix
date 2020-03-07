@@ -27,15 +27,15 @@ the phase change means it can go from -3pi/4 to 3pi/4
 loops in this cycloid:
 0.95215~0.95216   ..  2.18944~2.18945
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2.5
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2.5 --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
 
 
 this will be good on & off holes
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360  --kinks "(-0.3927, 0.3927)" --kink_width 0.15  --kink_slope 0.5
 
 this will clear up tiny notches
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 5 --tube_radius 10.5 --tube_wall_height 10
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 5 --tube_radius 10.5 --tube_wall_height 10  --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
 
 put the first squiggle at
 0, 0, 16.47
@@ -84,7 +84,10 @@ def generate_cycloid(args):
                                                   slope_angle=args.slope_angle,
                                                   num_time_steps=args.num_time_steps,
                                                   overlaps=args.overlaps,
-                                                  overlap_separation=args.overlap_separation)
+                                                  overlap_separation=args.overlap_separation,
+                                                  kinks=args.kinks,
+                                                  kink_width=args.kink_width,
+                                                  kink_slope=args.kink_slope)
     
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
                                                slope_angle_t=slope_angle_t)
@@ -117,6 +120,10 @@ def parse_overlaps(overlap_str):
         if len(i) != 2:
             raise ValueError('Overlaps need to be a tuple of tuples')
     return overlap_tuple
+        
+def parse_kinks(kink_str):
+    kink_tuple = ast.literal_eval(kink_str)
+    return kink_tuple
         
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
@@ -177,6 +184,13 @@ def parse_args():
     parser.add_argument('--overlap_separation', default=25.0, type=float,
                         help='Required vertical distance between loops')
 
+    parser.add_argument('--kinks', default=None, type=parse_kinks,
+                        help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
+    parser.add_argument('--kink_width', default=0.1, type=float,
+                        help='How wide to make the kinks in terms of time')
+    parser.add_argument('--kink_slope', default=0.5, type=float,
+                        help='Angle to make the kink')
+    
     # TODO: refactor the output_name
     parser.add_argument('--output_name', default='cycloid.stl',
                         help='Where to put the stl')

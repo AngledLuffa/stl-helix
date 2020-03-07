@@ -61,6 +61,20 @@ def get_time_step(times, t):
             return i
     raise AssertionError("Oops")
 
+def update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, final_angle, take_max):
+    delta_time_step = end_time_step - start_time_step
+    for time_step in range(delta_time_step+1):
+        if time_step < delta_time_step * 0.2:
+            new_slope = slope_angle + (final_angle - slope_angle) * time_step / (delta_time_step * 0.2)
+        elif time_step > delta_time_step * 0.8:
+            new_slope = slope_angle + (final_angle - slope_angle) * (delta_time_step - time_step) / (delta_time_step * 0.2)
+        else:
+            new_slope = final_angle
+        if take_max:
+            slopes[time_step+start_time_step] = max(new_slope, slopes[time_step+start_time_step])
+        else:
+            slopes[time_step+start_time_step] = min(new_slope, slopes[time_step+start_time_step])
+
 def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed_dz):
     """
     Update a list of slopes, changing the slopes in a way such that
@@ -76,26 +90,38 @@ def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed
         print("Nothing to do for the overlap at interval %.4f, %.4f" % (start_t, end_t))
         return
 
-    delta_time_step = end_time_step - start_time_step
-    for time_step in range(delta_time_step+1):
-        if time_step < delta_time_step * 0.2:
-            new_slope = slope_angle + (best_angle - slope_angle) * time_step / (delta_time_step * 0.2)
-        elif time_step > delta_time_step * 0.8:
-            new_slope = slope_angle + (best_angle - slope_angle) * (delta_time_step - time_step) / (delta_time_step * 0.2)
-        else:
-            new_slope = best_angle
-        slopes[time_step+start_time_step] = max(new_slope, slopes[time_step+start_time_step])
+    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, best_angle, True)
 
+def update_slopes_kink(slopes, times, slope_angle, kink_slope, kink_width, t):
+    start_t = t - kink_width
+    start_time_step = get_time_step(times, start_t)
 
-def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, overlap_separation):
+    end_t = t + kink_width
+    end_time_step = get_time_step(times, end_t)
+
+    if end_time_step < start_time_step:
+        end_time_step, start_time_step = start_time_step, end_time_step
+
+    print("Adding kink from ", start_time_step, " to ", end_time_step)
+        
+    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, kink_slope, False)
+
+def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, overlap_separation,
+                   kinks, kink_width, kink_slope):
     arclengths = marble_path.calculate_arclengths(x_t, y_t, num_time_steps)
     times = [time_t(t) for t in range(num_time_steps+1)]
     slopes = [slope_angle for t in range(num_time_steps+1)]
+    if kinks:
+        for t in kinks:
+            update_slopes_kink(slopes, times, slope_angle, kink_slope, kink_width, t)
     if overlaps:
         for start_t, end_t in overlaps:
             # for the basic 2 loop cycloid, want +/- .16675, 1.40405
             update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, overlap_separation)
 
+    #for i, s in enumerate(slopes):
+    #    print("%4d %.4f" % (i, s))
+            
     slope_angle_t = lambda time_step_t: slopes[time_step_t]
     return slope_angle_t
 
