@@ -320,7 +320,8 @@ def generate_path(x_t, y_t, z_t, r_t,
     def call_coordinates(tube_subdivision, time_step, inside):
         position = (tube_subdivision, time_step, inside)
         if position in position_to_vertex_index:
-            return vertex_list[position_to_vertex_index[position]]
+            index = position_to_vertex_index[position]
+            return index
         else:
             xyz = coordinates(x_t=x_t,
                               y_t=y_t,
@@ -330,54 +331,60 @@ def generate_path(x_t, y_t, z_t, r_t,
                               tube_subdivision=tube_subdivision,
                               inside=inside,
                               time_t=time_step)
-            position_to_vertex_index[position] = len(vertex_list)
+            index = len(vertex_list)
+            position_to_vertex_index[position] = index
             vertex_list.append(xyz)
-            return xyz
+            return index
 
+    triangle_list = []
+    def add_quad(bottom, right, top, left):
+        # note that the names are meant to be evocative, not necessarily
+        # exactly where the triangle is
+        triangle_list.append((bottom, right, left))
+        triangle_list.append((left, right, top))
     
     for time_step in range(num_time_steps):
         for tube_subdivision in range(num_tube_subdivisions):
             #print("Iterating over tube {} helix {}".format(tube_subdivision, time_step))
-            quads = []
             # outside wall
-            quads.append((call_coordinates(tube_subdivision, time_step, False),
-                          call_coordinates(tube_subdivision+1, time_step, False),
-                          call_coordinates(tube_subdivision+1, time_step+1, False),
-                          call_coordinates(tube_subdivision, time_step+1, False)))
+            add_quad(call_coordinates(tube_subdivision, time_step, False),
+                     call_coordinates(tube_subdivision+1, time_step, False),
+                     call_coordinates(tube_subdivision+1, time_step+1, False),
+                     call_coordinates(tube_subdivision, time_step+1, False))
             # inside wall
             if has_inner_wall:
-                quads.append((call_coordinates(tube_subdivision, time_step, True),
-                              call_coordinates(tube_subdivision, time_step+1, True),
-                              call_coordinates(tube_subdivision+1, time_step+1, True),
-                              call_coordinates(tube_subdivision+1, time_step, True)))
+                add_quad(call_coordinates(tube_subdivision, time_step, True),
+                         call_coordinates(tube_subdivision, time_step+1, True),
+                         call_coordinates(tube_subdivision+1, time_step+1, True),
+                         call_coordinates(tube_subdivision+1, time_step, True))
             # start tube wall
             if tube_subdivision == 0 and not full_tube:
-                quads.append((call_coordinates(tube_subdivision, time_step, False),
-                              call_coordinates(tube_subdivision, time_step+1, False),
-                              call_coordinates(tube_subdivision, time_step+1, True),
-                              call_coordinates(tube_subdivision, time_step, True)))
+                add_quad(call_coordinates(tube_subdivision, time_step, False),
+                         call_coordinates(tube_subdivision, time_step+1, False),
+                         call_coordinates(tube_subdivision, time_step+1, True),
+                         call_coordinates(tube_subdivision, time_step, True))
             # end tube wall
             if tube_subdivision == num_tube_subdivisions-1 and not full_tube:
-                quads.append((call_coordinates(tube_subdivision+1, time_step, True),
-                              call_coordinates(tube_subdivision+1, time_step+1, True),
-                              call_coordinates(tube_subdivision+1, time_step+1, False),
-                              call_coordinates(tube_subdivision+1, time_step, False)))
+                add_quad(call_coordinates(tube_subdivision+1, time_step, True),
+                         call_coordinates(tube_subdivision+1, time_step+1, True),
+                         call_coordinates(tube_subdivision+1, time_step+1, False),
+                         call_coordinates(tube_subdivision+1, time_step, False))
             # start helix wall
             if time_step == 0:
-                quads.append((call_coordinates(tube_subdivision, time_step, False),
-                              call_coordinates(tube_subdivision, time_step, True),
-                              call_coordinates(tube_subdivision+1, time_step, True),
-                              call_coordinates(tube_subdivision+1, time_step, False)))
+                add_quad(call_coordinates(tube_subdivision, time_step, False),
+                         call_coordinates(tube_subdivision, time_step, True),
+                         call_coordinates(tube_subdivision+1, time_step, True),
+                         call_coordinates(tube_subdivision+1, time_step, False))
             # end helix wall
             if time_step == num_time_steps-1:
-                quads.append((call_coordinates(tube_subdivision, time_step+1, True),
-                              call_coordinates(tube_subdivision, time_step+1, False),
-                              call_coordinates(tube_subdivision+1, time_step+1, False),
-                              call_coordinates(tube_subdivision+1, time_step+1, True)))
-            for quad in quads:
-                for triangle in generate_quad(*quad):
-                    yield triangle
+                add_quad(call_coordinates(tube_subdivision, time_step+1, True),
+                         call_coordinates(tube_subdivision, time_step+1, False),
+                         call_coordinates(tube_subdivision+1, time_step+1, False),
+                         call_coordinates(tube_subdivision+1, time_step+1, True))
 
+    for left, right, top in triangle_list:
+        yield (vertex_list[left], vertex_list[right], vertex_list[top])
+                
 def parse_eccentricity(e):
     e = float(e)
     if e < 0.0 or e >= 1:
