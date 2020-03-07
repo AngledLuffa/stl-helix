@@ -314,16 +314,25 @@ def generate_path(x_t, y_t, z_t, r_t,
                                          inside=inside,
                                          rotation=rotation)
 
-    
+    # not thread safe, although that isn't a limitation
+    vertex_list = []
+    position_to_vertex_index = {}
     def call_coordinates(tube_subdivision, time_step, inside):
-        return coordinates(x_t=x_t,
-                           y_t=y_t,
-                           z_t=z_t,
-                           r_t=r_t,
-                           tube_function=tube_function,
-                           tube_subdivision=tube_subdivision,
-                           inside=inside,
-                           time_t=time_step)
+        position = (tube_subdivision, time_step, inside)
+        if position in position_to_vertex_index:
+            return vertex_list[position_to_vertex_index[position]]
+        else:
+            xyz = coordinates(x_t=x_t,
+                              y_t=y_t,
+                              z_t=z_t,
+                              r_t=r_t,
+                              tube_function=tube_function,
+                              tube_subdivision=tube_subdivision,
+                              inside=inside,
+                              time_t=time_step)
+            position_to_vertex_index[position] = len(vertex_list)
+            vertex_list.append(xyz)
+            return xyz
 
     
     for time_step in range(num_time_steps):
