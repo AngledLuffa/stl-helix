@@ -1,6 +1,9 @@
 import argparse
+import ast
 import math
+
 import marble_path
+import slope_function
 
 """
 p173 has some interesting alterations to trig waves
@@ -35,18 +38,32 @@ def generate_trig(args):
         t = time_t(time_step)
         return args.scale * args.y_coeff * math.sin(t)
 
+    slope_angle_t = slope_function.slope_function(x_t=x_t,
+                                                  y_t=y_t,
+                                                  time_t=time_t,
+                                                  slope_angle=args.slope_angle,
+                                                  num_time_steps=args.num_time_steps,
+                                                  overlaps=None,
+                                                  overlap_separation=None,
+                                                  kinks=args.kinks,
+                                                  kink_width=args.kink_width,
+                                                  kink_slope=args.kink_slope)
+        
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
-                                               slope_angle=args.slope_angle)
+                                               slope_angle_t=slope_angle_t)
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
-
-
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps):
+                                              num_time_steps=args.num_time_steps,
+                                              slope_angle_t=slope_angle_t):
         yield triangle    
     
 
+def parse_kinks(kink_str):
+    kink_tuple = ast.literal_eval(kink_str)
+    return kink_tuple
+        
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for a random trig graph  p173 of Curves.')
@@ -72,8 +89,17 @@ def parse_args():
     parser.add_argument('--scale', default=None, type=float,
                         help='Multiple all samples by this value.  If set to None, will be calculated from the width.')
 
+    # TODO: refactor output_name
     parser.add_argument('--output_name', default='trig.stl',
                         help='Where to put the stl')
+
+    # TODO: refactor kinks
+    parser.add_argument('--kinks', default=None, type=parse_kinks,
+                        help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
+    parser.add_argument('--kink_width', default=0.1, type=float,
+                        help='How wide to make the kinks in terms of time')
+    parser.add_argument('--kink_slope', default=0.5, type=float,
+                        help='Angle to make the kink')
     
     args = parser.parse_args()
 
