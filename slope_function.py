@@ -62,16 +62,16 @@ def get_time_step(times, t):
             return i
     raise AssertionError("Oops")
 
-def update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, final_angle, take_max):
+def update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, final_angle, sharpness, use_max):
     delta_time_step = end_time_step - start_time_step
     for time_step in range(delta_time_step+1):
-        if time_step < delta_time_step * 0.2:
-            new_slope = slope_angle + (final_angle - slope_angle) * time_step / (delta_time_step * 0.2)
-        elif time_step > delta_time_step * 0.8:
-            new_slope = slope_angle + (final_angle - slope_angle) * (delta_time_step - time_step) / (delta_time_step * 0.2)
+        if time_step < delta_time_step * sharpness:
+            new_slope = slope_angle + (final_angle - slope_angle) * time_step / (delta_time_step * sharpness)
+        elif time_step > delta_time_step * (1.0 - sharpness):
+            new_slope = slope_angle + (final_angle - slope_angle) * (delta_time_step - time_step) / (delta_time_step * sharpness)
         else:
             new_slope = final_angle
-        if take_max:
+        if use_max:
             slopes[time_step+start_time_step] = max(new_slope, slopes[time_step+start_time_step])
         else:
             slopes[time_step+start_time_step] = min(new_slope, slopes[time_step+start_time_step])
@@ -86,18 +86,18 @@ def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed
     if end_time_step < start_time_step:
         end_time_step, start_time_step = start_time_step, end_time_step
 
-    best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz)
+    best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, 0.2, needed_dz)
     if best_angle is None:
         print("Nothing to do for the overlap at interval %.4f, %.4f" % (start_t, end_t))
         return
 
     update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, best_angle, True)
 
-def update_slopes_kink(slopes, times, slope_angle, kink_slope, kink_width, t):
-    start_t = t - kink_width
+def update_slopes_kink(slopes, times, slope_angle, kink_args, t):
+    start_t = t - kink_args.kink_width
     start_time_step = get_time_step(times, start_t)
 
-    end_t = t + kink_width
+    end_t = t + kink_args.kink_width
     end_time_step = get_time_step(times, end_t)
 
     if end_time_step < start_time_step:
@@ -105,16 +105,15 @@ def update_slopes_kink(slopes, times, slope_angle, kink_slope, kink_width, t):
 
     print("Adding kink from ", start_time_step, " to ", end_time_step)
         
-    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, kink_slope, False)
+    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, kink_args.kink_slope, kink_args.kink_sharpness, False)
 
-def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, overlap_separation,
-                   kinks, kink_width, kink_slope):
+def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, overlap_separation, kink_args):
     arclengths = marble_path.calculate_arclengths(x_t, y_t, num_time_steps)
     times = [time_t(t) for t in range(num_time_steps+1)]
     slopes = [slope_angle for t in range(num_time_steps+1)]
-    if kinks:
-        for t in kinks:
-            update_slopes_kink(slopes, times, slope_angle, kink_slope, kink_width, t)
+    if kink_args.kinks:
+        for t in kink_args.kinks:
+            update_slopes_kink(slopes, times, slope_angle, kink_args, t)
     if overlaps:
         for start_t, end_t in overlaps:
             # for the basic 2 loop cycloid, want +/- .16675, 1.40405
@@ -129,7 +128,13 @@ def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, over
 def parse_kinks(kink_str):
     kink_tuple = ast.literal_eval(kink_str)
     return kink_tuple
-        
+
+def parse_kink_sharpness(sharp_str):
+    sharp = float(sharp_str)
+    if sharp < 0 or sharp > 0.5:
+        raise ValueError("kink_sharpness must be between 0 and 0.5")
+    return sharp
+
 def add_kink_args(parser):
     parser.add_argument('--kinks', default=None, type=parse_kinks,
                         help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
@@ -138,3 +143,6 @@ def add_kink_args(parser):
     parser.add_argument('--kink_slope', default=0.5, type=float,
                         help='Angle to make the kink')
     
+    parser.add_argument('--kink_sharpness', default=0.2, type=parse_kink_sharpness,
+                        help='How steep to make the transition from regular slope to kink_slope.  0..0.5')
+                        

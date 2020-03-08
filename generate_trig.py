@@ -9,6 +9,12 @@ p173 has some interesting alterations to trig waves
 
 python generate_trig.py --y_coeff 3 --power 2 --slope_angle 9 --tube_method oval --tube_wall_height 8 --wall_thickness 3
 
+
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 11 --tube_method oval --tube_wall_height 8 --wall_thickness 3 --tube_radius 12.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 0.5 --kink_sharpness 0.25 --output_name trig.stl
+
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 11 --tube_method oval --tube_wall_height 8 --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 0.5 --kink_sharpness 0.25 --output_name trig_hole.stl
+
+
 this is
 x(t) = t + math.sin(t) ** 2
 y(t) = 3 math.sin(t)
@@ -44,9 +50,7 @@ def generate_trig(args):
                                                   num_time_steps=args.num_time_steps,
                                                   overlaps=None,
                                                   overlap_separation=None,
-                                                  kinks=args.kinks,
-                                                  kink_width=args.kink_width,
-                                                  kink_slope=args.kink_slope)
+                                                  kink_args=args)
         
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
                                                slope_angle_t=slope_angle_t)
