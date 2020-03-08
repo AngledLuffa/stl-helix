@@ -1,5 +1,4 @@
 import argparse
-import ast
 import math
 
 import marble_path
@@ -121,14 +120,11 @@ def parse_overlaps(overlap_str):
             raise ValueError('Overlaps need to be a tuple of tuples')
     return overlap_tuple
         
-def parse_kinks(kink_str):
-    kink_tuple = ast.literal_eval(kink_str)
-    return kink_tuple
-        
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
+    slope_function.add_kink_args(parser)
 
     # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,
@@ -183,13 +179,6 @@ def parse_args():
                         help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
     parser.add_argument('--overlap_separation', default=25.0, type=float,
                         help='Required vertical distance between loops')
-
-    parser.add_argument('--kinks', default=None, type=parse_kinks,
-                        help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
-    parser.add_argument('--kink_width', default=0.1, type=float,
-                        help='How wide to make the kinks in terms of time')
-    parser.add_argument('--kink_slope', default=0.5, type=float,
-                        help='Angle to make the kink')
     
     # TODO: refactor the output_name
     parser.add_argument('--output_name', default='cycloid.stl',

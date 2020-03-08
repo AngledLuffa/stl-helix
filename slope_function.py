@@ -1,3 +1,4 @@
+import ast
 import math
 
 import marble_path
@@ -125,3 +126,15 @@ def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, over
     slope_angle_t = lambda time_step_t: slopes[time_step_t]
     return slope_angle_t
 
+def parse_kinks(kink_str):
+    kink_tuple = ast.literal_eval(kink_str)
+    return kink_tuple
+        
+def add_kink_args(parser):
+    parser.add_argument('--kinks', default=None, type=parse_kinks,
+                        help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
+    parser.add_argument('--kink_width', default=0.1, type=float,
+                        help='How wide to make the kinks in terms of time')
+    parser.add_argument('--kink_slope', default=0.5, type=float,
+                        help='Angle to make the kink')
+    

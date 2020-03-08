@@ -80,6 +80,9 @@ def arclength_slope_function(x_t, y_t, num_time_steps,
         # TODO: interpolate time_step?
         return zs[time_step]
 
+    #for i, s in enumerate(zs):
+    #    print(i, s)
+    
     return z_t
 
 def numerical_rotation_function(x_t, y_t, epsilon=0.001):

@@ -1,5 +1,4 @@
 import argparse
-import ast
 import math
 
 import marble_path
@@ -60,15 +59,11 @@ def generate_trig(args):
         yield triangle    
     
 
-def parse_kinks(kink_str):
-    kink_tuple = ast.literal_eval(kink_str)
-    return kink_tuple
-        
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for a random trig graph  p173 of Curves.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=5.0)
+    slope_function.add_kink_args(parser)
 
     parser.add_argument('--num_time_steps', default=400, type=int,
                       help='Number of time steps to model')
@@ -92,14 +87,6 @@ def parse_args():
     # TODO: refactor output_name
     parser.add_argument('--output_name', default='trig.stl',
                         help='Where to put the stl')
-
-    # TODO: refactor kinks
-    parser.add_argument('--kinks', default=None, type=parse_kinks,
-                        help='Tuple of t to represent where to make the slope closer to 0.  Intended to make tight corners less disruptive to the model')
-    parser.add_argument('--kink_width', default=0.1, type=float,
-                        help='How wide to make the kinks in terms of time')
-    parser.add_argument('--kink_slope', default=0.5, type=float,
-                        help='Angle to make the kink')
     
     args = parser.parse_args()
 
