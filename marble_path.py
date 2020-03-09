@@ -5,6 +5,7 @@ from enum import Enum
 class Tube(Enum):
     ELLIPSE = 1
     OVAL = 2
+    DEEP_OVAL = 3
 
 def generate_quad(a, b, c, d):
     """
@@ -132,7 +133,7 @@ def rotate_tube(x_disp, y_disp, z_disp, rotation):
     
 
 
-def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
+def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
                           num_tube_subdivisions, tube_subdivision,
                           slope_angle, inside, rotation):
     """
@@ -142,6 +143,7 @@ def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
       (See: zigzag v1)
     wall_height is how high up to make the additional walls.
     rotation means how much to rotate the tube.
+    tube_method is passed in because this can work for both OVAL and DEEP_OVAL
     """
     if inside:
         tube_radius = tube_radius - wall_thickness
@@ -162,8 +164,17 @@ def oval_tube_coordinates(tube_radius, wall_height, wall_thickness,
         if wall_height * 2 / tube_arclength < 1.0:
             tube_position = tube_position / (1.0 - wall_height * 2 / tube_arclength)
         tube_angle = math.pi * tube_position
-        x_disp = tube_radius * math.cos(tube_angle)
-        vert_disp = -tube_radius * math.sin(tube_angle) - wall_height
+        cos = math.cos(tube_angle)
+        sin = math.sin(tube_angle)
+        if tube_method is Tube.DEEP_OVAL:
+            p_cos = abs(cos) ** 0.5
+            if cos < 0.0: p_cos = -p_cos
+            cos = (p_cos + cos) / 2
+            p_sin = abs(sin) ** 0.5
+            if sin < 0.0: p_sin = -p_sin
+            sin = (p_sin + sin) / 2
+        x_disp = tube_radius * cos
+        vert_disp = -tube_radius * sin - wall_height
 
     y_disp, z_disp = slope_tube(vert_disp, slope_angle)
     return rotate_tube(x_disp, y_disp, z_disp, rotation)
@@ -297,7 +308,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                             slope_angle=slope_angle_t(time_t),
                                             inside=inside,
                                             rotation=rotation)
-    elif tube_args.tube_method is Tube.OVAL:
+    elif tube_args.tube_method is Tube.OVAL or tube_args.tube_method is Tube.DEEP_OVAL:
         # if we are using an oval, start_angle, end_angle, and actual
         # subdivisions are all implicitly defined
         num_tube_subdivisions = tube_args.tube_sides
@@ -308,7 +319,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             """
             Create an oval instead.
             """
-            return oval_tube_coordinates(tube_radius=tube_args.tube_radius,
+            return oval_tube_coordinates(tube_method = tube_args.tube_method,
+                                         tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
                                          num_tube_subdivisions=tube_args.tube_sides,
@@ -425,7 +437,7 @@ def add_tube_arguments(parser, default_slope_angle=-5.0):
                         help='If creating an oval tube, how high to make the walls')
 
     parser.add_argument('--tube_method', default=Tube.ELLIPSE, type=lambda x: Tube[x.upper()],
-                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls')
+                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls.  DEEP_OVAL means the same, but with a deeper curve than a semicircle')
 
     parser.add_argument('--slope_angle', default=default_slope_angle, type=float,
                         help='Angle to tilt the curve')
