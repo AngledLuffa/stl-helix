@@ -7,25 +7,27 @@ import slope_function
 """
 p173 has some interesting alterations to trig waves
 
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 9 --tube_method oval --tube_wall_height 8 --wall_thickness 3
 
-
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 11 --tube_method oval --tube_wall_height 8 --wall_thickness 3 --tube_radius 12.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 0.5 --kink_sharpness 0.25 --output_name trig.stl
-
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 11 --tube_method oval --tube_wall_height 8 --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 0.5 --kink_sharpness 0.25 --output_name trig_hole.stl
-
-
+squared wave
+------------
 this is
 x(t) = t + math.sin(t) ** 2
 y(t) = 3 math.sin(t)
 
 from 0 to 4pi
 
-issue here: for some reason the corresponding inner tube has some
-holes.  Could possibly fix that by merging neighboring tube chunks
-using a 3d union algorithm.  Fortunately they have libraries for that
-rather just doing it ourselves
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method oval --tube_wall_height 8 --wall_thickness 3 --tube_radius 12.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig.stl
 
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method oval --tube_wall_height 8 --wall_thickness 11 --tube_radius 10.3  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig_hole.stl
+
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig_post_holes.stl
+
+to get this to work in the corners: copy 3 consecutive times, each 0.2 apart in the y direction.
+also, rather than putting it at z=2, put at z=1.8
+the issue here is that even with the "kink smoothing", the corners still wind up having a bit of a gap
+
+left post rotates by 63 degrees
+left post rotates by 97 degrees
 """
 
 def generate_trig(args):
