@@ -16,11 +16,12 @@ y(t) = 3 math.sin(t)
 
 from 0 to 4pi
 
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method oval --tube_wall_height 8 --wall_thickness 3 --tube_radius 12.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig.stl
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method deep_oval --tube_wall_height 8 --wall_thickness 3 --tube_radius 12.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 0.8 --kink_slope 2 --kink_sharpness 0.3 --output_name trig.stl
 
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method oval --tube_wall_height 8 --wall_thickness 11 --tube_radius 10.3  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig_hole.stl
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method deep_oval --tube_wall_height 8 --wall_thickness 11 --tube_radius 10.3  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 0.8 --kink_slope 2 --kink_sharpness 0.3 --output_name trig_hole.stl
 
-python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 1.0 --kink_slope 1.2 --kink_sharpness 0.3 --output_name trig_post_holes.stl
+python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method deep_ellipse --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 0.8 --kink_slope 2 --kink_sharpness 0.3 --output_name trig_post_hole.stl --tube_start_angle 0 --tube_end_angle 360
+
 
 to get this to work in the corners: copy 3 consecutive times, each 0.2 apart in the y direction.
 also, rather than putting it at z=2, put at z=1.8

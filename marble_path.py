@@ -5,7 +5,8 @@ from enum import Enum
 class Tube(Enum):
     ELLIPSE = 1
     OVAL = 2
-    DEEP_OVAL = 3
+    DEEP_ELLIPSE = 3
+    DEEP_OVAL = 4
 
 def generate_quad(a, b, c, d):
     """
@@ -132,6 +133,12 @@ def rotate_tube(x_disp, y_disp, z_disp, rotation):
     return (r_x_disp, r_y_disp, z_disp)
     
 
+def deep_trig(base):
+    p_base = abs(base) ** 0.5
+    if base < 0.0: p_base = -p_base
+    base = (p_base + base) / 2
+    return base
+    
 
 def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
                           num_tube_subdivisions, tube_subdivision,
@@ -164,15 +171,8 @@ def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
         if wall_height * 2 / tube_arclength < 1.0:
             tube_position = tube_position / (1.0 - wall_height * 2 / tube_arclength)
         tube_angle = math.pi * tube_position
-        cos = math.cos(tube_angle)
-        sin = math.sin(tube_angle)
-        if tube_method is Tube.DEEP_OVAL:
-            p_cos = abs(cos) ** 0.5
-            if cos < 0.0: p_cos = -p_cos
-            cos = (p_cos + cos) / 2
-            p_sin = abs(sin) ** 0.5
-            if sin < 0.0: p_sin = -p_sin
-            sin = (p_sin + sin) / 2
+        cos = math.cos(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.cos(tube_angle))
+        sin = math.sin(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.sin(tube_angle))
         x_disp = tube_radius * cos
         vert_disp = -tube_radius * sin - wall_height
 
@@ -180,7 +180,7 @@ def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
     return rotate_tube(x_disp, y_disp, z_disp, rotation)
     
 
-def ellipse_tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
+def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_thickness,
                              tube_start_angle, tube_end_angle,
                              num_tube_subdivisions, tube_subdivision,
                              slope_angle, inside, rotation):
@@ -215,8 +215,11 @@ def ellipse_tube_coordinates(tube_radius, tube_eccentricity, wall_thickness,
         wall_thickness = wall_thickness / ellipse_r
         tube_radius = tube_radius - wall_thickness
 
-    x_disp = tube_radius * math.cos(tube_angle) * ellipse_r
-    vert_disp = -tube_radius * math.sin(tube_angle) * ellipse_r
+    cos = math.cos(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.cos(tube_angle))
+    sin = math.sin(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.sin(tube_angle))
+
+    x_disp = tube_radius * cos * ellipse_r
+    vert_disp = -tube_radius * sin * ellipse_r
 
     y_disp, z_disp = slope_tube(vert_disp, slope_angle)
     return rotate_tube(x_disp, y_disp, z_disp, rotation)
@@ -277,7 +280,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
     if slope_angle_t is None:
         slope_angle_t = lambda x: tube_args.slope_angle
         
-    if tube_args.tube_method is Tube.ELLIPSE:
+    if tube_args.tube_method is Tube.ELLIPSE or tube_args.tube_method is Tube.DEEP_ELLIPSE:
         if tube_end_angle >= tube_start_angle + 360:
             tube_start_angle = 0
             tube_end_angle = 360
@@ -298,7 +301,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             This will be an ellipsoid shell
             """
             tube_start_angle, tube_end_angle = tube_angle_t(time_t)
-            return ellipse_tube_coordinates(tube_radius=tube_args.tube_radius,
+            return ellipse_tube_coordinates(tube_method=tube_args.tube_method,
+                                            tube_radius=tube_args.tube_radius,
                                             tube_eccentricity=tube_args.tube_eccentricity,
                                             wall_thickness=wall_thickness,
                                             tube_start_angle=tube_start_angle,
@@ -319,7 +323,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             """
             Create an oval instead.
             """
-            return oval_tube_coordinates(tube_method = tube_args.tube_method,
+            return oval_tube_coordinates(tube_method=tube_args.tube_method,
                                          tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
