@@ -258,6 +258,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                       tube_angle_t=None,
                       slope_angle_t=None):
     """
+    Returns a list of vertices and triangles connecting those vertices.
+
     tube_args should be args including the tube arguments from below
     tube_angle_t, if it exists, is a function returning (start, end)
       and overrides tube_args.tube_start_angle and tube_end_angle for the ellipse
@@ -407,6 +409,9 @@ def generate_path(x_t, y_t, z_t, r_t,
                   tube_args, num_time_steps,
                   tube_angle_t=None,
                   slope_angle_t=None):
+    """
+    Generates triangles one at a time for the path defined by x_t, y_t, z_t, and r_t
+    """
     vertex_list, triangle_list = compose_triangles(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                                    tube_args=tube_args,
                                                    num_time_steps=num_time_steps,
@@ -417,6 +422,11 @@ def generate_path(x_t, y_t, z_t, r_t,
         yield (vertex_list[left], vertex_list[right], vertex_list[top])
                 
 def parse_eccentricity(e):
+    """
+    Turns a string into a float for the eccentricity of an ellipse wall.
+
+    Applies constraints of 0 <= e < 1
+    """
     e = float(e)
     if e < 0.0 or e >= 1:
         raise ValueError("Eccentricity must be 0 <= e < 1, got %f" % e)

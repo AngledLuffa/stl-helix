@@ -23,9 +23,14 @@ python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method dee
 python generate_trig.py --y_coeff 3 --power 2 --slope_angle 12 --tube_method deep_ellipse --wall_thickness 11 --tube_radius 10.5  --kinks "(1.5708, 4.7124, 7.8540, 10.9956)" --kink_width 0.8 --kink_slope 2 --kink_sharpness 0.3 --output_name trig_post_hole.stl --tube_start_angle 0 --tube_end_angle 360
 
 
-to get this to work in the corners: copy 3 consecutive times, each 0.2 apart in the y direction.
+to get this to work in the corners: copy 3 consecutive times, each 0.3 apart in the y direction.
 also, rather than putting it at z=2, put at z=1.8
-the issue here is that even with the "kink smoothing", the corners still wind up having a bit of a gap
+
+after putting this together, there is a tiny little notch in each
+corner.  you can zoom in between the walls in tinkercad and see that
+the bottom floor kind of peels up a bit.  perhaps there is some way to
+smooth the normals so the corner isn't this tight, or some way to
+patch it from beneath
 
 left post rotates by 63 degrees
 left post rotates by 97 degrees
