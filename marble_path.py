@@ -215,8 +215,8 @@ def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_t
         wall_thickness = wall_thickness / ellipse_r
         tube_radius = tube_radius - wall_thickness
 
-    cos = math.cos(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.cos(tube_angle))
-    sin = math.sin(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.sin(tube_angle))
+    cos = math.cos(tube_angle) if tube_method is Tube.ELLIPSE else deep_trig(math.cos(tube_angle))
+    sin = math.sin(tube_angle) if tube_method is Tube.ELLIPSE else deep_trig(math.sin(tube_angle))
 
     x_disp = tube_radius * cos * ellipse_r
     vert_disp = -tube_radius * sin * ellipse_r
