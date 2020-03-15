@@ -74,7 +74,7 @@ def generate_trig(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for a random trig graph  p173 of Curves.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=5.0)
+    marble_path.add_tube_arguments(parser, default_slope_angle=5.0, default_output_name='trig.stl')
     slope_function.add_kink_args(parser)
 
     parser.add_argument('--num_time_steps', default=400, type=int,
@@ -96,10 +96,6 @@ def parse_args():
     parser.add_argument('--scale', default=None, type=float,
                         help='Multiple all samples by this value.  If set to None, will be calculated from the width.')
 
-    # TODO: refactor output_name
-    parser.add_argument('--output_name', default='trig.stl',
-                        help='Where to put the stl')
-    
     args = parser.parse_args()
 
     if args.scale is None:

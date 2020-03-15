@@ -121,7 +121,7 @@ def parse_overlaps(overlap_str):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=8.0)
+    marble_path.add_tube_arguments(parser, default_slope_angle=8.0, default_output_name='cycloid.stl')
     slope_function.add_kink_args(parser)
 
     # Start & end times for the curve
@@ -178,10 +178,6 @@ def parse_args():
     parser.add_argument('--overlap_separation', default=25.0, type=float,
                         help='Required vertical distance between loops')
     
-    # TODO: refactor the output_name
-    parser.add_argument('--output_name', default='cycloid.stl',
-                        help='Where to put the stl')
-
     args = parser.parse_args()
 
     if args.domain is not None:

@@ -181,7 +181,7 @@ def generate_hypotrochoid(args):
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=12.0)
+    marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
 
     parser.add_argument('--hypoA', default=9, type=int,
                         help='value A in the hypo formula')
@@ -206,9 +206,6 @@ def parse_args():
 
     parser.add_argument('--regularization', default=0.0, type=float,
                         help='Hypotrochoids often get long lobes.  This can help smooth them out')
-
-    parser.add_argument('--output_name', default='hypo.stl',
-                        help='Where to put the stl')
 
 
     # TODO: add a macro argument for a flower, an N pointed star, etc

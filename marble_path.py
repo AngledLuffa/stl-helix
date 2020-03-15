@@ -433,7 +433,9 @@ def parse_eccentricity(e):
     # TODO: maybe let <0 represent a flatter than expected tube?
     return e
 
-def add_tube_arguments(parser, default_slope_angle=-5.0):
+def add_tube_arguments(parser,
+                       default_slope_angle=-5.0,
+                       default_output_name='foo.stl'):
     parser.add_argument('--tube_radius', default=12.5, type=float,
                         help='measurement from the center of ramp to its outer wall')
     parser.add_argument('--wall_thickness', default=2, type=float,
@@ -451,10 +453,13 @@ def add_tube_arguments(parser, default_slope_angle=-5.0):
                         help='If creating an oval tube, how high to make the walls')
 
     parser.add_argument('--tube_method', default=Tube.ELLIPSE, type=lambda x: Tube[x.upper()],
-                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls.  DEEP_OVAL means the same, but with a deeper curve than a semicircle')
+                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls.  DEEP_OVAL and DEEP_ELLIPSE means the same, but with a deeper curve than a semicircle')
 
     parser.add_argument('--slope_angle', default=default_slope_angle, type=float,
                         help='Angle to tilt the curve')
+
+    parser.add_argument('--output_name', default=default_output_name,
+                        help='Where to put the stl')
 
 def write_stl(triangles, filename):
     """

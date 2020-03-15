@@ -70,7 +70,9 @@ def parse_args():
     # TODO: add an argument which does the math for rotations if you give it the angle of helix you want, for example
     parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=2.0)
+    marble_path.add_tube_arguments(parser,
+                                   default_slope_angle=2.0,
+                                   default_output_name='helix.stl')
     
     parser.add_argument('--helix_radius', default=19, type=float,
                         help='measurement from the axis to the center of any part of the ramp')    
@@ -80,9 +82,6 @@ def parse_args():
                         help='how far to move up in one complete rotation.  tube_radius*2 means the next layer will be barely touching the previous layer')
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
-
-    parser.add_argument('--output_name', default='foo.stl',
-                        help='Where to put the stl')
 
     args = parser.parse_args()
 
