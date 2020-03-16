@@ -27,9 +27,8 @@ python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 -
 
 angle is, not surprisingly, about 60 on the upper connection
 
-TODO:
+TODO: to make a 4 lobed flower:
 -----
-to make a 4 lobed flower:
 
 python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 8 --scale 6 --start_t 0.7854 --tube_method OVAL --tube_wall_height 6
 
@@ -38,9 +37,8 @@ also needs some sort of bend into the middle
 lobes will need regularization
 and ideally we can make it exactly touch the outside of the post
 
-TODO:
+TODO: inside out flower
 -----
-inside out flower
 
 three leaves:
 python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
@@ -50,9 +48,11 @@ python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 7 --
 
 maybe should have a round path so that the transition to the pole is smooth
 
-Five Pointed Star
+TODO: Five Pointed Star
 -----------------
-python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 7 --tube_method deep_oval --tube_wall_height 6 --slope_angle 5 --scale 7 --start_t 1.885
+
+python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 7 --tube_method deep_oval --tube_wall_height 6 --slope_angle 5 --start_t 1.885 --closest_approach 26
+
 
 
 5 lobed flower:
@@ -88,7 +88,28 @@ this goes at 2,2,17
 rotation on post: 36 degrees
 """
 
-def build_reg_f_t(args, time_t):
+def build_time_t(args):
+    """
+    Return a function which converts discrete times 0..args.num_time_steps to the range
+    args.start_t..args_end_t
+    """
+    def time_t(time_step):
+        return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
+    return time_t
+
+def build_reg_f_t(args):
+    """
+    Using the given args, builds a pair of functions for x & y
+
+    x, y will take time steps and convert them to the correct span before calculating.
+
+    The functions apply regularization to the x & y values.
+
+    Not scaled yet, though.  This is refactored so that the method
+    which calculates the scaling can do so
+    """
+    time_t = build_time_t(args)
+
     A = args.hypoA
     B = args.hypoB
     C = args.hypoC
@@ -128,9 +149,6 @@ def build_reg_f_t(args, time_t):
     return reg_x_t, reg_y_t
 
 def generate_hypotrochoid(args):
-    def time_t(time_step):
-        return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
-
     A = args.hypoA
     B = args.hypoB
     C = args.hypoC
@@ -138,7 +156,7 @@ def generate_hypotrochoid(args):
     print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
     print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
     
-    reg_x_t, reg_y_t = build_reg_f_t(args, time_t)
+    reg_x_t, reg_y_t = build_reg_f_t(args)
     
     def scale_x_t(time_step):
         return reg_x_t(time_step) * args.x_scale
@@ -171,7 +189,27 @@ def generate_hypotrochoid(args):
         yield triangle    
     
 
+def tune_closest_approach(args):
+    """
+    Calculate the closest approach to the center, then return a scale
+    appropriate for making the marble path get exactly that close
+    """
+    reg_x, reg_y = build_reg_f_t(args)
 
+    d_t = lambda t: (reg_x(t) ** 2 + reg_y(t) ** 2) ** 0.5
+
+    ds = [d_t(t) for t in range(0, args.num_time_steps+1)]
+    closest_approach = min(ds)
+    closest_step = ds.index(closest_approach)
+    print("Closest approach occurs at %d: %f away" % (closest_step, ds[closest_step]))
+    if closest_approach <= 0.1:
+        raise ValueError("The hypotrochoid is going through (or very close to) the center, making it impossible to auto-scale")
+
+    for i, d in enumerate(ds):
+        print(i, d)
+    
+    return args.closest_approach / closest_approach
+    
 def parse_args():
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
@@ -201,9 +239,11 @@ def parse_args():
     parser.add_argument('--regularization', default=0.0, type=float,
                         help='Hypotrochoids often get long lobes.  This can help smooth them out')
 
+    parser.add_argument('--closest_approach', default=None, type=float,
+                        help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')
+
 
     # TODO: add a macro argument for a flower, an N pointed star, etc
-    # TODO: add a argument for making the closest approach of an hypotrochoid with a-b!=c exactly tangent
 
     args = parser.parse_args()
 
@@ -211,7 +251,10 @@ def parse_args():
         N = args.hypoB / math.gcd(args.hypoA, args.hypoB)
         print("Evaluation time: %d * 2pi" % N)
         args.end_t = args.start_t + 2 * math.pi * N
-    
+
+    if args.closest_approach is not None:
+        args.scale = tune_closest_approach(args)
+
     if args.scale is not None:
         args.x_scale = args.scale
         args.y_scale = args.scale
