@@ -83,26 +83,6 @@ this goes at 2,2,17
 rotation on post: 36 degrees
 """
 
-def get_normal_rotation(theta, x_scale, y_scale, a, b):
-    # there is a discontinuity in the derivative at theta = 0.0
-    # fortunately, we know it will be heading south at that point
-    if theta == 0.0:
-        return 180
-    dx, dy = limacon_derivative(theta, x_scale, y_scale, a, b)
-    rotation = math.asin(dx / (dx ** 2 + dy ** 2) ** 0.5)
-    if dx > 0 and dy > 0:
-        # this gives us a negative rotation, meaning to the right
-        rotation = -rotation
-    elif dx > 0 and dy < 0:
-        rotation = rotation + math.pi
-    elif dx < 0 and dy > 0:
-        rotation = -rotation
-    else: # dx < 0 and dy < 0
-        rotation = rotation + math.pi
-
-    return rotation * 180 / math.pi
-
-
 
 def generate_hypotrochoid(args):
     def time_t(time_step):
