@@ -10,8 +10,7 @@ def generate_tube(args):
         return args.length * time_step / args.time_steps
 
     angle = args.slope_angle / 180 * math.pi
-    # - is because the standard so far has been positive angle is a ramp down
-    tan_angle = -math.tan(angle)
+    tan_angle = math.tan(angle)
     def z_t(time_step):
         # reuse the function in case the other definition changes
         y = y_t(time_step)
