@@ -205,8 +205,8 @@ def tune_closest_approach(args):
     if closest_approach <= 0.1:
         raise ValueError("The hypotrochoid is going through (or very close to) the center, making it impossible to auto-scale")
 
-    for i, d in enumerate(ds):
-        print(i, d)
+    #for i, d in enumerate(ds):
+    #    print(i, d)
     
     return args.closest_approach / closest_approach
     
