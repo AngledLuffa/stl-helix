@@ -50,6 +50,11 @@ python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 7 --
 
 maybe should have a round path so that the transition to the pole is smooth
 
+Five Pointed Star
+-----------------
+python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 7 --tube_method deep_oval --tube_wall_height 6 --slope_angle 5 --scale 7 --start_t 1.885
+
+
 5 lobed flower:
 --------------
 this is a solid tube for the links
@@ -83,17 +88,10 @@ this goes at 2,2,17
 rotation on post: 36 degrees
 """
 
-
-def generate_hypotrochoid(args):
-    def time_t(time_step):
-        return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
-
+def build_reg_f_t(args, time_t):
     A = args.hypoA
     B = args.hypoB
     C = args.hypoC
-
-    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
-    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
     
     def x_t(time_step):
         t = time_t(time_step)
@@ -102,6 +100,18 @@ def generate_hypotrochoid(args):
     def y_t(time_step):
         t = time_t(time_step)
         return ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+
+    def reg_y_t(time_step):
+        x = x_t(time_step)
+        y = y_t(time_step)
+
+        length = (x ** 2 + y ** 2) ** 0.5
+        if length < 1:
+            length = 0
+        else:
+            length = length - 1
+        reg = 1 / (args.regularization * length + 1)
+        return y * reg
 
     def reg_x_t(time_step):
         x = x_t(time_step)
@@ -115,18 +125,21 @@ def generate_hypotrochoid(args):
         reg = 1 / (args.regularization * length + 1)
         return x * reg
     
-    def reg_y_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
+    return reg_x_t, reg_y_t
 
-        length = (x ** 2 + y ** 2) ** 0.5
-        if length < 1:
-            length = 0
-        else:
-            length = length - 1
-        reg = 1 / (args.regularization * length + 1)
-        return y * reg
+def generate_hypotrochoid(args):
+    def time_t(time_step):
+        return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
 
+    A = args.hypoA
+    B = args.hypoB
+    C = args.hypoC
+    
+    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
+    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
+    
+    reg_x_t, reg_y_t = build_reg_f_t(args, time_t)
+    
     def scale_x_t(time_step):
         return reg_x_t(time_step) * args.x_scale
     
@@ -138,10 +151,11 @@ def generate_hypotrochoid(args):
 
     min_x = min(scale_x_t(i) for i in range(args.num_time_steps + 1))
     min_y = min(scale_y_t(i) for i in range(args.num_time_steps + 1))
-    print("Minimum: %f %f" % (min_x, min_y))
+    print("Minimum x, y: %f %f" % (min_x, min_y))
     max_x = max(scale_x_t(i) for i in range(args.num_time_steps + 1))
     max_y = max(scale_y_t(i) for i in range(args.num_time_steps + 1))
-    print("Maximum: %f %f" % (max_x, max_y))
+    print("Maximum x, y: %f %f" % (max_x, max_y))
+    print("Z goes from %.4f to %.4f" % (z_t(0), z_t(args.num_time_steps)))
     
     # can calculate dx & dy like this
     # but when adding regularization, that becomes hideous
@@ -201,7 +215,7 @@ def parse_args():
     if args.scale is not None:
         args.x_scale = args.scale
         args.y_scale = args.scale
-    
+
     return args
 
 def main():
