@@ -130,6 +130,13 @@ def parse_kinks(kink_str):
     return kink_tuple
 
 def parse_kink_sharpness(sharp_str):
+    """Kink sharpness will determine how quickly to go from the base slope to the kink slope
+
+    If the sharpness is too close to 0, the quickly changing angle
+    will throw off the tube and make more kinks along the way.  If the
+    sharpness is too close to 0.5, the slope might not change enough
+    to have much effect on the kink.
+    """
     sharp = float(sharp_str)
     if sharp < 0 or sharp > 0.5:
         raise ValueError("kink_sharpness must be between 0 and 0.5")
