@@ -11,7 +11,7 @@ There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
 To get walls to hopefully stop the marble from jumping:
-python generate_cycloid.py --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))"
+python generate_cycloid.py --extra_t 0.5 --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))"
 
 Note that other arguments can make pretty interesting curves as well
 
@@ -119,7 +119,7 @@ def parse_overlaps(overlap_str):
             raise ValueError('Overlaps need to be a tuple of tuples')
     return overlap_tuple
         
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0, default_output_name='cycloid.stl')
@@ -179,7 +179,7 @@ def parse_args():
     parser.add_argument('--overlap_separation', default=25.0, type=float,
                         help='Required vertical distance between loops')
     
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
 
     if args.domain is not None:
         args.min_domain = -args.domain
@@ -198,8 +198,8 @@ def parse_args():
     return args
     
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_cycloid(args), args.output_name)
