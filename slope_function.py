@@ -8,7 +8,7 @@ def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
     Given a set of arclengths, the start & end times, and the angles
     to gradually transition between, return the total drop for that span.
 
-    TODO: refactor with the code that assigns the actual angles in update_slopes?
+    TODO: refactor with the code that assigns the actual angles in update_slopes_weighted?
     """
     total_drop = 0.0
     delta_time_step = end_time_step - start_time_step
@@ -76,7 +76,7 @@ def update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, 
         else:
             slopes[time_step+start_time_step] = min(new_slope, slopes[time_step+start_time_step])
 
-def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed_dz):
+def update_slopes_overlap(slopes, arclengths, times, slope_angle, start_t, end_t, needed_dz):
     """
     Update a list of slopes, changing the slopes in a way such that
     between start_t and end_t, the path goes down by needed_dz
@@ -86,12 +86,12 @@ def update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, needed
     if end_time_step < start_time_step:
         end_time_step, start_time_step = start_time_step, end_time_step
 
-    best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, 0.2, needed_dz)
+    best_angle = get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, needed_dz)
     if best_angle is None:
         print("Nothing to do for the overlap at interval %.4f, %.4f" % (start_t, end_t))
         return
 
-    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, best_angle, True)
+    update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, best_angle, 0.2, True)
 
 def update_slopes_kink(slopes, times, slope_angle, kink_args, t):
     start_t = t - kink_args.kink_width
@@ -117,7 +117,7 @@ def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, over
     if overlaps:
         for start_t, end_t in overlaps:
             # for the basic 2 loop cycloid, want +/- .16675, 1.40405
-            update_slopes(slopes, arclengths, times, slope_angle, start_t, end_t, overlap_separation)
+            update_slopes_overlap(slopes, arclengths, times, slope_angle, start_t, end_t, overlap_separation)
 
     #for i, s in enumerate(slopes):
     #    print("%4d %.4f" % (i, s))
