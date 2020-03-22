@@ -125,7 +125,7 @@ def balance_domain(constant_factor, cosine_factor):
     
         
     
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl limacon.  Graph of r = a - b cos(theta)')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='limacon.stl')
@@ -154,7 +154,7 @@ def parse_args():
 
     parser.set_defaults(tube_start_angle=-60)
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
     if args.cosine_factor == 1.0:
         raise ValueError("Sorry, but b=1.0 causes a discontinuity in the derivative")
     if args.cosine_factor == 0.0:
@@ -170,8 +170,8 @@ def parse_args():
     return args
 
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_limacon(args), args.output_name)
