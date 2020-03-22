@@ -8,7 +8,7 @@ import unittest
 import generate_cycloid
 import generate_limacon
 
-class TestLimacon(unittest.TestCase):
+class TestGenerations(unittest.TestCase):
     def setUp(self):
         self.test_file = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
         self.test_file.close()
