@@ -2,6 +2,7 @@ import argparse
 import math
 
 import marble_path
+import slope_function
 
 """
 Generates a hypotrochoid, a curve on a circle defined by 3 parameters.
@@ -30,9 +31,8 @@ angle is, not surprisingly, about 60 on the upper connection
 TODO: to make a 4 lobed flower:
 -----
 
-python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 11 --scale 6 --start_t 0.7854 --tube_method OVAL --tube_wall_height 6 --closest_approach 26 --regularization 0.05
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --scale 6 --start_t 0.7854 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))"
 
-needs overlaps, like in the cycloid
 also needs some sort of bend into the middle
 
 TODO: inside out flower
@@ -161,8 +161,18 @@ def generate_hypotrochoid(args):
     
     def scale_y_t(time_step):
         return reg_y_t(time_step) * args.y_scale
+
+    slope_angle_t = slope_function.slope_function(x_t=scale_x_t,
+                                                  y_t=scale_y_t,
+                                                  time_t=build_time_t(args),
+                                                  slope_angle=args.slope_angle,
+                                                  num_time_steps=args.num_time_steps,
+                                                  overlap_args=args,
+                                                  kink_args=None)
+
+    z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, args.num_time_steps,
+                                               slope_angle_t=slope_angle_t)
     
-    z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, args.num_time_steps, args.slope_angle)
     r_t = marble_path.numerical_rotation_function(scale_x_t, scale_y_t)
 
     min_x = min(scale_x_t(i) for i in range(args.num_time_steps + 1))
@@ -215,6 +225,7 @@ def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
+    slope_function.add_overlap_args(parser)
 
     parser.add_argument('--hypoA', default=9, type=int,
                         help='value A in the hypo formula')
