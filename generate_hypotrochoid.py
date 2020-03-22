@@ -247,7 +247,7 @@ def parse_args(sys_args=None):
 
     if args.end_t is None:
         N = args.hypoB / math.gcd(args.hypoA, args.hypoB)
-        print("Evaluation time: %d * 2pi" % N)
+        print("Evaluation time: {}2pi".format("%d * " % N if N != 1 else ""))
         args.end_t = args.start_t + 2 * math.pi * N
 
     if args.closest_approach is not None:
