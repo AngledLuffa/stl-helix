@@ -76,6 +76,23 @@ class TestGenerations(unittest.TestCase):
                                                  '--num_time_steps', '60'])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/hypo_three_leaf_flower_tunnel.stl'))
         
+    def test_hypo_three_leaves_holes(self):
+        with contextlib.redirect_stdout(io.StringIO()) as stdout:
+            generate_hypotrochoid.main(sys_args=['--output_name', self.test_file.name,
+                                                 '--hypoA', '9',
+                                                 '--hypoB', '3',
+                                                 '--hypoC', '6',
+                                                 '--start_t', '1.0472',
+                                                 '--scale', '10',
+                                                 '--tube_end_angle', '360',
+                                                 '--slope_angle', '12',
+                                                 '--regularization', '0.07',
+                                                 '--tube_radius', '10.5',
+                                                 '--wall_thickness', '11',
+                                                 '--tube_sides', '12',
+                                                 '--num_time_steps', '60'])
+        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/hypo_three_leaf_flower_holes.stl'))
+        
 if __name__ == '__main__':
     unittest.main()
 
