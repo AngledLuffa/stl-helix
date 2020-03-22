@@ -112,18 +112,12 @@ def generate_cycloid(args):
                                               slope_angle_t=slope_angle_t):
         yield triangle
 
-def parse_overlaps(overlap_str):
-    overlap_tuple = ast.literal_eval(overlap_str)
-    for i in overlap_tuple:
-        if len(i) != 2:
-            raise ValueError('Overlaps need to be a tuple of tuples')
-    return overlap_tuple
-        
 def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0, default_output_name='cycloid.stl')
     slope_function.add_kink_args(parser)
+    slope_function.add_overlap_args(parser)
 
     # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,
@@ -174,11 +168,6 @@ def parse_args(sys_args=None):
     parser.add_argument('--reg_power', default=4.0, type=float,
                         help='How tightly to apply the reg around t=0.  Higher t means less wide effect')
 
-    parser.add_argument('--overlaps', default=None, type=parse_overlaps,
-                        help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
-    parser.add_argument('--overlap_separation', default=25.0, type=float,
-                        help='Required vertical distance between loops')
-    
     args = parser.parse_args(args=sys_args)
 
     if args.domain is not None:

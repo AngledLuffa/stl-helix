@@ -152,4 +152,18 @@ def add_kink_args(parser):
     
     parser.add_argument('--kink_sharpness', default=0.2, type=parse_kink_sharpness,
                         help='How steep to make the transition from regular slope to kink_slope.  0..0.5')
-                        
+
+
+def parse_overlaps(overlap_str):
+    overlap_tuple = ast.literal_eval(overlap_str)
+    for i in overlap_tuple:
+        if len(i) != 2:
+            raise ValueError('Overlaps need to be a tuple of tuples')
+    return overlap_tuple
+        
+
+def add_overlap_args(parser):
+    parser.add_argument('--overlaps', default=None, type=parse_overlaps,
+                        help='Tuple of (start, end) pairs which represents the time periods where overlaps occur.  Angle will be changed to enforce a large enough drop there.')
+    parser.add_argument('--overlap_separation', default=25.0, type=float,
+                        help='Required vertical distance between loops')
