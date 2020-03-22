@@ -208,7 +208,7 @@ def tune_closest_approach(args):
     
     return args.closest_approach / closest_approach
     
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
@@ -243,7 +243,7 @@ def parse_args():
 
     # TODO: add a macro argument for a flower, an N pointed star, etc
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
 
     if args.end_t is None:
         N = args.hypoB / math.gcd(args.hypoA, args.hypoB)
@@ -259,8 +259,8 @@ def parse_args():
 
     return args
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)    
 
     marble_path.write_stl(generate_hypotrochoid(args), args.output_name)

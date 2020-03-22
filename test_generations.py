@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 import generate_cycloid
+import generate_hypotrochoid
 import generate_limacon
 
 class TestGenerations(unittest.TestCase):
@@ -44,7 +45,22 @@ class TestGenerations(unittest.TestCase):
                                             "--tube_sides", "16",
                                             "--num_time_steps", "50"])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/cycloid_two_loops.stl'))
-        
+
+    def test_hypo_three_leaves_tube(self):
+        with contextlib.redirect_stdout(io.StringIO()) as stdout:
+            generate_hypotrochoid.main(sys_args=['--output_name', self.test_file.name,
+                                                 '--hypoA', '9',
+                                                 '--hypoB', '3',
+                                                 '--hypoC', '6',
+                                                 '--start_t', '1.0472',
+                                                 '--scale', '10',
+                                                 '--tube_end_angle', '240',
+                                                 '--slope_angle', '12',
+                                                 '--regularization', '0.07',
+                                                 '--tube_sides', '16',
+                                                 '--num_time_steps', '80'])
+        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/hypo_three_leaf_flower_tube.stl'))
+
 if __name__ == '__main__':
     unittest.main()
 
