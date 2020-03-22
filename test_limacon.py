@@ -1,4 +1,6 @@
+import contextlib
 import filecmp
+import io
 import os
 import tempfile
 import unittest
@@ -14,18 +16,20 @@ class TestLimacon(unittest.TestCase):
         os.unlink(self.test_file.name)
 
     def test_basic_limacon(self):
-        generate_limacon.main(sys_args=['--output_name', self.test_file.name,
-                                        '--time_steps', '50',
-                                        '--tube_sides', '32'])
+        with contextlib.redirect_stdout(io.StringIO()) as stdout:
+            generate_limacon.main(sys_args=['--output_name', self.test_file.name,
+                                            '--time_steps', '50',
+                                            '--tube_sides', '32'])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/expected_basic_limacon.stl'))
 
     def test_stretched_limacon(self):
-        generate_limacon.main(sys_args=['--output_name', self.test_file.name,
-                                        '--time_steps', '50',
-                                        '--tube_sides', '32',
-                                        '--length', '200',
-                                        '--cosine_factor', '2.5',
-                                        '--constant_factor', '1.5'])
+        with contextlib.redirect_stdout(io.StringIO()) as stdout:
+            generate_limacon.main(sys_args=['--output_name', self.test_file.name,
+                                            '--time_steps', '50',
+                                            '--tube_sides', '32',
+                                            '--length', '200',
+                                            '--cosine_factor', '2.5',
+                                            '--constant_factor', '1.5'])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/expected_stretched_limacon.stl'))
 
 if __name__ == '__main__':
