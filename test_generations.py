@@ -42,6 +42,7 @@ class TestGenerations(unittest.TestCase):
                                             "--tube_method", "oval",
                                             "--tube_wall_height", "6",
                                             "--overlaps", "((.16675,1.40405),(-.16675,-1.40405))",
+                                            "--overlap_separation", "25",
                                             "--tube_sides", "16",
                                             "--num_time_steps", "50"])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/cycloid_two_loops.stl'))

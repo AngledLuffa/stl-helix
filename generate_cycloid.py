@@ -11,7 +11,7 @@ There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
 To get walls to hopefully stop the marble from jumping:
-python generate_cycloid.py --extra_t 0.5 --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))"
+python generate_cycloid.py --extra_t 0.5 --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))" --overlap_separation 25
 
 Note that other arguments can make pretty interesting curves as well
 
