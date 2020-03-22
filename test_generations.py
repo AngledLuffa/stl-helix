@@ -93,7 +93,26 @@ class TestGenerations(unittest.TestCase):
                                                  '--tube_sides', '12',
                                                  '--num_time_steps', '60'])
         self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/hypo_three_leaf_flower_holes.stl'))
-        
+
+    def test_hypo_single_overlap(self):
+        with contextlib.redirect_stdout(io.StringIO()) as stdout:
+            generate_hypotrochoid.main(sys_args=['--output_name', self.test_file.name,
+                                                 "--hypoA", "12",
+                                                 "--hypoB", "3",
+                                                 "--hypoC", "6",
+                                                 "--start_t", "0.5",
+                                                 "--end_t", "2.5",
+                                                 "--slope_angle", "5",
+                                                 "--tube_method", "OVAL",
+                                                 "--tube_wall_height", "7",
+                                                 "--closest_approach", "26",
+                                                 "--regularization", "0.05",
+                                                 "--overlap_separation", "23",
+                                                 "--overlaps", "(0.9117, 2.2299)",
+                                                 "--tube_sides", "16",
+                                                 "--num_time_steps", "40"])
+        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/hypo_single_overlap.stl'))
+
 if __name__ == '__main__':
     unittest.main()
 
