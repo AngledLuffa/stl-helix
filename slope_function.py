@@ -107,17 +107,18 @@ def update_slopes_kink(slopes, times, slope_angle, kink_args, t):
         
     update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, kink_args.kink_slope, kink_args.kink_sharpness, False)
 
-def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlaps, overlap_separation, kink_args):
+def slope_function(x_t, y_t, time_t, slope_angle, num_time_steps, overlap_args, kink_args):
     arclengths = marble_path.calculate_arclengths(x_t, y_t, num_time_steps)
     times = [time_t(t) for t in range(num_time_steps+1)]
     slopes = [slope_angle for t in range(num_time_steps+1)]
-    if kink_args.kinks:
+    if kink_args and kink_args.kinks:
         for t in kink_args.kinks:
             update_slopes_kink(slopes, times, slope_angle, kink_args, t)
-    if overlaps:
-        for start_t, end_t in overlaps:
+    if overlap_args and overlap_args.overlaps:
+        for start_t, end_t in overlap_args.overlaps:
             # for the basic 2 loop cycloid, want +/- .16675, 1.40405
-            update_slopes_overlap(slopes, arclengths, times, slope_angle, start_t, end_t, overlap_separation)
+            update_slopes_overlap(slopes, arclengths, times, slope_angle,
+                                  start_t, end_t, overlap_args.overlap_separation)
 
     #for i, s in enumerate(slopes):
     #    print("%4d %.4f" % (i, s))

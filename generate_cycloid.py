@@ -83,8 +83,7 @@ def generate_cycloid(args):
                                                   time_t=time_t,
                                                   slope_angle=args.slope_angle,
                                                   num_time_steps=args.num_time_steps,
-                                                  overlaps=args.overlaps,
-                                                  overlap_separation=args.overlap_separation,
+                                                  overlap_args = args,
                                                   kink_args=args)
     
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,

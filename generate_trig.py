@@ -56,8 +56,7 @@ def generate_trig(args):
                                                   time_t=time_t,
                                                   slope_angle=args.slope_angle,
                                                   num_time_steps=args.num_time_steps,
-                                                  overlaps=None,
-                                                  overlap_separation=None,
+                                                  overlap_args=None,
                                                   kink_args=args)
         
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
