@@ -193,7 +193,8 @@ def generate_hypotrochoid(args):
     
     for triangle in marble_path.generate_path(x_t=scale_x_t, y_t=scale_y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps):
+                                              num_time_steps=args.num_time_steps,
+                                              slope_angle_t=slope_angle_t):
         yield triangle    
     
 
