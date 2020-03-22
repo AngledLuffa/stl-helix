@@ -21,7 +21,7 @@ class TestLimacon(unittest.TestCase):
             generate_limacon.main(sys_args=['--output_name', self.test_file.name,
                                             '--time_steps', '50',
                                             '--tube_sides', '32'])
-        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/expected_basic_limacon.stl'))
+        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/limacon_basic.stl'))
 
     def test_stretched_limacon(self):
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
@@ -31,7 +31,7 @@ class TestLimacon(unittest.TestCase):
                                             '--length', '200',
                                             '--cosine_factor', '2.5',
                                             '--constant_factor', '1.5'])
-        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/expected_stretched_limacon.stl'))
+        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/limacon_stretched.stl'))
 
     def test_two_loop_cycloid(self):
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
