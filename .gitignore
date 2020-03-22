@@ -1,3 +1,4 @@
 *stl
+!test_files/*
 *~
 __pycache__
