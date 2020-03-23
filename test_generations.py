@@ -5,9 +5,17 @@ import os
 import tempfile
 import unittest
 
+from collections import namedtuple
+
 import generate_cycloid
 import generate_hypotrochoid
 import generate_limacon
+
+Test = namedtuple('Test', ['module', 'args', 'gold_file'])
+
+TESTS = [Test(module=generate_limacon,
+              args="--time_steps 50 --tube_sides 32".split(),
+              gold_file='test_files/limacon_basic.stl')]
 
 class TestGenerations(unittest.TestCase):
     def setUp(self):
@@ -17,12 +25,13 @@ class TestGenerations(unittest.TestCase):
     def tearDown(self):
         os.unlink(self.test_file.name)
 
-    def test_basic_limacon(self):
-        with contextlib.redirect_stdout(io.StringIO()) as stdout:
-            generate_limacon.main(sys_args=['--output_name', self.test_file.name,
-                                            '--time_steps', '50',
-                                            '--tube_sides', '32'])
-        self.assertTrue(filecmp.cmp(self.test_file.name, 'test_files/limacon_basic.stl'))
+    def test_generations(self):
+        for test in TESTS:
+            with self.subTest(gold_file=test.gold_file):
+                with contextlib.redirect_stdout(io.StringIO()) as stdout:
+                    args = ['--output_name', self.test_file.name] + test.args
+                    test.module.main(sys_args=args)
+                self.assertTrue(filecmp.cmp(self.test_file.name, test.gold_file))
 
     def test_stretched_limacon(self):
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
