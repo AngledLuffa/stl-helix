@@ -121,8 +121,8 @@ def numerical_rotation_function(x_t, y_t, epsilon=0.001):
 def slope_tube(vert_disp, slope_angle):
     # tilt the tube a bit so that things going down the ramp
     # are going straight when they come out of the ramp
-    y_disp = -vert_disp * math.sin(slope_angle / 180 * math.pi)
-    z_disp =  vert_disp * math.cos(slope_angle / 180 * math.pi)
+    y_disp = vert_disp * math.sin(slope_angle / 180 * math.pi)
+    z_disp = vert_disp * math.cos(slope_angle / 180 * math.pi)
     return (y_disp, z_disp)
 
 def rotate_tube(x_disp, y_disp, z_disp, rotation):
