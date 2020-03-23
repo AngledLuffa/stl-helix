@@ -65,7 +65,7 @@ def generate_helix(args):
         yield triangle
 
     
-def parse_args():
+def parse_args(sys_args=None):
     # TODO: add an argument which does the math for rotations if you give it the angle of helix you want, for example
     parser = argparse.ArgumentParser(description='Arguments for an stl helix.')
 
@@ -82,7 +82,7 @@ def parse_args():
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
 
-    args = parser.parse_args()
+    args = parser.parse_args(sys_args)
 
     if args.vertical_displacement is not None:
         # slope_angle is the angle of the slope as it goes up the spiral
@@ -95,8 +95,8 @@ def parse_args():
     
     return args
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_helix(args), args.output_name)

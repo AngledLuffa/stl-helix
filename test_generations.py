@@ -8,12 +8,28 @@ import unittest
 from collections import namedtuple
 
 import generate_cycloid
+import generate_helix
 import generate_hypotrochoid
 import generate_limacon
+import generate_tube
 
 Test = namedtuple('Test', ['name', 'model', 'args', 'gold_file'])
 
-TESTS = [Test(name='Basic Limacon',
+TESTS = [Test(name='Tube Basic',
+              model=generate_tube,
+              args=["--time_steps", "25",
+                    "--tube_sides", "16",
+                    "--slope_angle", "10"],
+              gold_file='test_files/tube_basic.stl'),
+
+         Test(name='Helix Basic',
+              model=generate_helix,
+              args=["--slope_angle", "5",
+                    "--helix_sides", "16",
+                    "--tube_sides", "16"],
+              gold_file='test_files/helix_basic.stl'),
+         
+         Test(name='Basic Limacon',
               model=generate_limacon,
               args=["--time_steps", "50",
                     "--tube_sides", "32"],

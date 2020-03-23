@@ -27,7 +27,7 @@ def generate_tube(args):
         yield triangle
 
     
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl tube.')
 
     marble_path.add_tube_arguments(parser,
@@ -39,11 +39,11 @@ def parse_args():
     parser.add_argument('--time_steps', default=100, type=int,
                         help='How refined to make the tube')
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
     return args
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_tube(args), args.output_name)
