@@ -52,9 +52,8 @@ def generate_helix(args):
 
     def z_t(helix_subdivision):
         # tube_radius included again to keep everything positive
-        # TODO: need to look for negative slope and possibly increase
-        # all values by the maximum negative displacement
-        return args.tube_radius + math.sin(args.slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
+        # negative sign in slope is on account of the decision that positive slope means down
+        return args.tube_radius - math.sin(args.slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
 
     def r_t(helix_subdivision):
         helix_angle = 360 / args.helix_sides * helix_subdivision
