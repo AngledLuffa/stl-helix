@@ -113,6 +113,7 @@ class TestGenerations(unittest.TestCase):
     def test_generations(self):
         for test in TESTS:
             with self.subTest(name=test.name):
+                print("Running %s" % test.name)
                 with contextlib.redirect_stdout(io.StringIO()) as stdout:
                     args = ['--output_name', self.test_file.name] + test.args
                     test.model.main(sys_args=args)
