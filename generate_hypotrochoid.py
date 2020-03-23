@@ -28,6 +28,30 @@ python generate_hypotrochoid.py --hypoA 9 --hypoB 3 --hypoC 6 --start_t 1.0472 -
 
 angle is, not surprisingly, about 60 on the upper connection
 
+
+
+Inside out flower, two leaves:
+-----------------------------
+
+Tube
+python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --scale 14 --start_t  0 --tube_method ELLIPSE --tube_start_angle -60 --overlaps "(7.0686, 11.7810)" --overlap_separation 25
+
+Put this at 0, 0, 18
+Angle is 60
+
+Tunnels
+If you put the tunnel from start_t 0 end_t 18.8496 you get top & bottom tunnels you don't want.
+Start from start_t=2, piece is 77.17 tall.  
+Go from start_t=2 end_t 16, piece is 72.41 tall.
+Difference: 4.76
+python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --scale 14 --start_t  6 --end_t 12 --tube_method ELLIPSE --tube_end_angle 360 --overlaps "(7.0686, 11.7810)" --overlap_separation 25
+
+Put this 0, 0, 22.76
+
+Holes
+python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --scale 14 --start_t  0 --tube_method ELLIPSE --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11  --overlaps "(7.0686, 11.7810)" --overlap_separation 25
+
+
 TODO: to make a 4 lobed flower:
 -----
 
@@ -37,12 +61,8 @@ also needs some sort of bend into the middle
 
 TODO: inside out flower
 -----
-
 three leaves:
 python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
-
-two leaves:
-python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
 
 maybe should have a round path so that the transition to the pole is smooth
 
