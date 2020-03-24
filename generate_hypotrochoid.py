@@ -37,7 +37,7 @@ Tube
 python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --scale 14 --start_t  0 --tube_method ELLIPSE --tube_start_angle -60 --overlaps "(7.0686, 11.7810)" --overlap_separation 25
 
 Put this at 0, 0, 18
-Angle is 60
+Angle is 56
 
 Tunnels
 If you put the tunnel from start_t 0 end_t 18.8496 you get top & bottom tunnels you don't want.
