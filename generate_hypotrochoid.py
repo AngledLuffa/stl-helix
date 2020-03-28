@@ -51,6 +51,7 @@ Put this 0, 0, 22.76
 Holes
 python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --scale 14 --start_t  0 --tube_method ELLIPSE --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11  --overlaps "(7.0686, 11.7810)" --overlap_separation 25
 
+ramp out: 12 tilt, 63 rotate
 
 TODO: to make a 4 lobed flower:
 -----
@@ -59,12 +60,23 @@ python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 -
 
 also needs some sort of bend into the middle
 
-TODO: inside out flower
------
-three leaves:
-python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 7 --scale 14 --start_t  0 --tube_method OVAL --tube_wall_height 6
 
-maybe should have a round path so that the transition to the pole is smooth
+Three leaf inside out flower
+----------------------------
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method ELLIPSE --tube_start_angle -60 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 26
+
+0, 0, 17.04
+
+tunnels through the pole:
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  1.5 --end_t 30 --tube_method ELLIPSE --tube_start_angle -180 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 26
+then remove everything outside the pole
+
+0, 0, 19.13
+
+holes for the crossings, the on ramp, and the off ramp:
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method ELLIPSE --tube_start_angle -180 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 26 --tube_radius 10.5 --wall_thickness 11
+
+2, 2, 19.04
 
 TODO: Five Pointed Star
 -----------------
