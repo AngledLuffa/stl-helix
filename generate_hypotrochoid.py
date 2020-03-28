@@ -78,6 +78,8 @@ python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --
 
 2, 2, 19.04
 
+rotation on the out post: roughly 62 degrees
+
 TODO: Five Pointed Star
 -----------------
 
