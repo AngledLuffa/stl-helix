@@ -28,6 +28,16 @@ TESTS = [Test(name='Tube Basic',
                     "--helix_sides", "16",
                     "--tube_sides", "16"],
               gold_file='test_files/helix_basic.stl'),
+
+         # test various alternate parameters for the helix
+         Test(name='Helix Adjusted',
+              model=generate_helix,
+              args=["--slope_angle", "4.5",
+                    "--helix_sides", "10",
+                    "--helix_radius", "17",
+                    "--tube_sides", "15",
+                    "--rotations", ".7"],
+              gold_file='test_files/helix_adjusted.stl'),
          
          Test(name='Basic Limacon',
               model=generate_limacon,
