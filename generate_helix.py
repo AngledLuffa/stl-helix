@@ -15,6 +15,36 @@ def calculate_slope_angle(helix_radius, vertical_displacement):
     return slope_angle / math.pi * 180
 
 
+def helix_x_t(args):
+    num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
+
+    def x_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
+        # helix_radius + tube_radius so that everything is positive
+        return args.helix_radius + args.tube_radius + r_x_disp
+    
+    return x_t
+
+    
+def helix_y_t(args):
+    num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
+
+    def y_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
+        # helix_radius + tube_radius so that everything is positive
+        return args.helix_radius + args.tube_radius + r_y_disp
+    
+    return y_t
+
+def helix_r_t(args):
+    def r_t(helix_subdivision):
+        helix_angle = 360 / args.helix_sides * helix_subdivision
+        return helix_angle
+
+    return r_t
+
 def generate_helix(args):
     """
     helix_radius is the measurement from the axis to the center of any part of the ramp
@@ -38,27 +68,15 @@ def generate_helix(args):
     if num_helix_subdivisions <= 0:
         raise ValueError("Must complete some positive fraction of a rotation")
 
-    def x_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
-        r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
-        # helix_radius + tube_radius so that everything is positive
-        return args.helix_radius + args.tube_radius + r_x_disp
-    
-    def y_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
-        r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
-        # helix_radius + tube_radius so that everything is positive
-        return args.helix_radius + args.tube_radius + r_y_disp
+    x_t = helix_x_t(args)
+    y_t = helix_y_t(args)
+    r_t = helix_r_t(args)
 
     def z_t(helix_subdivision):
         # tube_radius included again to keep everything positive
         # negative sign in slope is on account of the decision that positive slope means down
         return args.tube_radius - math.sin(args.slope_angle / 180 * math.pi) * 2 * math.pi * args.helix_radius * helix_subdivision / args.helix_sides
 
-    def r_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
-        return helix_angle
-    
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=num_helix_subdivisions):
