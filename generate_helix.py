@@ -19,7 +19,7 @@ def helix_x_t(args):
     num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
 
     def x_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
+        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
         r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
         # helix_radius + tube_radius so that everything is positive
         return args.helix_radius + args.tube_radius + r_x_disp
@@ -31,7 +31,7 @@ def helix_y_t(args):
     num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
 
     def y_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
+        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
         r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
         # helix_radius + tube_radius so that everything is positive
         return args.helix_radius + args.tube_radius + r_y_disp
@@ -40,8 +40,8 @@ def helix_y_t(args):
 
 def helix_r_t(args):
     def r_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision
-        return helix_angle
+        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
+        return helix_angle % 360.0
 
     return r_t
 
@@ -99,6 +99,9 @@ def parse_args(sys_args=None):
                         help='how far to move up in one complete rotation.  tube_radius*2 means the next layer will be barely touching the previous layer')
     parser.add_argument('--rotations', default=1, type=float,
                         help='rotations is how far around to go.  will be discretized using helix_sides')
+
+    parser.add_argument('--initial_rotation', default=0, type=float,
+                        help='How much to offset the rotation of the helix curve')
 
     args = parser.parse_args(sys_args)
 
