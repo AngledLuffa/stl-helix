@@ -1,6 +1,7 @@
 import argparse
 import math
 
+import generate_helix
 import marble_path
 import slope_function
 
@@ -180,6 +181,51 @@ def build_reg_f_t(args):
     
     return reg_x_t, reg_y_t
 
+def add_zero_circle(args, scale_x_t, scale_y_t, slope_angle_t, r_t):
+    helix_args = argparse.Namespace(**vars(args))
+    r_0 = r_t(0)
+    phi = r_0 - 90
+    phi = phi / 180 * math.pi
+    x_0 = scale_x_t(0)
+    y_0 = scale_y_t(0)
+    if x_0 < 0.1 and y_0 < 0.1:
+        return None
+    #print("Parameters for the on ramp: phi %.4f x %.4f y %.4f" % (phi, x_0, y_0))
+    rad_0 = -(x_0 ** 2 + y_0 ** 2) / (2 * x_0 * math.cos(phi) + 2 * y_0 * math.sin(phi))
+    #print("Calculated radius: %.4f" % rad_0)
+
+    half_distance = 0.5 * (x_0 ** 2 + y_0 ** 2) ** 0.5
+    theta = math.asin(half_distance / rad_0) * 2
+    # TODO: determine if this was going backwards and needs more than half a loop
+    print("Angle at the end of the hypo: %.4f" % r_0)
+    print("Amount of loop: %.4f" % theta)
+
+    helix_args.helix_radius = rad_0
+    helix_args.rotations = theta / (2 * math.pi)
+    helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
+    helix_args.initial_rotation = r_0 - helix_args.rotations * 360
+    print("Initial rotation: %.4f" % helix_args.initial_rotation)
+
+    helix_x_t = generate_helix.helix_x_t(helix_args)
+    helix_y_t = generate_helix.helix_y_t(helix_args)
+    helix_r_t = generate_helix.helix_r_t(helix_args)
+    helix_slope_t = lambda t: args.slope_angle
+
+    helix_x_t0 = helix_x_t(0)
+    trans_x_t = lambda t: helix_x_t(t) - helix_x_t0
+    helix_y_t0 = helix_y_t(0)
+    trans_y_t = lambda t: helix_y_t(t) - helix_y_t0
+
+    scale_x_t, scale_y_t, slope_angle_t, r_t = marble_path.combine_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
+                                                                             scale_x_t, scale_y_t, slope_angle_t, r_t,
+                                                                             args.zero_circle_sides)
+
+    for i in range(0, args.zero_circle_sides + 11):
+        print("%d %.4f %.4f %.4f %.4f" % (i, scale_x_t(i), scale_y_t(i), slope_angle_t(i), r_t(i)))
+    
+    return scale_x_t, scale_y_t, slope_angle_t, r_t
+
+
 def generate_hypotrochoid(args):
     A = args.hypoA
     B = args.hypoB
@@ -204,18 +250,26 @@ def generate_hypotrochoid(args):
                                                   overlap_args=args,
                                                   kink_args=None)
 
-    z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, args.num_time_steps,
-                                               slope_angle_t=slope_angle_t)
-    
     r_t = marble_path.numerical_rotation_function(scale_x_t, scale_y_t)
 
-    min_x = min(scale_x_t(i) for i in range(args.num_time_steps + 1))
-    min_y = min(scale_y_t(i) for i in range(args.num_time_steps + 1))
+    num_time_steps = args.num_time_steps    
+
+    if args.zero_circle:
+        updated_functions = add_zero_circle(args, scale_x_t, scale_y_t, slope_angle_t, r_t)
+        if updated_functions is not None:
+            scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
+            num_time_steps = num_time_steps + args.zero_circle_sides
+
+    z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, num_time_steps,
+                                               slope_angle_t=slope_angle_t)
+
+    min_x = min(scale_x_t(i) for i in range(num_time_steps + 1))
+    min_y = min(scale_y_t(i) for i in range(num_time_steps + 1))
     print("Minimum x, y: %f %f" % (min_x, min_y))
-    max_x = max(scale_x_t(i) for i in range(args.num_time_steps + 1))
-    max_y = max(scale_y_t(i) for i in range(args.num_time_steps + 1))
+    max_x = max(scale_x_t(i) for i in range(num_time_steps + 1))
+    max_y = max(scale_y_t(i) for i in range(num_time_steps + 1))
     print("Maximum x, y: %f %f" % (max_x, max_y))
-    print("Z goes from %.4f to %.4f" % (z_t(0), z_t(args.num_time_steps)))
+    print("Z goes from %.4f to %.4f" % (z_t(0), z_t(num_time_steps)))
     
     # can calculate dx & dy like this
     # but when adding regularization, that becomes hideous
@@ -227,7 +281,7 @@ def generate_hypotrochoid(args):
     
     for triangle in marble_path.generate_path(x_t=scale_x_t, y_t=scale_y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps,
+                                              num_time_steps=num_time_steps,
                                               slope_angle_t=slope_angle_t):
         yield triangle    
     
@@ -289,6 +343,12 @@ def parse_args(sys_args=None):
     parser.add_argument('--closest_approach', default=None, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')
 
+    parser.add_argument('--zero_circle', dest='zero_circle', default=False, action='store_true',
+                        help='Go from wherever start_t and end_t wind up to 0,0 using a circle')
+    parser.add_argument('--no_zero_circle', dest='zero_circle', action='store_false',
+                        help="Don't go from wherever start_t and end_t wind up to 0,0 using a circle")
+    parser.add_argument('--zero_circle_sides', default=36, type=int,
+                        help='Number of sides to make the circle to the middle')
 
     # TODO: add a macro argument for a flower, an N pointed star, etc
 
