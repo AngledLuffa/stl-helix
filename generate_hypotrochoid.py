@@ -212,13 +212,14 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
     print("Zero circle angle at the %s of the hypo: %.4f" % ("start" if circle_start else "end", r_0))
     print("Amount of loop: %.4f" % theta)
 
-    helix_args.helix_radius = rad_0
-    helix_args.rotations = theta / (2 * math.pi)
-    helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
     if circle_start:
+        helix_args.rotations = theta / (2 * math.pi)
         helix_args.initial_rotation = r_0 - helix_args.rotations * 360
     else:
+        helix_args.rotations = theta / (2 * math.pi)
         helix_args.initial_rotation = r_0
+    helix_args.helix_radius = rad_0
+    helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
     print("Initial rotation: %.4f" % helix_args.initial_rotation)
 
     helix_x_t = generate_helix.helix_x_t(helix_args)
@@ -283,6 +284,17 @@ def generate_hypotrochoid(args):
             scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
             num_time_steps = num_time_steps + args.zero_circle_sides
 
+        updated_functions = add_zero_circle(args=args,
+                                            circle_start=False,
+                                            num_time_steps=num_time_steps,
+                                            scale_x_t=scale_x_t,
+                                            scale_y_t=scale_y_t,
+                                            slope_angle_t=slope_angle_t,
+                                            r_t=r_t)
+        if updated_functions is not None:
+            scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
+            num_time_steps = num_time_steps + args.zero_circle_sides
+            
     z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, num_time_steps,
                                                slope_angle_t=slope_angle_t)
 
