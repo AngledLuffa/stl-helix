@@ -57,9 +57,10 @@ ramp out: 12 tilt, 63 rotate
 TODO: to make a 4 lobed flower:
 -----
 
-python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 --start_t 0.7854 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))"
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 --start_t 0.7854 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))" --zero_circle --start_t 0.8854 --end_t 6.9886
 
-also needs some sort of bend into the middle
+
+also needs some sort of bend into the middle on the bottom
 
 
 Three leaf inside out flower
@@ -181,21 +182,27 @@ def build_reg_f_t(args):
     
     return reg_x_t, reg_y_t
 
-def add_zero_circle(args, scale_x_t, scale_y_t, slope_angle_t, r_t):
-    helix_args = argparse.Namespace(**vars(args))
-    r_0 = r_t(0)
+def zero_circle_dimensions(x_0, y_0, r_0):
     phi = r_0 - 90
     phi = phi / 180 * math.pi
-    x_0 = scale_x_t(0)
-    y_0 = scale_y_t(0)
-    if x_0 < 0.1 and y_0 < 0.1:
-        return None
+
     #print("Parameters for the on ramp: phi %.4f x %.4f y %.4f" % (phi, x_0, y_0))
     rad_0 = -(x_0 ** 2 + y_0 ** 2) / (2 * x_0 * math.cos(phi) + 2 * y_0 * math.sin(phi))
     #print("Calculated radius: %.4f" % rad_0)
 
     half_distance = 0.5 * (x_0 ** 2 + y_0 ** 2) ** 0.5
     theta = math.asin(half_distance / rad_0) * 2
+
+    return rad_0, theta
+    
+def add_zero_circle(args, scale_x_t, scale_y_t, slope_angle_t, r_t):
+    helix_args = argparse.Namespace(**vars(args))
+    r_0 = r_t(0)
+    x_0 = scale_x_t(0)
+    y_0 = scale_y_t(0)
+    if x_0 < 0.1 and y_0 < 0.1:
+        return None
+    rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
     # TODO: determine if this was going backwards and needs more than half a loop
     print("Angle at the end of the hypo: %.4f" % r_0)
     print("Amount of loop: %.4f" % theta)
@@ -220,12 +227,9 @@ def add_zero_circle(args, scale_x_t, scale_y_t, slope_angle_t, r_t):
                                                                              scale_x_t, scale_y_t, slope_angle_t, r_t,
                                                                              args.zero_circle_sides)
 
-    for i in range(0, args.zero_circle_sides + 11):
-        print("%d %.4f %.4f %.4f %.4f" % (i, scale_x_t(i), scale_y_t(i), slope_angle_t(i), r_t(i)))
-    
     return scale_x_t, scale_y_t, slope_angle_t, r_t
 
-
+    
 def generate_hypotrochoid(args):
     A = args.hypoA
     B = args.hypoB
