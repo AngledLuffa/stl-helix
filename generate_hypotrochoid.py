@@ -215,18 +215,23 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
     if circle_start:
         helix_args.rotations = theta / (2 * math.pi)
         helix_args.initial_rotation = r_0 - helix_args.rotations * 360
+        helix_args.helix_radius = rad_0
     else:
-        helix_args.rotations = theta / (2 * math.pi)
+        helix_args.rotations = -theta / (2 * math.pi)
         helix_args.initial_rotation = r_0
-    helix_args.helix_radius = rad_0
+        helix_args.helix_radius = -rad_0
     helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
     print("Initial rotation: %.4f" % helix_args.initial_rotation)
+    print("Radius of circle: %.4f" % helix_args.helix_radius)
 
     helix_x_t = generate_helix.helix_x_t(helix_args)
     helix_y_t = generate_helix.helix_y_t(helix_args)
     helix_r_t = generate_helix.helix_r_t(helix_args)
     helix_slope_t = lambda t: args.slope_angle
 
+    #for i in range(args.zero_circle_sides):
+    #    print("%d %.4f %.4f %.4f" % (i, helix_x_t(i), helix_y_t(i), helix_r_t(i)))
+        
     helix_x_t0 = helix_x_t(0)
     trans_x_t = lambda t: helix_x_t(t) - helix_x_t0
     helix_y_t0 = helix_y_t(0)
@@ -272,6 +277,13 @@ def generate_hypotrochoid(args):
 
     num_time_steps = args.num_time_steps    
 
+    min_x = min(scale_x_t(i) for i in range(num_time_steps + 1))
+    min_y = min(scale_y_t(i) for i in range(num_time_steps + 1))
+    print("Minimum x, y: %f %f" % (min_x, min_y))
+    max_x = max(scale_x_t(i) for i in range(num_time_steps + 1))
+    max_y = max(scale_y_t(i) for i in range(num_time_steps + 1))
+    print("Maximum x, y: %f %f" % (max_x, max_y))    
+    
     if args.zero_circle:
         updated_functions = add_zero_circle(args=args,
                                             circle_start=True,
@@ -298,12 +310,6 @@ def generate_hypotrochoid(args):
     z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, num_time_steps,
                                                slope_angle_t=slope_angle_t)
 
-    min_x = min(scale_x_t(i) for i in range(num_time_steps + 1))
-    min_y = min(scale_y_t(i) for i in range(num_time_steps + 1))
-    print("Minimum x, y: %f %f" % (min_x, min_y))
-    max_x = max(scale_x_t(i) for i in range(num_time_steps + 1))
-    max_y = max(scale_y_t(i) for i in range(num_time_steps + 1))
-    print("Maximum x, y: %f %f" % (max_x, max_y))
     print("Z goes from %.4f to %.4f" % (z_t(0), z_t(num_time_steps)))
     
     # can calculate dx & dy like this
