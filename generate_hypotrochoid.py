@@ -54,14 +54,16 @@ python generate_hypotrochoid.py --hypoA 4 --hypoB 6 --hypoC 2 --slope_angle 4 --
 
 ramp out: 12 tilt, 63 rotate
 
-TODO: to make a 4 lobed flower:
+Four lobed outside flower
 -----
 
 python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 --start_t 0.7854 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))" --zero_circle --start_t 0.8854 --end_t 6.9886
 
+put this at 0,0,18
+post goes at 81.15,81.15,0
+rotate post 55 degrees
 
-also needs some sort of bend into the middle on the bottom
-
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 --start_t 0.7854 --tube_method ELLIPSE --tube_radius 10.5 --wall_thickness 11 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))" --zero_circle --start_t 0.8854 --end_t 6.9886 --tube_start_angle 0 --tube_end_angle 360
 
 Three leaf inside out flower
 ----------------------------
