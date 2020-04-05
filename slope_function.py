@@ -2,6 +2,7 @@ import ast
 import math
 
 import marble_path
+import marble_util
 
 def get_drop(arclengths, min_angle, max_angle, start_time_step, end_time_step):
     """
@@ -156,14 +157,7 @@ def add_kink_args(parser):
 
 
 def parse_overlaps(overlap_str):
-    overlap_tuple = ast.literal_eval(overlap_str)
-    if (isinstance(overlap_tuple, (tuple, list)) and len(overlap_tuple) == 2 and
-        isinstance(overlap_tuple[0], float) and isinstance(overlap_tuple[1], float)):
-        overlap_tuple = (tuple(overlap_tuple),)
-    for i in overlap_tuple:
-        if len(i) != 2:
-            raise ValueError('Overlaps need to be a tuple of tuples')
-    return overlap_tuple
+    return marble_util.parse_tuple_tuple(overlap_str, "--overlaps")
         
 
 def add_overlap_args(parser):
