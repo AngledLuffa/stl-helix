@@ -21,6 +21,11 @@ A=5, B=0, C=3
 time -0.74 .. 0.74
 --y_scale 54 --x_scale 40
 same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
+
+python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4
+
+kink removal: -0.12 to -0.2
+
 """
 
 def generate_lissajous(args):
@@ -49,15 +54,24 @@ def generate_lissajous(args):
     dist = ((xn - x0) ** 2 + (yn - y0) ** 2) ** 0.5
     print("Distance: %.4f" % dist)
     
-    # TODO: utilize slope_function
     # TODO: need to fix kinks
 
-    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
+    slope_angle_t = slope_function.slope_function(x_t=x_t,
+                                                  y_t=y_t,
+                                                  time_t=time_t,
+                                                  slope_angle=args.slope_angle,
+                                                  num_time_steps=args.num_time_steps,
+                                                  overlap_args=args,
+                                                  kink_args=None)
+    
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
+
+    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps):
+                                              num_time_steps=args.num_time_steps,
+                                              slope_angle_t=slope_angle_t):
         yield triangle
 
 
