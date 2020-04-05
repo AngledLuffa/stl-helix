@@ -206,7 +206,8 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         r_0 = r_t(num_time_steps)
         x_0 = scale_x_t(num_time_steps)
         y_0 = scale_y_t(num_time_steps)
-    if x_0 < 0.1 and y_0 < 0.1:
+    if abs(x_0) < 0.1 and abs(y_0) < 0.1:
+        print("Not processing circle at %s of the hypo: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
         return None
     rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
     # TODO: determine if this was going backwards and needs more than half a loop
