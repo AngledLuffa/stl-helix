@@ -49,20 +49,6 @@ def get_drop_angle(arclengths, slope_angle, start_time_step, end_time_step, need
             max_angle = test_angle
     return (max_angle + min_angle) / 2.0    
 
-def get_time_step(times, t):
-    """
-    Given a list mapping time step to actual t, return the time step closest to the desired t
-    """
-    # TODO: implement binary search?
-    if times[0] > t:
-        return 0
-    if times[-1] < t:
-        return len(times) - 1
-    for i in range(len(times)):
-        if times[i] <= t and times[i+1] > t:
-            return i
-    raise AssertionError("Oops")
-
 def update_slopes_weighted(slopes, start_time_step, end_time_step, slope_angle, final_angle, sharpness, use_max):
     delta_time_step = end_time_step - start_time_step
     for time_step in range(delta_time_step+1):
@@ -82,8 +68,8 @@ def update_slopes_overlap(slopes, arclengths, times, slope_angle, start_t, end_t
     Update a list of slopes, changing the slopes in a way such that
     between start_t and end_t, the path goes down by needed_dz
     """
-    start_time_step = get_time_step(times, start_t)
-    end_time_step = get_time_step(times, end_t)
+    start_time_step = marble_util.get_time_step(times, start_t)
+    end_time_step = marble_util.get_time_step(times, end_t)
     if end_time_step < start_time_step:
         end_time_step, start_time_step = start_time_step, end_time_step
 
@@ -96,10 +82,10 @@ def update_slopes_overlap(slopes, arclengths, times, slope_angle, start_t, end_t
 
 def update_slopes_kink(slopes, times, slope_angle, kink_args, t):
     start_t = t - kink_args.kink_width
-    start_time_step = get_time_step(times, start_t)
+    start_time_step = marble_util.get_time_step(times, start_t)
 
     end_t = t + kink_args.kink_width
-    end_time_step = get_time_step(times, end_t)
+    end_time_step = marble_util.get_time_step(times, end_t)
 
     if end_time_step < start_time_step:
         end_time_step, start_time_step = start_time_step, end_time_step
