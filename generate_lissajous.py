@@ -5,6 +5,17 @@ import marble_path
 import slope_function
 
 
+"""
+Implements various curves from section 9.4 of "Practical Handbook of Curve Design and Generation"
+
+TODO: One idea:
+figure 9.4.3
+basic Lissajous, A=3, B=0, C=2
+time 1.22 .. 2.78
+x_scale 35, y_scale 60
+Issue with this one is there is a pretty noticeable kink at the turns.  Also, the ending is a little too curved
+"""
+
 def generate_lissajous(args):
     def time_t(time_step):
         return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
@@ -31,6 +42,7 @@ def generate_lissajous(args):
     print("Distance: %.4f" % dist)
     
     # TODO: utilize slope_function
+    # TODO: need to fix kinks
 
     z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps, args.slope_angle)
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
