@@ -23,6 +23,7 @@ from -5pi/4 to pi/4
 
 the regularization here is because otherwise the graph curves so much in the middle section that there is a kink
 the phase change means it can go from -3pi/4 to 3pi/4
+TODO: the description below produces one which is too shallow.  Need a different way of handling kinks
 
 loops in this cycloid:
 0.95215~0.95216   ..  2.18944~2.18945
