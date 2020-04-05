@@ -14,6 +14,13 @@ basic Lissajous, A=3, B=0, C=2
 time 1.22 .. 2.78
 x_scale 35, y_scale 60
 Issue with this one is there is a pretty noticeable kink at the turns.  Also, the ending is a little too curved
+
+
+TODO: another similar idea:
+A=5, B=0, C=3
+time -0.74 .. 0.74
+--y_scale 54 --x_scale 40
+same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
 """
 
 def generate_lissajous(args):
@@ -32,6 +39,7 @@ def generate_lissajous(args):
 
     #for i in range(0, args.num_time_steps+1):
     #    print(i, time_t(i), x_t(i), y_t(i))
+
     x0 = x_t(0)
     y0 = y_t(0)
     xn = x_t(args.num_time_steps)
@@ -61,16 +69,16 @@ def parse_args(sys_args=None):
     marble_path.add_tube_arguments(parser, default_slope_angle=10.0, default_output_name='lissajous.stl')
     slope_function.add_overlap_args(parser)
 
-    parser.add_argument('--lissA', default=3, type=float,
+    parser.add_argument('--lissA', default=5, type=float,
                         help='value A in the lissajous formula')
     parser.add_argument('--lissB', default=0, type=float,
                         help='value B in the lissajous formula')
-    parser.add_argument('--lissC', default=2, type=float,
+    parser.add_argument('--lissC', default=3, type=float,
                         help='value C in the lissajous formula')
 
-    parser.add_argument('--start_t', default=1.22, type=float,
+    parser.add_argument('--start_t', default=-0.74, type=float,
                         help='Time to start the equation')
-    parser.add_argument('--end_t', default=2.78, type=float,
+    parser.add_argument('--end_t', default=0.74, type=float,
                         help='Time to end the equation')
     parser.add_argument('--num_time_steps', default=250, type=int,
                         help='Number of time steps in the whole curve')
