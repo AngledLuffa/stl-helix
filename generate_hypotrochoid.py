@@ -1,6 +1,7 @@
 import argparse
 import math
 
+import combine_functions
 import generate_helix
 import marble_path
 import slope_function
@@ -246,13 +247,13 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         trans_y_t = helix_y_t
 
     if circle_start:
-        scale_x_t, scale_y_t, slope_angle_t, r_t = marble_path.combine_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
-                                                                                 scale_x_t, scale_y_t, slope_angle_t, r_t,
-                                                                                 args.zero_circle_sides)
+        scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
+                                                                                      scale_x_t, scale_y_t, slope_angle_t, r_t,
+                                                                                      args.zero_circle_sides)
     else:
-        scale_x_t, scale_y_t, slope_angle_t, r_t = marble_path.combine_functions(scale_x_t, scale_y_t, slope_angle_t, r_t,
-                                                                                 trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
-                                                                                 num_time_steps)
+        scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(scale_x_t, scale_y_t, slope_angle_t, r_t,
+                                                                                      trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
+                                                                                      num_time_steps)
 
     return scale_x_t, scale_y_t, slope_angle_t, r_t
 
