@@ -223,9 +223,9 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         helix_args.initial_rotation = r_0
         helix_args.helix_radius = -rad_0
         helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
-    print("Amount of loop: %.4f radians / %.4f rotations / %.4f sides" % (theta, helix_args.rotations, helix_args.helix_sides))
-    print("Initial rotation: %.4f" % helix_args.initial_rotation)
-    print("Radius of circle: %.4f" % helix_args.helix_radius)
+    print("  Amount of loop: %.4f radians / %.4f rotations / %.4f sides" % (theta, helix_args.rotations, helix_args.helix_sides))
+    print("  Initial rotation: %.4f" % helix_args.initial_rotation)
+    print("  Radius of circle: %.4f" % helix_args.helix_radius)
 
     helix_x_t = generate_helix.helix_x_t(helix_args)
     helix_y_t = generate_helix.helix_y_t(helix_args)
@@ -305,10 +305,10 @@ def generate_hypotrochoid(args):
         if updated_functions is not None:
             scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
             num_time_steps = num_time_steps + args.zero_circle_sides
-            print("Updated circle-to-zero at start of hypo")
-            print("Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-            print("Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
-            print("End x, y:         %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+            print("  Updated circle-to-zero at start of hypo")
+            print("  Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
+            print("  Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
+            print("  End x, y:         %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
 
         updated_functions = add_zero_circle(args=args,
                                             circle_start=False,
@@ -320,11 +320,11 @@ def generate_hypotrochoid(args):
         if updated_functions is not None:
             scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
             num_time_steps = num_time_steps + args.zero_circle_sides
-            print("Updated circle-to-zero at end of hypo")
-            print("Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-            print("Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
-            print("End hypo x, y:    %.4f %.4f" % (scale_x_t(num_time_steps - args.zero_circle_sides), scale_y_t(num_time_steps - args.zero_circle_sides)))
-            print("End piece x, y:   %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+            print("  Updated circle-to-zero at end of hypo")
+            print("  Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
+            print("  Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
+            print("  End hypo x, y:    %.4f %.4f" % (scale_x_t(num_time_steps - args.zero_circle_sides), scale_y_t(num_time_steps - args.zero_circle_sides)))
+            print("  End piece x, y:   %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
 
     z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, num_time_steps,
                                                slope_angle_t=slope_angle_t)
