@@ -78,9 +78,10 @@ def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_locations, num_
         splice_time_steps = end_time - start_time
         helix_args = argparse.Namespace(**vars(args))
         helix_args.rotations = abs(rotation / 360)
-        helix_args.initial_rotation = angle_end if clockwise else angle_start
+        helix_args.initial_rotation = angle_start
         helix_args.helix_radius = abs(radius)
         helix_args.helix_sides = splice_time_steps / helix_args.rotations
+        helix_args.clockwise = clockwise
 
         print("  Producing helix: rotations %.4f, initial rotation %.4f, radius %.4f" % (helix_args.rotations, helix_args.initial_rotation, helix_args.helix_radius))
 
@@ -88,9 +89,6 @@ def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_locations, num_
         helix_y_t = generate_helix.helix_y_t(helix_args)
         helix_r_t = generate_helix.helix_r_t(helix_args)
         #helix_slope_t = lambda t: args.slope_angle
-
-        #for i in range(splice_time_steps+1):
-        #    print(i, helix_x_t(i), helix_y_t(i), helix_r_t(i))
 
         #for i in range(splice_time_steps+1):
         #    print(i, helix_x_t(i), helix_y_t(i), helix_r_t(i))
@@ -104,8 +102,8 @@ def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_locations, num_
                                                               helix_x_t, helix_y_t, None, helix_r_t,
                                                               start_time, end_time)
 
-        for i in range(start_time - 10, end_time + 10):
-            print(i, x_t(i), y_t(i), r_t(i))
+        #for i in range(start_time - 10, end_time + 10):
+        #    print(i, x_t(i), y_t(i), r_t(i))
 
     return x_t, y_t, r_t
     
