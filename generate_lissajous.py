@@ -11,23 +11,12 @@ import slope_function
 """
 Implements various curves from section 9.4 of "Practical Handbook of Curve Design and Generation"
 
-TODO: One idea:
-figure 9.4.3
-basic Lissajous, A=3, B=0, C=2
-time 1.22 .. 2.78
-x_scale 35, y_scale 60
-Issue with this one is there is a pretty noticeable kink at the turns.  Also, the ending is a little too curved
-
-
-TODO: another similar idea:
 A=5, B=0, C=3
 time -0.74 .. 0.74
 --y_scale 54 --x_scale 40
 same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
 
-python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4
-
-kink removal: -0.12 to -0.2
+python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))"
 
 """
 
