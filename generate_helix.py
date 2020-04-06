@@ -20,7 +20,7 @@ def helix_x_t(args):
 
     if args.clockwise:
         def x_t(helix_subdivision):
-            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision
+            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision - 180
             r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
             # helix_radius + tube_radius so that everything is positive
             return args.helix_radius + args.tube_radius + r_x_disp
@@ -39,7 +39,7 @@ def helix_y_t(args):
 
     if args.clockwise:
         def y_t(helix_subdivision):
-            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision
+            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision - 180
             r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
             # helix_radius + tube_radius so that everything is positive
             return args.helix_radius + args.tube_radius + r_y_disp
@@ -49,7 +49,7 @@ def helix_y_t(args):
             r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
             # helix_radius + tube_radius so that everything is positive
             return args.helix_radius + args.tube_radius + r_y_disp
-    
+
     return y_t
 
 def helix_r_t(args):
@@ -123,7 +123,7 @@ def parse_args(sys_args=None):
                         help='How much to offset the rotation of the helix curve')
 
     parser.add_argument('--clockwise', dest='clockwise', default=False, action='store_true',
-                        help='Rotate clockwise')
+                        help='Rotate clockwise.  Note that rotating clockwise will make the initial rotation start from the left side of the helix')
     parser.add_argument('--counterclockwise', dest='clockwise', action='store_false',
                         help="Rotate counterclockwise")
     
