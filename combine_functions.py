@@ -39,3 +39,30 @@ def append_functions(x1_t, y1_t, slope1_t, r1_t,
         
     return x_t, y_t, slope_t, r_t
 
+def splice_functions(x1_t, y1_t, slope1_t, r1_t,
+                     x2_t, y2_t, slope2_t, r2_t,
+                     start_splice, end_splice):
+    """
+    Splice function 2 into function 1.  
+    time 0..end-start from function 2 will be implanted into function 1.
+
+    For example, can replace a kink with a small circular attachment.
+
+    Second function will be offset in x&y so it matches the first function at start_splice
+    First function will then be offset to match the splice.
+    slope_t needs to be spliced to avoid discontinuities when using the arclength method
+    in marble_path
+    """
+
+    x_s, y_s, slope_s, r_s = append_functions(x1_t, y1_t, slope1_t, r1_t,
+                                              x2_t, y2_t, slope2_t, r2_t,
+                                              start_splice)
+
+    x_f, y_f, slope_f, r_f = append_functions(x_s, y_s, slope_s, r_s,
+                                              lambda t: x1_t(t + end_splice),
+                                              lambda t: y1_t(t + end_splice),
+                                              lambda t: slope1_t(t + end_splice),
+                                              lambda t: r1_t(t + end_splice),
+                                              end_splice)
+
+    return x_f, y_f, slope_f, r_f
