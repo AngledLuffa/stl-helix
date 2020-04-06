@@ -224,6 +224,8 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         helix_args.initial_rotation = r_0
         helix_args.helix_radius = -rad_0
         helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
+    # TODO: allow for CW on/off ramps instead of just CCW
+    helix_args.clockwise = False
     print("  Amount of loop: %.4f radians / %.4f rotations / %.4f sides" % (theta, helix_args.rotations, helix_args.helix_sides))
     print("  Initial rotation: %.4f" % helix_args.initial_rotation)
     print("  Radius of circle: %.4f" % helix_args.helix_radius)

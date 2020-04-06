@@ -18,11 +18,18 @@ def calculate_slope_angle(helix_radius, vertical_displacement):
 def helix_x_t(args):
     num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
 
-    def x_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
-        r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
-        # helix_radius + tube_radius so that everything is positive
-        return args.helix_radius + args.tube_radius + r_x_disp
+    if args.clockwise:
+        def x_t(helix_subdivision):
+            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision
+            r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
+            # helix_radius + tube_radius so that everything is positive
+            return args.helix_radius + args.tube_radius + r_x_disp
+    else:
+        def x_t(helix_subdivision):
+            helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
+            r_x_disp = args.helix_radius * math.cos(helix_angle / 180 * math.pi)
+            # helix_radius + tube_radius so that everything is positive
+            return args.helix_radius + args.tube_radius + r_x_disp
     
     return x_t
 
@@ -30,18 +37,30 @@ def helix_x_t(args):
 def helix_y_t(args):
     num_helix_subdivisions = math.ceil(args.rotations * args.helix_sides)
 
-    def y_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
-        r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
-        # helix_radius + tube_radius so that everything is positive
-        return args.helix_radius + args.tube_radius + r_y_disp
+    if args.clockwise:
+        def y_t(helix_subdivision):
+            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision
+            r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
+            # helix_radius + tube_radius so that everything is positive
+            return args.helix_radius + args.tube_radius + r_y_disp
+    else:
+        def y_t(helix_subdivision):
+            helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
+            r_y_disp = args.helix_radius * math.sin(helix_angle / 180 * math.pi)
+            # helix_radius + tube_radius so that everything is positive
+            return args.helix_radius + args.tube_radius + r_y_disp
     
     return y_t
 
 def helix_r_t(args):
-    def r_t(helix_subdivision):
-        helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
-        return helix_angle % 360.0
+    if args.clockwise:
+        def r_t(helix_subdivision):
+            helix_angle = args.initial_rotation - 360 / args.helix_sides * helix_subdivision
+            return helix_angle % 360.0
+    else:
+        def r_t(helix_subdivision):
+            helix_angle = 360 / args.helix_sides * helix_subdivision + args.initial_rotation
+            return helix_angle % 360.0
 
     return r_t
 
@@ -103,6 +122,11 @@ def parse_args(sys_args=None):
     parser.add_argument('--initial_rotation', default=0, type=float,
                         help='How much to offset the rotation of the helix curve')
 
+    parser.add_argument('--clockwise', dest='clockwise', default=False, action='store_true',
+                        help='Rotate clockwise')
+    parser.add_argument('--counterclockwise', dest='clockwise', action='store_false',
+                        help="Rotate counterclockwise")
+    
     args = parser.parse_args(sys_args)
 
     if args.vertical_displacement is not None:

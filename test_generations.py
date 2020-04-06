@@ -50,6 +50,18 @@ TESTS = [Test(name='Tube Basic',
                     "--rotations", "1.5"],
               gold_file='test_files/helix_rotated.stl'),
          
+         # test rotating the helix.  also, test a helix with more than 1 rotation
+         Test(name='Helix Clockwise',
+              model=generate_helix,
+              args=["--vertical_displacement", '30',
+                    "--clockwise",
+                    "--initial_rotation", '36',
+                    "--helix_sides", "10",
+                    "--helix_radius", "17",
+                    "--tube_sides", "15",
+                    "--rotations", "1.5"],
+              gold_file='test_files/helix_clockwise.stl'),
+         
          Test(name='Basic Limacon',
               model=generate_limacon,
               args=["--time_steps", "50",
