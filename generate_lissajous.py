@@ -16,7 +16,7 @@ time -0.74 .. 0.74
 --y_scale 54 --x_scale 40
 same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
 
-python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))"
+python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74
 
 """
 
