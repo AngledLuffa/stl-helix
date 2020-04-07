@@ -11,6 +11,7 @@ import generate_cycloid
 import generate_helix
 import generate_hypotrochoid
 import generate_limacon
+import generate_lissajous
 import generate_tube
 
 Test = namedtuple('Test', ['name', 'model', 'args', 'gold_file'])
@@ -181,7 +182,37 @@ TESTS = [Test(name='Tube Basic',
                     "--overlaps", "(0.9117, 2.2299)",
                     "--tube_sides", "16",
                     "--num_time_steps", "40"],
-              gold_file='test_files/hypo_single_overlap.stl')]
+              gold_file='test_files/hypo_single_overlap.stl'),
+              
+         Test(name='Lissajous - basic, CCW kink',
+              model=generate_lissajous,
+              args=["--lissA", "5",
+                    "--lissB", "0",
+                    "--lissC", "3",
+                    "--y_scale", "54",
+                    "--x_scale", "40",
+                    "--slope_angle", "4",
+                    "--tube_sides", "10",
+                    "--start_t", "0",
+                    "--end_t", "0.4",
+                    "--num_time_steps", "40",
+                    "--kink_replace_circle", "(0.10,0.21)"],
+              gold_file='test_files/lissajous_basic_ccw.stl'),
+              
+         Test(name='Lissajous - basic, CW kink',
+              model=generate_lissajous,
+              args=["--lissA", "5",
+                    "--lissB", "0",
+                    "--lissC", "3",
+                    "--y_scale", "54",
+                    "--x_scale", "40",
+                    "--slope_angle", "4",
+                    "--tube_sides", "10",
+                    "--start_t", "-0.4",
+                    "--end_t", "0",
+                    "--num_time_steps", "40",
+                    "--kink_replace_circle", "(-0.21,-0.10)"],
+              gold_file='test_files/lissajous_basic_cw.stl')]
               
 class TestGenerations(unittest.TestCase):
     def setUp(self):
