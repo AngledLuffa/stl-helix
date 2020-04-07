@@ -53,7 +53,7 @@ def generate_lissajous(args):
                                                                      x_t=x_t,
                                                                      y_t=y_t,
                                                                      r_t=r_t,
-                                                                     kink_locations=args.kink_replace_circle,
+                                                                     kink_args=args,
                                                                      num_time_steps=args.num_time_steps)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,

@@ -74,11 +74,30 @@ def splice_functions(x1_t, y1_t, slope1_t, r1_t,
     return x_f, y_f, slope_f, r_f
 
 
-def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_locations, num_time_steps):
-    """
-    Assumes kinks are less than 180 degrees
+def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_args, num_time_steps):
+    """Replaces a section of a path with a section of circle.
+
+    Given a start and end time for replacing a kink, calculates the
+    start and end of the kink.  This tells us the rotation needed for
+    the circle.
+
+    Note that the radius of the circle cannot be calculated exactly
+    using this method.  There are four parameters we use to build the
+    kink replacement: start location, end location, start angle, end
+    angle.  A circle only has two degrees of freedom: center, radius.
+    So the circle is overconstrained by one dimension.  The degree of
+    freedom we give up is to specify the end location.  Instead, the
+    radius is used as a parameter.  The recommended radius is whatever
+    the tube radius is, as the tube self-intersecting is the problem
+    we are trying to solve in the first place.
+
+    Alternatively, we could use an ellipse, but that may just
+    reintroduce a new kink if the eccentricity is too high.
+
+    Assumes kinks are less than 180 degrees.
     """
     times = [time_t(t) for t in range(num_time_steps+1)]
+    kink_locations = kink_args.kink_replace_circle    
     for kink in kink_locations:
         start_time = marble_util.get_time_step(times, kink[0])
         end_time = marble_util.get_time_step(times, kink[1])
@@ -113,10 +132,12 @@ def replace_kinks_with_circles(args, time_t, x_t, y_t, r_t, kink_locations, num_
         xn = x_t(end_time)
         yn = y_t(end_time)
         distance = ((yn - y0) ** 2 + (xn - x0) ** 2) ** 0.5
-        radius = (distance / 2) / math.sin(rotation / 2 * math.pi / 180)
         print("  Start x, y: %.4f %.4f" % (x0, y0))
         print("  End x, y:   %.4f %.4f" % (xn, yn))
-        print("  Distance: %.4f   Radius of circle: %.4f" % (distance, radius))
+        print("  Distance: %.4f" % distance)
+        # this only works for isosceles kinks:
+        # radius = (distance / 2) / math.sin(rotation / 2 * math.pi / 180)
+        radius = kink_args.kink_replacement_radius
 
         splice_time_steps = end_time - start_time
         helix_args = argparse.Namespace(**vars(args))
@@ -157,4 +178,6 @@ def parse_kink_circles(arg):
 def add_kink_circle_args(parser):
     parser.add_argument('--kink_replace_circle', default=None, type=parse_kink_circles,
                         help='Tuple (or list) of time spans to replace with circles in order to smooth kinks')
+    parser.add_argument('--kink_replacement_radius', default=12.5, type=float,
+                        help='How big to make the replacement circle')
 
