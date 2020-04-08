@@ -12,6 +12,7 @@ import generate_helix
 import generate_hypotrochoid
 import generate_limacon
 import generate_lissajous
+import generate_trig
 import generate_tube
 
 Test = namedtuple('Test', ['name', 'model', 'args', 'gold_file'])
@@ -183,6 +184,38 @@ TESTS = [Test(name='Tube Basic',
                     "--tube_sides", "16",
                     "--num_time_steps", "40"],
               gold_file='test_files/hypo_single_overlap.stl'),
+              
+         Test(name='Trig - deep oval with kinks',
+              model=generate_trig,
+              args=["--y_coeff", "4.1",
+                    "--power", "2",
+                    "--slope_angle", "10.35",
+                    "--tube_method", "deep_oval",
+                    "--tube_wall_height", "3",
+                    "--kink_replace_circle", "((1.0,2.0),(4.14,5.14))",
+                    "--start_t", "0",
+                    "--end_t", "5.8",
+                    "--scale", "5.8572",
+                    "--num_time_steps", "40",
+                    "--tube_sides", "12"],
+              gold_file='test_files/trig_deep_oval.stl'),
+              
+         Test(name='Trig - deep ellipse with kinks',
+              model=generate_trig,
+              args=["--y_coeff", "4.1",
+                    "--power", "2",
+                    "--slope_angle", "10.35",
+                    "--tube_method", "deep_ellipse",
+                    "--tube_start_angle", "0",
+                    "--tube_end_angle", "360",
+                    "--wall_thickness", "13",
+                    "--kink_replace_circle", "((1.0,2.0),(4.14,5.14))",
+                    "--start_t", "0",
+                    "--end_t", "5.8",
+                    "--scale", "5.8572",
+                    "--num_time_steps", "40",
+                    "--tube_sides", "8"],
+              gold_file='test_files/trig_deep_ellipse.stl'),
               
          Test(name='Lissajous - basic, CCW kink',
               model=generate_lissajous,

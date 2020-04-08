@@ -102,7 +102,7 @@ def generate_trig(args):
         yield triangle    
     
 
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for a random trig graph  p173 of Curves.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=5.0, default_output_name='trig.stl')
@@ -128,7 +128,7 @@ def parse_args():
     parser.add_argument('--scale', default=None, type=float,
                         help='Multiple all samples by this value.  If set to None, will be calculated from the width.')
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
 
     if args.scale is None:
         if args.kink_replace_circle:
@@ -143,8 +143,8 @@ def parse_args():
     
     
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_trig(args), args.output_name)
