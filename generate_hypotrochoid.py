@@ -188,9 +188,7 @@ def build_reg_f_t(args):
 def zero_circle_dimensions(x_0, y_0, r_0):
     phi = r_0 / 180 * math.pi
 
-    print("Parameters for the on ramp: phi %.4f x %.4f y %.4f" % (phi, x_0, y_0))
     rad_0 = -(x_0 ** 2 + y_0 ** 2) / (2 * x_0 * math.cos(phi) + 2 * y_0 * math.sin(phi))
-    print("Calculated radius: %.4f" % rad_0)
 
     half_distance = 0.5 * (x_0 ** 2 + y_0 ** 2) ** 0.5
     theta = math.asin(half_distance / rad_0) * 2
@@ -208,11 +206,12 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         x_0 = scale_x_t(num_time_steps)
         y_0 = scale_y_t(num_time_steps)
     if abs(x_0) < 0.1 and abs(y_0) < 0.1:
-        print("Not processing circle at %s of the hypo: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
-        return None
+        print("Not processing circle at %s of curve: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
+        return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
+    print("Adding zero circle at the %s of the curve" % ("start" if circle_start else "end"))
+    print("  Parameters for the ramp: r %.4f x %.4f y %.4f" % (r_0, x_0, y_0))
     rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
     # TODO: determine if this was going backwards and needs more than half a loop
-    print("Zero circle angle at the %s of the hypo: %.4f" % ("start" if circle_start else "end", r_0))
 
     if circle_start:
         helix_args.rotations = -theta / (2 * math.pi)
@@ -252,22 +251,34 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
                                                                                       scale_x_t, scale_y_t, slope_angle_t, r_t,
                                                                                       args.zero_circle_sides)
+        num_time_steps = num_time_steps + args.zero_circle_sides
+        print("  Updated circle-to-zero at start of curve")
+        print("  Start circle x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
+        print("  Start curve x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
+        print("  End curve x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
     else:
         scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(scale_x_t, scale_y_t, slope_angle_t, r_t,
                                                                                       trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
                                                                                       num_time_steps)
+        print("  Updated circle-to-zero at end of hypo")
+        print("  Start curve x, y:  %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
+        print("  End curve x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        num_time_steps = num_time_steps + args.zero_circle_sides
+        print("  End cicle x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
 
-    return scale_x_t, scale_y_t, slope_angle_t, r_t
+    return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
 
-    
-def generate_hypotrochoid(args):
+def describe_curve(args):
     A = args.hypoA
     B = args.hypoB
     C = args.hypoC
-    
+
     print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
     print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
-    
+
+
+def generate_hypotrochoid(args):
+    describe_curve(args)
     reg_x_t, reg_y_t = build_reg_f_t(args)
     
     def scale_x_t(time_step):
@@ -305,13 +316,7 @@ def generate_hypotrochoid(args):
                                             scale_y_t=scale_y_t,
                                             slope_angle_t=slope_angle_t,
                                             r_t=r_t)
-        if updated_functions is not None:
-            scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
-            num_time_steps = num_time_steps + args.zero_circle_sides
-            print("  Updated circle-to-zero at start of hypo")
-            print("  Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-            print("  Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
-            print("  End x, y:         %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
 
         updated_functions = add_zero_circle(args=args,
                                             circle_start=False,
@@ -320,14 +325,7 @@ def generate_hypotrochoid(args):
                                             scale_y_t=scale_y_t,
                                             slope_angle_t=slope_angle_t,
                                             r_t=r_t)
-        if updated_functions is not None:
-            scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
-            num_time_steps = num_time_steps + args.zero_circle_sides
-            print("  Updated circle-to-zero at end of hypo")
-            print("  Start piece x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-            print("  Start hypo x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
-            print("  End hypo x, y:    %.4f %.4f" % (scale_x_t(num_time_steps - args.zero_circle_sides), scale_y_t(num_time_steps - args.zero_circle_sides)))
-            print("  End piece x, y:   %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
 
     z_t = marble_path.arclength_slope_function(scale_x_t, scale_y_t, num_time_steps,
                                                slope_angle_t=slope_angle_t)
@@ -363,7 +361,7 @@ def tune_closest_approach(args):
     closest_step = ds.index(closest_approach)
     print("Closest approach occurs at %d: %f away" % (closest_step, ds[closest_step]))
     if closest_approach <= 0.1:
-        raise ValueError("The hypotrochoid is going through (or very close to) the center, making it impossible to auto-scale")
+        raise ValueError("The curve is going through (or very close to) the center, making it impossible to auto-scale")
 
     scale = args.closest_approach / closest_approach
     print("Calculated scale: %f" % scale)
