@@ -141,6 +141,7 @@ def deep_trig(base):
     
 
 def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
+                          tube_start_angle, tube_end_angle,
                           num_tube_subdivisions, tube_subdivision,
                           slope_angle, inside, rotation):
     """
@@ -154,9 +155,35 @@ def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
     """
     if inside:
         tube_radius = tube_radius - wall_thickness
-    
-    tube_arclength = 2 * wall_height + math.pi * tube_radius
+
+    if tube_start_angle != 0:
+        raise ValueError("Currently tube_start_angle != 0 is not handled for oval")
+    if tube_end_angle > 360:
+        tube_end_angle = 360
+    if tube_end_angle < 180:
+        raise ValueError("Currently tube_end_angle < 180 is not handled for oval")
+
+    tube_arclength = 2 * wall_height + (tube_end_angle - tube_start_angle) * math.pi / 180 * tube_radius
     tube_position = tube_subdivision / num_tube_subdivisions
+
+    bottom_arclength = 2 * wall_height + math.pi * tube_radius
+    overhang_arclength = tube_arclength - bottom_arclength
+    overhang_ratio = overhang_arclength / tube_arclength
+    if tube_position > bottom_arclength / tube_arclength:
+        tube_position = tube_position - bottom_arclength / tube_arclength
+        # tube_position is now 0 .. overhang_ratio
+        tube_position = tube_position / overhang_ratio
+        tube_angle = math.pi - (tube_end_angle - 180) * tube_position * math.pi / 180
+
+        cos = math.cos(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.cos(tube_angle))
+        sin = math.sin(tube_angle) if tube_method is Tube.OVAL else deep_trig(math.sin(tube_angle))
+        x_disp = tube_radius * cos
+        vert_disp = tube_radius * sin
+        y_disp, z_disp = slope_tube(vert_disp, slope_angle)
+        return rotate_tube(x_disp, y_disp, z_disp, rotation)
+    else:
+        tube_arclength = tube_arclength - overhang_arclength
+        tube_position = tube_position / (1.0 - overhang_ratio)
 
     if tube_position < wall_height / tube_arclength:
         x_disp = tube_radius
@@ -329,6 +356,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                          tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
+                                         tube_start_angle=tube_start_angle,
+                                         tube_end_angle=tube_end_angle,
                                          num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
                                          slope_angle=slope_angle_t(time_t),
