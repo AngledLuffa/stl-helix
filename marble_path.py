@@ -282,15 +282,11 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 def compose_triangles(x_t, y_t, z_t, r_t,
                       tube_args, num_time_steps,
-                      tube_angle_t=None,
                       slope_angle_t=None):
     """
     Returns a list of vertices and triangles connecting those vertices.
 
     tube_args should be args including the tube arguments from below
-    tube_angle_t, if it exists, is a function returning (start, end)
-      and overrides tube_args.tube_start_angle and tube_end_angle for the ellipse
-      TODO: add a flag to ignore that if desired
     slope_angle_t is a function returning the angle up/down of the path.
       if None, args.slope_angle is used instead
     """
@@ -320,16 +316,12 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             full_tube = False
         print("Num tube: {}".format(num_tube_subdivisions))
 
-        if tube_angle_t is None:
-            tube_angle_t = lambda x: (tube_start_angle, tube_end_angle)
-
         def tube_function(tube_subdivision, inside, rotation, time_t):
             """
             Using the parameters given to the helix, create a function which
             returns the x, y, z offset from the tube coordinates.
             This will be an ellipsoid shell
             """
-            tube_start_angle, tube_end_angle = tube_angle_t(time_t)
             return ellipse_tube_coordinates(tube_method=tube_args.tube_method,
                                             tube_radius=tube_args.tube_radius,
                                             tube_eccentricity=tube_args.tube_eccentricity,
@@ -407,6 +399,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                          call_coordinates(tube_subdivision, time_step+1, True),
                          call_coordinates(tube_subdivision+1, time_step+1, True),
                          call_coordinates(tube_subdivision+1, time_step, True))
+            # TODO: if we vary tube_start_angle and/or tube_end_angle, we need
+            # to update full_tube at each time_step
             # start tube wall
             if tube_subdivision == 0 and not full_tube:
                 add_quad(call_coordinates(tube_subdivision, time_step, False),
@@ -436,7 +430,6 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                 
 def generate_path(x_t, y_t, z_t, r_t,
                   tube_args, num_time_steps,
-                  tube_angle_t=None,
                   slope_angle_t=None):
     """
     Generates triangles one at a time for the path defined by x_t, y_t, z_t, and r_t
@@ -444,7 +437,6 @@ def generate_path(x_t, y_t, z_t, r_t,
     vertex_list, triangle_list = compose_triangles(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                                    tube_args=tube_args,
                                                    num_time_steps=num_time_steps,
-                                                   tube_angle_t=tube_angle_t,
                                                    slope_angle_t=slope_angle_t)
                 
     for left, right, top in triangle_list:

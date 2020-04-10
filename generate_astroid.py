@@ -197,17 +197,9 @@ def generate_astroid(args):
                           time_step=time_step + time_step_offset,
                           subdivisions_per_side=args.subdivisions_per_side)
 
-    # TODO: somehow parametrize the tube edges?
-    def tube_angle_t(time_step):
-        if time_step < args.subdivisions_per_side:
-            return (-90 + time_step / args.subdivisions_per_side * 45, 180)
-        else:
-            return (-45, 180)
-
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=num_time_steps,
-                                              tube_angle_t=tube_angle_t):
+                                              num_time_steps=num_time_steps):
         yield triangle
 
 
