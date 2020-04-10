@@ -186,7 +186,7 @@ def generate_astroid(args):
                             time_step=time_step + time_step_offset,
                             subdivisions_per_side=args.subdivisions_per_side)[1]
 
-    z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
+    z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
         return tube_angle(outer_radius=args.outer_radius,

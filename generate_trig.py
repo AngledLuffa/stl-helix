@@ -88,8 +88,8 @@ def generate_trig(args):
                                                   overlap_args=None,
                                                   kink_args=args)
         
-    z_t = marble_path.arclength_slope_function(x_t, y_t, args.num_time_steps,
-                                               slope_angle_t=slope_angle_t)
+    z_t = marble_path.arclength_height_function(x_t, y_t, args.num_time_steps,
+                                                slope_angle_t=slope_angle_t)
 
     print("Start x, y, z: %.4f %.4f %.4f" % (x_t(0), y_t(0), z_t(0)))
     print("End x, y, z:   %.4f %.4f %.4f" % (x_t(args.num_time_steps), y_t(args.num_time_steps), z_t(args.num_time_steps)))

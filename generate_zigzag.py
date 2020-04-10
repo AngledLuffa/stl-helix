@@ -34,7 +34,7 @@ def generate_zigzag(args):
             return args.zigzag_length - (time_step - args.subdivisions_per_zigzag / 2) * y_delta
         
     # overkill - we could easily calculate it ourselves
-    z_t = marble_path.arclength_slope_function(x_t, y_t, num_time_steps, args.slope_angle)
+    z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
         return 90

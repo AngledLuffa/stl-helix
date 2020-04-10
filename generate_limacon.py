@@ -69,7 +69,7 @@ def generate_limacon(args):
     def scaled_y_t(time_step):
         return (y_t(time_step) - min_y) * y_scale
 
-    z_t = marble_path.arclength_slope_function(scaled_x_t, scaled_y_t, args.time_steps, args.slope_angle)
+    z_t = marble_path.arclength_height_function(scaled_x_t, scaled_y_t, args.time_steps, args.slope_angle)
 
     def r_t(time_step):
         theta = theta_t(time_step)

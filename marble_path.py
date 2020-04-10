@@ -56,9 +56,9 @@ def calculate_arclengths(x_t, y_t, num_time_steps):
         arclengths.append(arclength)
     return arclengths
         
-def arclength_slope_function(x_t, y_t, num_time_steps,
-                             slope_angle=None,
-                             slope_angle_t=None):
+def arclength_height_function(x_t, y_t, num_time_steps,
+                              slope_angle=None,
+                              slope_angle_t=None):
     """
     Comes up with a function z(t) which works on the domain [0, num_time_steps]
 
