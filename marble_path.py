@@ -297,23 +297,28 @@ def compose_triangles(x_t, y_t, z_t, r_t,
         has_inner_wall = True
         wall_thickness = tube_args.wall_thickness
 
-    tube_start_angle = tube_args.tube_start_angle
-    tube_end_angle = tube_args.tube_end_angle
-    if tube_end_angle < tube_start_angle:
-        tube_start_angle, tube_end_angle = tube_end_angle, tube_start_angle
-
     if slope_angle_t is None:
         slope_angle_t = lambda x: tube_args.slope_angle
+
+    def tube_start_t(time_step):
+        return tube_args.tube_start_angle
+
+    def tube_end_t(time_step):
+        if tube_args.tube_end_angle > tube_args.tube_start_angle + 360:
+            return tube_args.tube_start_angle + 360
+        else:
+            return tube_args.tube_end_angle
+
+    def full_tube_t(first_step, second_step):
+        if tube_end_t(first_step) < tube_start_t(first_step) + 360:
+            return False
+        if tube_end_t(second_step) < tube_start_t(second_step) + 360:
+            return False
+        return True
+        
         
     if tube_args.tube_method is Tube.ELLIPSE or tube_args.tube_method is Tube.DEEP_ELLIPSE:
-        if tube_end_angle >= tube_start_angle + 360:
-            tube_start_angle = 0
-            tube_end_angle = 360
-            num_tube_subdivisions = tube_args.tube_sides
-            full_tube = True
-        else:
-            num_tube_subdivisions = math.ceil((tube_end_angle - tube_start_angle) * tube_args.tube_sides / 360)
-            full_tube = False
+        num_tube_subdivisions = min(tube_args.tube_sides, math.ceil((tube_args.tube_end_angle - tube_args.tube_start_angle) * tube_args.tube_sides / 360))
         print("Num tube: {}".format(num_tube_subdivisions))
 
         def tube_function(tube_subdivision, inside, rotation, time_t):
@@ -322,12 +327,14 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             returns the x, y, z offset from the tube coordinates.
             This will be an ellipsoid shell
             """
+            # TODO: rename time_t, since that is usually used as a
+            # function name for converting time_step to t
             return ellipse_tube_coordinates(tube_method=tube_args.tube_method,
                                             tube_radius=tube_args.tube_radius,
                                             tube_eccentricity=tube_args.tube_eccentricity,
                                             wall_thickness=wall_thickness,
-                                            tube_start_angle=tube_start_angle,
-                                            tube_end_angle=tube_end_angle,
+                                            tube_start_angle=tube_start_t(time_t),
+                                            tube_end_angle=tube_end_t(time_t),
                                             num_tube_subdivisions=num_tube_subdivisions,
                                             tube_subdivision=tube_subdivision,
                                             slope_angle=slope_angle_t(time_t),
@@ -337,8 +344,6 @@ def compose_triangles(x_t, y_t, z_t, r_t,
         # if we are using an oval, start_angle, end_angle, and actual
         # subdivisions are all implicitly defined
         num_tube_subdivisions = tube_args.tube_sides
-        # ... and we need to print the tube ceiling
-        full_tube = False
         
         def tube_function(tube_subdivision, inside, rotation, time_t):
             """
@@ -348,8 +353,8 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                          tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
-                                         tube_start_angle=tube_start_angle,
-                                         tube_end_angle=tube_end_angle,
+                                         tube_start_angle=tube_start_t(time_t),
+                                         tube_end_angle=tube_end_t(time_t),
                                          num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
                                          slope_angle=slope_angle_t(time_t),
@@ -399,16 +404,14 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                          call_coordinates(tube_subdivision, time_step+1, True),
                          call_coordinates(tube_subdivision+1, time_step+1, True),
                          call_coordinates(tube_subdivision+1, time_step, True))
-            # TODO: if we vary tube_start_angle and/or tube_end_angle, we need
-            # to update full_tube at each time_step
             # start tube wall
-            if tube_subdivision == 0 and not full_tube:
+            if tube_subdivision == 0 and not full_tube_t(time_step, time_step+1):
                 add_quad(call_coordinates(tube_subdivision, time_step, False),
                          call_coordinates(tube_subdivision, time_step+1, False),
                          call_coordinates(tube_subdivision, time_step+1, True),
                          call_coordinates(tube_subdivision, time_step, True))
             # end tube wall
-            if tube_subdivision == num_tube_subdivisions-1 and not full_tube:
+            if tube_subdivision == num_tube_subdivisions-1 and not full_tube_t(time_step, time_step+1):
                 add_quad(call_coordinates(tube_subdivision+1, time_step, True),
                          call_coordinates(tube_subdivision+1, time_step+1, True),
                          call_coordinates(tube_subdivision+1, time_step+1, False),
