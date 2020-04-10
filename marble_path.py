@@ -316,11 +316,11 @@ def compose_triangles(x_t, y_t, z_t, r_t,
             return False
         return True
         
-        
     if tube_args.tube_method is Tube.ELLIPSE or tube_args.tube_method is Tube.DEEP_ELLIPSE:
-        num_tube_subdivisions = min(tube_args.tube_sides, math.ceil((tube_args.tube_end_angle - tube_args.tube_start_angle) * tube_args.tube_sides / 360))
+        num_tube_subdivisions = max(math.ceil((tube_end_t(t) - tube_start_t(t)) * tube_args.tube_sides / 360)
+                                    for t in range(num_time_steps+1))
+        num_tube_subdivisions = min(num_tube_subdivisions, tube_args.tube_sides)
         print("Num tube: {}".format(num_tube_subdivisions))
-
         def tube_function(tube_subdivision, inside, rotation, time_t):
             """
             Using the parameters given to the helix, create a function which
@@ -341,10 +341,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                             inside=inside,
                                             rotation=rotation)
     elif tube_args.tube_method is Tube.OVAL or tube_args.tube_method is Tube.DEEP_OVAL:
-        # if we are using an oval, start_angle, end_angle, and actual
-        # subdivisions are all implicitly defined
         num_tube_subdivisions = tube_args.tube_sides
-        
         def tube_function(tube_subdivision, inside, rotation, time_t):
             """
             Create an oval instead.
