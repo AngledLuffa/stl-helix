@@ -40,7 +40,7 @@ right post rotates by 97 degrees
 Alternate construction for this shape:
 -------------------------------------
 
-python generate_trig.py --y_coeff 4.1 --power 2 --slope_angle 10.35 --tube_method deep_oval --tube_wall_height 6 --kink_replace_circle "((1.0,2.0),(4.14,5.14),(7.28,8.28),(10.42,11.42))" --scale 5.8572 --output_name trig.stl 
+python generate_trig.py --y_coeff 4.1 --power 2 --slope_angle 10.35 --tube_method deep_oval --tube_wall_height 6 --kink_replace_circle "((1.0,2.0),(4.14,5.14),(7.28,8.28),(10.42,11.42))" --scale 5.8572 --output_name trig.stl  --tube_end_angle "((4.1,240),(4.9,180))"
 
 
 Hole:
@@ -50,7 +50,6 @@ left post rotates by 77 degrees
 right post rotates by 97 degrees
 
 Issue with this formulation: the pleasing sharpness of the corners is a lot less now
-TODO: Also, the marble jumps off a bit at the start.  need to build a wall
 
 """
 
