@@ -2,6 +2,8 @@ import math
 
 from enum import Enum
 
+import marble_util
+
 class Tube(Enum):
     ELLIPSE = 1
     OVAL = 2
@@ -282,11 +284,16 @@ def coordinates(x_t, y_t, z_t, r_t,
 
 def compose_triangles(x_t, y_t, z_t, r_t,
                       tube_args, num_time_steps,
+                      time_t=None,
                       slope_angle_t=None):
     """
     Returns a list of vertices and triangles connecting those vertices.
 
     tube_args should be args including the tube arguments from below
+
+    time_t, if present, converts time_step to some other range,
+      usually represented by start_t or end_t
+
     slope_angle_t is a function returning the angle up/down of the path.
       if None, args.slope_angle is used instead
     """
@@ -300,14 +307,39 @@ def compose_triangles(x_t, y_t, z_t, r_t,
     if slope_angle_t is None:
         slope_angle_t = lambda x: tube_args.slope_angle
 
+    if time_t is None:
+        time_t = lambda t: t
+        
     def tube_start_t(time_step):
         return tube_args.tube_start_angle
 
-    def tube_end_t(time_step):
-        if tube_args.tube_end_angle > tube_args.tube_start_angle + 360:
-            return tube_args.tube_start_angle + 360
-        else:
-            return tube_args.tube_end_angle
+    if isinstance(tube_args.tube_end_angle, (float, int)):
+        tube_end_t = lambda t: tube_args.tube_end_angle
+    else:
+        tube_end_angles = tube_args.tube_end_angle
+        def tube_end_t(time_step):
+            t = time_t(time_step)
+            if t < tube_end_angles[0][0]:
+                # before the first interval: return that angle
+                return tube_end_angles[0][1]
+            if t > tube_args.tube_end_angle[-1][0]:
+                # after the last interval: return that angle
+                return tube_end_angles[-1][1]
+            for i in tube_end_angles:
+                # exactly on a interval boundary: return that angle
+                if t == i[0]:
+                    return i[1]
+            # at this point, we are between two intervals.  figure out which one
+            for i, interval in enumerate(tube_end_angles):
+                if t < interval[0]:
+                    break
+            prev = tube_end_angles[i - 1]
+            ratio = (t - prev[0]) / (interval[0] - prev[0])
+            # use math.sin so that we have a smooth transition rather than a corner
+            return prev[1] + math.sin(ratio * math.pi / 2) * (interval[1] - prev[1])
+
+        #for i in range(0, num_time_steps+1):
+        #    print("  %d %.4f" % (i, tube_end_t(i)))
 
     def full_tube_t(first_step, second_step):
         if tube_end_t(first_step) < tube_start_t(first_step) + 360:
@@ -430,6 +462,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                 
 def generate_path(x_t, y_t, z_t, r_t,
                   tube_args, num_time_steps,
+                  time_t=None,
                   slope_angle_t=None):
     """
     Generates triangles one at a time for the path defined by x_t, y_t, z_t, and r_t
@@ -437,11 +470,12 @@ def generate_path(x_t, y_t, z_t, r_t,
     vertex_list, triangle_list = compose_triangles(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                                    tube_args=tube_args,
                                                    num_time_steps=num_time_steps,
+                                                   time_t=time_t,
                                                    slope_angle_t=slope_angle_t)
                 
     for left, right, top in triangle_list:
         yield (vertex_list[left], vertex_list[right], vertex_list[top])
-                
+
 def parse_eccentricity(e):
     """
     Turns a string into a float for the eccentricity of an ellipse wall.
@@ -463,7 +497,7 @@ def add_tube_arguments(parser,
                         help='how thick to make the wall. special case: if wall_thickness >= tube_radius, there is no inner opening')
     parser.add_argument('--tube_start_angle', default=0, type=float,
                         help='angle to the start of the ramp.  0 represents the part furthest from the axis, 180 represents closest to the axis, -90 represents the top of the ramp, 90 represents the bottom.  0..180 represents the bottom of a ramp with no cover.  -90..90 will look like a loop-d-loop')
-    parser.add_argument('--tube_end_angle', default=180, type=float,
+    parser.add_argument('--tube_end_angle', default=180, type=lambda arg: marble_util.parse_float_or_tuple_tuple(arg, '--tube_end_angle'),
                         help='angle to the end of the ramp.  same values as tube_start_angle')
     parser.add_argument('--tube_sides', default=64, type=int,
                         help='how many sides a complete tube would have.  tube_start_angle and tube_end_angle are discretized to these subdivisions')

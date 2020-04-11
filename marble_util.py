@@ -3,11 +3,27 @@ import ast
 def parse_tuple_tuple(arg, name):
     overlap_tuple = ast.literal_eval(arg)
     if (isinstance(overlap_tuple, (tuple, list)) and len(overlap_tuple) == 2 and
-        isinstance(overlap_tuple[0], float) and isinstance(overlap_tuple[1], float)):
+        isinstance(overlap_tuple[0], (int, float)) and isinstance(overlap_tuple[1], (int, float))):
         overlap_tuple = (tuple(overlap_tuple),)
     for i in overlap_tuple:
-        if len(i) != 2:
+        if (len(i) != 2 or
+            not isinstance(i[0], (int, float)) or
+            not isinstance(i[1], (int, float))):
             raise ValueError('Need a tuple of len 2 tuples for %s' % name)
+    return overlap_tuple
+
+def parse_float_or_tuple_tuple(arg, name):
+    overlap_tuple = ast.literal_eval(arg)
+    if isinstance(overlap_tuple, (float, int)):
+        return overlap_tuple
+    if (isinstance(overlap_tuple, (tuple, list)) and len(overlap_tuple) == 2 and
+        isinstance(overlap_tuple[0], (int, float)) and isinstance(overlap_tuple[1], (int, float))):
+        overlap_tuple = (tuple(overlap_tuple),)
+    for i in overlap_tuple:
+        if (len(i) != 2 or
+            not isinstance(i[0], (int, float)) or
+            not isinstance(i[1], (int, float))):
+            raise ValueError('Need a float or a tuple of len 2 tuples for %s' % name)
     return overlap_tuple
 
 def get_time_step(times, t):

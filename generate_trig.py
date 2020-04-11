@@ -46,7 +46,7 @@ python generate_trig.py --y_coeff 4.1 --power 2 --slope_angle 10.35 --tube_metho
 Hole:
 python generate_trig.py --y_coeff 4.1 --power 2 --slope_angle 10.35 --tube_method deep_ellipse --kink_replace_circle "((1.0,2.0),(4.14,5.14),(7.28,8.28),(10.42,11.42))" --scale 5.8572 --tube_radius 10.5 --wall_thickness 11 --output_name trig_hole.stl  --tube_start_angle 0 --tube_end_angle 360
 
-left post rotates by 75 degrees
+left post rotates by 77 degrees
 right post rotates by 97 degrees
 
 Issue with this formulation: the pleasing sharpness of the corners is a lot less now
@@ -98,6 +98,7 @@ def generate_trig(args):
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=args.num_time_steps,
+                                              time_t=time_t,
                                               slope_angle_t=slope_angle_t):
         yield triangle    
     
