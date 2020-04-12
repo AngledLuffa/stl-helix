@@ -288,7 +288,27 @@ def build_f_t(args):
         return reg_y_t(time_step) * args.y_scale
 
     return scale_x_t, scale_y_t
-    
+
+def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
+    updated_functions = add_zero_circle(args=args,
+                                        circle_start=True,
+                                        num_time_steps=num_time_steps,
+                                        scale_x_t=x_t,
+                                        scale_y_t=y_t,
+                                        slope_angle_t=slope_angle_t,
+                                        r_t=r_t)
+    num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
+
+    updated_functions = add_zero_circle(args=args,
+                                        circle_start=False,
+                                        num_time_steps=num_time_steps,
+                                        scale_x_t=x_t,
+                                        scale_y_t=y_t,
+                                        slope_angle_t=slope_angle_t,
+                                        r_t=r_t)
+    return updated_functions
+
+
 def generate_hypotrochoid(args):
     describe_curve(args)
     x_t, y_t = build_f_t(args)
@@ -308,22 +328,12 @@ def generate_hypotrochoid(args):
     build_shape.print_stats(x_t, y_t, num_time_steps)
 
     if args.zero_circle:
-        updated_functions = add_zero_circle(args=args,
-                                            circle_start=True,
-                                            num_time_steps=num_time_steps,
-                                            scale_x_t=x_t,
-                                            scale_y_t=y_t,
-                                            slope_angle_t=slope_angle_t,
-                                            r_t=r_t)
-        num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
-
-        updated_functions = add_zero_circle(args=args,
-                                            circle_start=False,
-                                            num_time_steps=num_time_steps,
-                                            scale_x_t=x_t,
-                                            scale_y_t=y_t,
-                                            slope_angle_t=slope_angle_t,
-                                            r_t=r_t)
+        updated_functions = add_both_zero_circles(args=args,
+                                                  num_time_steps=num_time_steps,
+                                                  x_t=x_t,
+                                                  y_t=y_t,
+                                                  slope_angle_t=slope_angle_t,
+                                                  r_t=r_t)
         num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
 
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps,
