@@ -15,35 +15,56 @@ time -0.74 .. 0.74
 same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
 
 python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74
-
 """
 
-
-def generate_lissajous(args):
+def build_time_t(args):
     def time_t(time_step):
         return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
 
+    return time_t
+
+def build_x_t(args):
+    time_t = build_time_t(args)
     def x_t(time_step):
         t = time_t(time_step)
         x = math.sin((args.lissA / args.lissC) * 2 * math.pi * t + args.lissB * math.pi)
         return x * args.x_scale
 
+    return x_t
+
+def build_y_t(args):
+    time_t = build_time_t(args)
     def y_t(time_step):
         t = time_t(time_step)
         y = math.sin(2 * math.pi * t)
-        return y * args.y_scale
+        return y * args.y_scale    
 
-    #for i in range(0, args.num_time_steps+1):
-    #    print(i, time_t(i), x_t(i), y_t(i))
+    return y_t
 
+def describe_curve(args):
+    print("Building ordinary lissajous curve")
+    print("  x(t) = sin((%.4f / %.4f) 2 pi t) + %.4f pi" % (args.lissA, args.lissC, args.lissB))
+    print("  y(t) = sin(2 pi t)")
+
+def print_stats(x_t, y_t, num_time_steps):
     x0 = x_t(0)
     y0 = y_t(0)
-    xn = x_t(args.num_time_steps)
-    yn = y_t(args.num_time_steps)
+    xn = x_t(num_time_steps)
+    yn = y_t(num_time_steps)
     print("Start of the curve: (%.4f, %.4f)" % (x0, y0))
     print("End of the curve:   (%.4f, %.4f)" % (xn, yn))
     dist = ((xn - x0) ** 2 + (yn - y0) ** 2) ** 0.5
     print("Distance: %.4f" % dist)
+
+
+def generate_lissajous(args):
+    describe_curve(args)
+
+    time_t = build_time_t(args)
+    x_t = build_x_t(args)
+    y_t = build_y_t(args)
+
+    num_time_steps = args.num_time_steps
     
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
@@ -55,6 +76,8 @@ def generate_lissajous(args):
                                                                      r_t=r_t,
                                                                      kink_args=args,
                                                                      num_time_steps=args.num_time_steps)
+
+    print_stats(x_t, y_t, args.num_time_steps)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,
