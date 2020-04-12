@@ -44,3 +44,8 @@ def generate_shape(module, args):
                                               slope_angle_t=slope_angle_t):
         yield triangle
 
+def main(module, sys_args=None):
+    args = module.parse_args(sys_args)
+    marble_path.print_args(args)
+
+    marble_path.write_stl(generate_shape(module, args), args.output_name)

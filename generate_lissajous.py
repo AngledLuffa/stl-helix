@@ -98,12 +98,8 @@ def parse_args(sys_args=None):
     
 
 def main(sys_args=None):
-    args = parse_args(sys_args)
-    marble_path.print_args(args)
-
     module = sys.modules[__name__]
-
-    marble_path.write_stl(build_shape.generate_shape(module, args), args.output_name)
+    build_shape.main(module, sys_args)
 
 if __name__ == '__main__':
     main()
