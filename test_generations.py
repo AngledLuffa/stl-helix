@@ -216,7 +216,8 @@ TESTS = [Test(name='Tube Basic',
                     "--tube_end_angle", "225",
                     "--tube_sides", "12"],
               gold_file='test_files/trig_overhang.stl'),
-              
+
+         # Test that the overhang can be modified by specifying intervals on the tube_end_angle
          Test(name='Trig - deep oval with partial overhang',
               model=generate_trig,
               args=["--y_coeff", "4.1",
