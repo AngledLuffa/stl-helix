@@ -228,22 +228,22 @@ def zero_circle_dimensions(x_0, y_0, r_0):
 
     return rad_0, theta
     
-def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t):
+def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     """
     Constructs a partial helix and either prepends or appends it to make a curve touch the origin.
     """
     helix_args = argparse.Namespace(**vars(args))
     if circle_start:
         r_0 = r_t(0)
-        x_0 = scale_x_t(0)
-        y_0 = scale_y_t(0)
+        x_0 = x_t(0)
+        y_0 = y_t(0)
     else:
         r_0 = r_t(num_time_steps)
-        x_0 = scale_x_t(num_time_steps)
-        y_0 = scale_y_t(num_time_steps)
+        x_0 = x_t(num_time_steps)
+        y_0 = y_t(num_time_steps)
     if abs(x_0) < 0.1 and abs(y_0) < 0.1:
         print("Not processing circle at %s of curve: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
-        return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
+        return num_time_steps, x_t, y_t, slope_angle_t, r_t
     print("Adding zero circle at the %s of the curve" % ("start" if circle_start else "end"))
     print("  Parameters for the ramp: r %.4f x %.4f y %.4f" % (r_0, x_0, y_0))
     rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
@@ -284,25 +284,25 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         trans_y_t = helix_y_t
 
     if circle_start:
-        scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
-                                                                                      scale_x_t, scale_y_t, slope_angle_t, r_t,
+        x_t, y_t, slope_angle_t, r_t = combine_functions.append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
+                                                                                      x_t, y_t, slope_angle_t, r_t,
                                                                                       args.zero_circle_sides)
         num_time_steps = num_time_steps + args.zero_circle_sides
         print("  Updated circle-to-zero at start of curve")
-        print("  Start circle x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-        print("  Start curve x, y:  %.4f %.4f" % (scale_x_t(args.zero_circle_sides), scale_y_t(args.zero_circle_sides)))
-        print("  End curve x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        print("  Start circle x, y: %.4f %.4f" % (x_t(0), y_t(0)))
+        print("  Start curve x, y:  %.4f %.4f" % (x_t(args.zero_circle_sides), y_t(args.zero_circle_sides)))
+        print("  End curve x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
     else:
-        scale_x_t, scale_y_t, slope_angle_t, r_t = combine_functions.append_functions(scale_x_t, scale_y_t, slope_angle_t, r_t,
+        x_t, y_t, slope_angle_t, r_t = combine_functions.append_functions(x_t, y_t, slope_angle_t, r_t,
                                                                                       trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
                                                                                       num_time_steps)
         print("  Updated circle-to-zero at end of hypo")
-        print("  Start curve x, y:  %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-        print("  End curve x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        print("  Start curve x, y:  %.4f %.4f" % (x_t(0), y_t(0)))
+        print("  End curve x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
         num_time_steps = num_time_steps + args.zero_circle_sides
-        print("  End cicle x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+        print("  End cicle x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
 
-    return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
+    return num_time_steps, x_t, y_t, slope_angle_t, r_t
 
 def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     """
@@ -311,8 +311,8 @@ def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     updated_functions = add_zero_circle(args=args,
                                         circle_start=True,
                                         num_time_steps=num_time_steps,
-                                        scale_x_t=x_t,
-                                        scale_y_t=y_t,
+                                        x_t=x_t,
+                                        y_t=y_t,
                                         slope_angle_t=slope_angle_t,
                                         r_t=r_t)
     num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
@@ -320,8 +320,8 @@ def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     updated_functions = add_zero_circle(args=args,
                                         circle_start=False,
                                         num_time_steps=num_time_steps,
-                                        scale_x_t=x_t,
-                                        scale_y_t=y_t,
+                                        x_t=x_t,
+                                        y_t=y_t,
                                         slope_angle_t=slope_angle_t,
                                         r_t=r_t)
     return updated_functions
