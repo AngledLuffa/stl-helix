@@ -44,7 +44,7 @@ def generate_zigzag(args):
                                               num_time_steps=num_time_steps):
         yield triangle    
     
-def parse_args():
+def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=5.0, default_output_name='zigzag.stl')
@@ -66,13 +66,13 @@ def parse_args():
     parser.set_defaults(tube_method=marble_path.Tube.OVAL)
     parser.set_defaults(tube_wall_height=6)
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=sys_args)
     return args
     
     
 
-def main():
-    args = parse_args()
+def main(sys_args=None):
+    args = parse_args(sys_args)
     marble_path.print_args(args)
 
     marble_path.write_stl(generate_zigzag(args), args.output_name)

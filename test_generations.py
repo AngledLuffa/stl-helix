@@ -14,6 +14,7 @@ import generate_limacon
 import generate_lissajous
 import generate_trig
 import generate_tube
+import generate_zigzag
 
 Test = namedtuple('Test', ['name', 'model', 'args', 'gold_file'])
 
@@ -280,7 +281,13 @@ TESTS = [Test(name='Tube Basic',
                     "--end_t", "0",
                     "--num_time_steps", "40",
                     "--kink_replace_circle", "(-0.21,-0.10)"],
-              gold_file='test_files/lissajous_basic_cw.stl')]
+              gold_file='test_files/lissajous_basic_cw.stl'),
+              
+         Test(name='Zigzag',
+              model=generate_zigzag,
+              args=["--tube_sides", "10",
+                    "--subdivisions_per_zigzag", "6"],
+              gold_file='test_files/zigzag.stl'),]
               
 class TestGenerations(unittest.TestCase):
     def setUp(self):
