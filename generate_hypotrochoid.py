@@ -207,126 +207,6 @@ def describe_curve(args):
     print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
 
 
-def zero_circle_dimensions(x_0, y_0, r_0):
-    """
-    Calculate the radius and amount of circle needed to go to the origin
-
-    Given x, y, and initial rotation, calculates how large to make a
-    circle and how far around you need to go to get to the origin.
-
-    Note that given an initial position, the fact that you want to go
-    to the origin, and the initial rotation, there is exactly enough
-    information for there to be one circle which fits those initial
-    parameters.
-    """
-    phi = r_0 / 180 * math.pi
-
-    rad_0 = -(x_0 ** 2 + y_0 ** 2) / (2 * x_0 * math.cos(phi) + 2 * y_0 * math.sin(phi))
-
-    half_distance = 0.5 * (x_0 ** 2 + y_0 ** 2) ** 0.5
-    theta = math.asin(half_distance / rad_0) * 2
-
-    return rad_0, theta
-    
-def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t, r_t):
-    """
-    Constructs a partial helix and either prepends or appends it to make a curve touch the origin.
-    """
-    helix_args = argparse.Namespace(**vars(args))
-    if circle_start:
-        r_0 = r_t(0)
-        x_0 = x_t(0)
-        y_0 = y_t(0)
-    else:
-        r_0 = r_t(num_time_steps)
-        x_0 = x_t(num_time_steps)
-        y_0 = y_t(num_time_steps)
-    if abs(x_0) < 0.1 and abs(y_0) < 0.1:
-        print("Not processing circle at %s of curve: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
-        return num_time_steps, x_t, y_t, slope_angle_t, r_t
-    print("Adding zero circle at the %s of the curve" % ("start" if circle_start else "end"))
-    print("  Parameters for the ramp: r %.4f x %.4f y %.4f" % (r_0, x_0, y_0))
-    rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
-    # TODO: determine if this was going backwards and needs more than half a loop
-
-    if circle_start:
-        helix_args.rotations = -theta / (2 * math.pi)
-        helix_args.initial_rotation = r_0 - helix_args.rotations * 360
-        helix_args.helix_radius = -rad_0
-        helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
-    else:
-        helix_args.rotations = -theta / (2 * math.pi)
-        helix_args.initial_rotation = r_0
-        helix_args.helix_radius = -rad_0
-        helix_args.helix_sides = args.zero_circle_sides / helix_args.rotations
-    # TODO: allow for CW on/off ramps instead of just CCW
-    helix_args.clockwise = False
-    print("  Amount of loop: %.4f radians / %.4f rotations / %.4f sides" % (theta, helix_args.rotations, helix_args.helix_sides))
-    print("  Initial rotation: %.4f" % helix_args.initial_rotation)
-    print("  Radius of circle: %.4f" % helix_args.helix_radius)
-
-    helix_x_t = generate_helix.helix_x_t(helix_args)
-    helix_y_t = generate_helix.helix_y_t(helix_args)
-    helix_r_t = generate_helix.helix_r_t(helix_args)
-    helix_slope_t = lambda t: args.slope_angle
-
-    #for i in range(args.zero_circle_sides+1):
-    #    print("%d %.4f %.4f %.4f" % (i, helix_x_t(i), helix_y_t(i), helix_r_t(i)))
-        
-    if circle_start:
-        helix_x_t0 = helix_x_t(args.zero_circle_sides) - x_0
-        trans_x_t = lambda t: helix_x_t(t) - helix_x_t0
-
-        helix_y_t0 = helix_y_t(args.zero_circle_sides) - y_0
-        trans_y_t = lambda t: helix_y_t(t) - helix_y_t0
-    else:
-        trans_x_t = helix_x_t
-        trans_y_t = helix_y_t
-
-    if circle_start:
-        x_t, y_t, slope_angle_t, r_t = combine_functions.append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
-                                                                                      x_t, y_t, slope_angle_t, r_t,
-                                                                                      args.zero_circle_sides)
-        num_time_steps = num_time_steps + args.zero_circle_sides
-        print("  Updated circle-to-zero at start of curve")
-        print("  Start circle x, y: %.4f %.4f" % (x_t(0), y_t(0)))
-        print("  Start curve x, y:  %.4f %.4f" % (x_t(args.zero_circle_sides), y_t(args.zero_circle_sides)))
-        print("  End curve x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
-    else:
-        x_t, y_t, slope_angle_t, r_t = combine_functions.append_functions(x_t, y_t, slope_angle_t, r_t,
-                                                                                      trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
-                                                                                      num_time_steps)
-        print("  Updated circle-to-zero at end of hypo")
-        print("  Start curve x, y:  %.4f %.4f" % (x_t(0), y_t(0)))
-        print("  End curve x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
-        num_time_steps = num_time_steps + args.zero_circle_sides
-        print("  End cicle x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
-
-    return num_time_steps, x_t, y_t, slope_angle_t, r_t
-
-def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
-    """
-    Adds zero circles at both the start and the end of a curve.
-    """
-    updated_functions = add_zero_circle(args=args,
-                                        circle_start=True,
-                                        num_time_steps=num_time_steps,
-                                        x_t=x_t,
-                                        y_t=y_t,
-                                        slope_angle_t=slope_angle_t,
-                                        r_t=r_t)
-    num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
-
-    updated_functions = add_zero_circle(args=args,
-                                        circle_start=False,
-                                        num_time_steps=num_time_steps,
-                                        x_t=x_t,
-                                        y_t=y_t,
-                                        slope_angle_t=slope_angle_t,
-                                        r_t=r_t)
-    return updated_functions
-
-
 def generate_hypotrochoid(args):
     describe_curve(args)
     x_t, y_t = build_f_t(args)
@@ -346,12 +226,12 @@ def generate_hypotrochoid(args):
     build_shape.print_stats(x_t, y_t, num_time_steps)
 
     if args.zero_circle:
-        updated_functions = add_both_zero_circles(args=args,
-                                                  num_time_steps=num_time_steps,
-                                                  x_t=x_t,
-                                                  y_t=y_t,
-                                                  slope_angle_t=slope_angle_t,
-                                                  r_t=r_t)
+        updated_functions = combine_functions.add_both_zero_circles(args=args,
+                                                                    num_time_steps=num_time_steps,
+                                                                    x_t=x_t,
+                                                                    y_t=y_t,
+                                                                    slope_angle_t=slope_angle_t,
+                                                                    r_t=r_t)
         num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
 
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps,
@@ -403,6 +283,7 @@ def parse_args(sys_args=None):
 
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
     slope_function.add_overlap_args(parser)
+    combine_functions.add_zero_circle_args(parser)
 
     parser.add_argument('--hypoA', default=9, type=int,
                         help='value A in the hypo formula')
@@ -430,13 +311,6 @@ def parse_args(sys_args=None):
 
     parser.add_argument('--closest_approach', default=None, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')
-
-    parser.add_argument('--zero_circle', dest='zero_circle', default=False, action='store_true',
-                        help='Go from wherever start_t and end_t wind up to 0,0 using a circle')
-    parser.add_argument('--no_zero_circle', dest='zero_circle', action='store_false',
-                        help="Don't go from wherever start_t and end_t wind up to 0,0 using a circle")
-    parser.add_argument('--zero_circle_sides', default=36, type=int,
-                        help='Number of sides to make the circle to the middle')
 
     # TODO: add a macro argument for a flower, an N pointed star, etc
 
