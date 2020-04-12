@@ -208,6 +208,17 @@ def describe_curve(args):
 
 
 def zero_circle_dimensions(x_0, y_0, r_0):
+    """
+    Calculate the radius and amount of circle needed to go to the origin
+
+    Given x, y, and initial rotation, calculates how large to make a
+    circle and how far around you need to go to get to the origin.
+
+    Note that given an initial position, the fact that you want to go
+    to the origin, and the initial rotation, there is exactly enough
+    information for there to be one circle which fits those initial
+    parameters.
+    """
     phi = r_0 / 180 * math.pi
 
     rad_0 = -(x_0 ** 2 + y_0 ** 2) / (2 * x_0 * math.cos(phi) + 2 * y_0 * math.sin(phi))
@@ -218,6 +229,9 @@ def zero_circle_dimensions(x_0, y_0, r_0):
     return rad_0, theta
     
 def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t):
+    """
+    Constructs a partial helix and either prepends or appends it to make a curve touch the origin.
+    """
     helix_args = argparse.Namespace(**vars(args))
     if circle_start:
         r_0 = r_t(0)
@@ -291,6 +305,9 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
     return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
 
 def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
+    """
+    Adds zero circles at both the start and the end of a curve.
+    """
     updated_functions = add_zero_circle(args=args,
                                         circle_start=True,
                                         num_time_steps=num_time_steps,
