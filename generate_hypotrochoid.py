@@ -186,6 +186,27 @@ def build_reg_f_t(args):
     
     return reg_x_t, reg_y_t
 
+def build_f_t(args):
+    reg_x_t, reg_y_t = build_reg_f_t(args)
+    
+    def scale_x_t(time_step):
+        return reg_x_t(time_step) * args.x_scale
+    
+    def scale_y_t(time_step):
+        return reg_y_t(time_step) * args.y_scale
+
+    return scale_x_t, scale_y_t
+
+
+def describe_curve(args):
+    A = args.hypoA
+    B = args.hypoB
+    C = args.hypoC
+
+    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
+    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
+
+
 def zero_circle_dimensions(x_0, y_0, r_0):
     phi = r_0 / 180 * math.pi
 
@@ -268,26 +289,6 @@ def add_zero_circle(args, circle_start, num_time_steps, scale_x_t, scale_y_t, sl
         print("  End cicle x, y:    %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
 
     return num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t
-
-def describe_curve(args):
-    A = args.hypoA
-    B = args.hypoB
-    C = args.hypoC
-
-    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
-    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
-
-
-def build_f_t(args):
-    reg_x_t, reg_y_t = build_reg_f_t(args)
-    
-    def scale_x_t(time_step):
-        return reg_x_t(time_step) * args.x_scale
-    
-    def scale_y_t(time_step):
-        return reg_y_t(time_step) * args.y_scale
-
-    return scale_x_t, scale_y_t
 
 def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     updated_functions = add_zero_circle(args=args,
