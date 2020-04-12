@@ -79,6 +79,8 @@ def generate_cycloid(args):
         return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
                 scale * args.y_scale * reg)
 
+    r_t = marble_path.numerical_rotation_function(x_t, y_t)
+
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,
                                                   time_t=time_t,
@@ -89,8 +91,6 @@ def generate_cycloid(args):
     
     z_t = marble_path.arclength_height_function(x_t, y_t, args.num_time_steps,
                                                 slope_angle_t=slope_angle_t)
-    r_t = marble_path.numerical_rotation_function(x_t, y_t)
-
     #for i in range(args.num_time_steps+1):
     #    print("%.4f %.4f %.4f %.4f" % (time_t(i), x_t(i), y_t(i), z_t(i)))
     
