@@ -48,16 +48,6 @@ def describe_curve(args):
     print("  x(t) = sin((%.4f / %.4f) 2 pi t) + %.4f pi" % (args.lissA, args.lissC, args.lissB))
     print("  y(t) = sin(2 pi t)")
 
-def print_stats(x_t, y_t, num_time_steps):
-    x0 = x_t(0)
-    y0 = y_t(0)
-    xn = x_t(num_time_steps)
-    yn = y_t(num_time_steps)
-    print("Start of the curve: (%.4f, %.4f)" % (x0, y0))
-    print("End of the curve:   (%.4f, %.4f)" % (xn, yn))
-    dist = ((xn - x0) ** 2 + (yn - y0) ** 2) ** 0.5
-    print("Distance: %.4f" % dist)
-
 
 def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for a lissajous curve or its relatives')

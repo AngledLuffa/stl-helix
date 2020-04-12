@@ -2,6 +2,23 @@ import combine_functions
 import marble_path
 import slope_function
 
+def print_stats(x_t, y_t, num_time_steps):
+    min_x = min(x_t(i) for i in range(num_time_steps + 1))
+    max_x = max(x_t(i) for i in range(num_time_steps + 1))
+    min_y = min(y_t(i) for i in range(num_time_steps + 1))
+    max_y = max(y_t(i) for i in range(num_time_steps + 1))
+    print("Min, max x: %.4f %.4f" % (min_x, max_x))
+    print("Min, max y: %.4f %.4f" % (min_y, max_y))
+
+    x0 = x_t(0)
+    y0 = y_t(0)
+    xn = x_t(num_time_steps)
+    yn = y_t(num_time_steps)
+    print("Start of the curve: (%.4f, %.4f)" % (x0, y0))
+    print("End of the curve:   (%.4f, %.4f)" % (xn, yn))
+    dist = ((xn - x0) ** 2 + (yn - y0) ** 2) ** 0.5
+    print("Distance: %.4f" % dist)
+
 def generate_shape(module, args):
     module.describe_curve(args)
 
@@ -26,7 +43,7 @@ def generate_shape(module, args):
                                                                      kink_args=args,
                                                                      num_time_steps=args.num_time_steps)
 
-    module.print_stats(x_t, y_t, args.num_time_steps)
+    print_stats(x_t, y_t, args.num_time_steps)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,

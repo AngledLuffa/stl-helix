@@ -1,6 +1,7 @@
 import argparse
 import math
 
+import build_shape
 import combine_functions
 import generate_helix
 import marble_path
@@ -277,8 +278,7 @@ def describe_curve(args):
     print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
 
 
-def generate_hypotrochoid(args):
-    describe_curve(args)
+def build_f_t(args):
     reg_x_t, reg_y_t = build_reg_f_t(args)
     
     def scale_x_t(time_step):
@@ -287,47 +287,46 @@ def generate_hypotrochoid(args):
     def scale_y_t(time_step):
         return reg_y_t(time_step) * args.y_scale
 
-    slope_angle_t = slope_function.slope_function(x_t=scale_x_t,
-                                                  y_t=scale_y_t,
+    return scale_x_t, scale_y_t
+    
+def generate_hypotrochoid(args):
+    describe_curve(args)
+    x_t, y_t = build_f_t(args)
+
+    slope_angle_t = slope_function.slope_function(x_t=x_t,
+                                                  y_t=y_t,
                                                   time_t=build_time_t(args),
                                                   slope_angle=args.slope_angle,
                                                   num_time_steps=args.num_time_steps,
                                                   overlap_args=args,
                                                   kink_args=None)
 
-    r_t = marble_path.numerical_rotation_function(scale_x_t, scale_y_t)
+    r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
-    num_time_steps = args.num_time_steps    
+    num_time_steps = args.num_time_steps
 
-    min_x = min(scale_x_t(i) for i in range(num_time_steps + 1))
-    max_x = max(scale_x_t(i) for i in range(num_time_steps + 1))
-    min_y = min(scale_y_t(i) for i in range(num_time_steps + 1))
-    max_y = max(scale_y_t(i) for i in range(num_time_steps + 1))
-    print("Min, max x: %.4f %.4f" % (min_x, max_x))
-    print("Min, max y: %.4f %.4f" % (min_y, max_y))
-    print("Start x, y: %.4f %.4f" % (scale_x_t(0), scale_y_t(0)))
-    print("End x, y:   %.4f %.4f" % (scale_x_t(num_time_steps), scale_y_t(num_time_steps)))
+    build_shape.print_stats(x_t, y_t, num_time_steps)
 
     if args.zero_circle:
         updated_functions = add_zero_circle(args=args,
                                             circle_start=True,
                                             num_time_steps=num_time_steps,
-                                            scale_x_t=scale_x_t,
-                                            scale_y_t=scale_y_t,
+                                            scale_x_t=x_t,
+                                            scale_y_t=y_t,
                                             slope_angle_t=slope_angle_t,
                                             r_t=r_t)
-        num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
+        num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
 
         updated_functions = add_zero_circle(args=args,
                                             circle_start=False,
                                             num_time_steps=num_time_steps,
-                                            scale_x_t=scale_x_t,
-                                            scale_y_t=scale_y_t,
+                                            scale_x_t=x_t,
+                                            scale_y_t=y_t,
                                             slope_angle_t=slope_angle_t,
                                             r_t=r_t)
-        num_time_steps, scale_x_t, scale_y_t, slope_angle_t, r_t = updated_functions
+        num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
 
-    z_t = marble_path.arclength_height_function(scale_x_t, scale_y_t, num_time_steps,
+    z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps,
                                                 slope_angle_t=slope_angle_t)
 
     print("Z goes from %.4f to %.4f" % (z_t(0), z_t(num_time_steps)))
@@ -340,7 +339,7 @@ def generate_hypotrochoid(args):
     #dy =  (A - B) * math.cos(t) - C * ((A - B) / B) * math.cos((A - B) * t / B)
     #dy = dy * args.y_scale
 
-    for triangle in marble_path.generate_path(x_t=scale_x_t, y_t=scale_y_t, z_t=z_t, r_t=r_t,
+    for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=num_time_steps,
                                               slope_angle_t=slope_angle_t):
