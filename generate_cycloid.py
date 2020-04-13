@@ -50,13 +50,23 @@ tube is 22 high
 so it goes at 1.99, 2, 18.47
 """
 
-def generate_cycloid(args):
-    min_t = args.min_domain - args.extra_t
-    max_t = args.max_domain + args.extra_t
-    def time_t(time_step):
-        return min_t + (max_t - min_t) * time_step / args.num_time_steps
+def min_t(args):
+    return args.min_domain - args.extra_t
 
-    scale = args.width / (max_t - min_t)
+def max_t(args):
+    return args.max_domain + args.extra_t
+
+
+def build_time_t(args):
+    t0 = min_t(args)
+    tn = max_t(args)
+    def time_t(time_step):
+        return t0 + (tn - t0) * time_step / args.num_time_steps
+    return time_t
+
+def build_x_t(args):
+    scale = args.width / (max_t(args) - min_t(args))
+    time_t = build_time_t(args)
 
     def x_t(time_step):
         t = time_t(time_step)
@@ -64,6 +74,12 @@ def generate_cycloid(args):
             return t * scale
         reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
         return (t + reg * args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
+
+    return x_t
+
+def build_y_t(args):
+    scale = args.width / (max_t(args) - min_t(args))
+    time_t = build_time_t(args)
 
     def y_t(time_step):
         t = time_t(time_step)
@@ -79,6 +95,13 @@ def generate_cycloid(args):
         return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
                 scale * args.y_scale * reg)
 
+    return y_t
+
+def generate_cycloid(args):
+    time_t = build_time_t(args)
+    x_t = build_x_t(args)
+    y_t = build_y_t(args)
+
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,
@@ -86,7 +109,7 @@ def generate_cycloid(args):
                                                   time_t=time_t,
                                                   slope_angle=args.slope_angle,
                                                   num_time_steps=args.num_time_steps,
-                                                  overlap_args = args,
+                                                  overlap_args=args,
                                                   kink_args=args)
     
     z_t = marble_path.arclength_height_function(x_t, y_t, args.num_time_steps,
