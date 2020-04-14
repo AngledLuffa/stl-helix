@@ -1,6 +1,8 @@
 import argparse
 import math
 
+from enum import Enum
+
 import build_shape
 import combine_functions
 import generate_helix
@@ -124,7 +126,22 @@ python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 3
 this goes at 2,2,17
 
 rotation on post: 36 degrees
+
+
+TODO:  Epitrochoid
+------------------
+
+python generate_hypotrochoid.py --hypoA 15 --hypoB 3 --hypoC 9 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
+
+python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 3 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
+
+python generate_hypotrochoid.py --hypoA 21 --hypoB 6 --hypoC 15 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
+
 """
+
+class Trochoid(Enum):
+    HYPOTROCHOID = 1
+    EPITROCHOID = 2
 
 def build_time_t(args):
     """
@@ -151,14 +168,25 @@ def build_reg_f_t(args):
     A = args.hypoA
     B = args.hypoB
     C = args.hypoC
-    
-    def x_t(time_step):
-        t = time_t(time_step)
-        return ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
 
-    def y_t(time_step):
-        t = time_t(time_step)
-        return ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+    if args.trochoid == Trochoid.HYPOTROCHOID:
+        def x_t(time_step):
+            t = time_t(time_step)
+            return ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
+
+        def y_t(time_step):
+            t = time_t(time_step)
+            return ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+    elif args.trochoid == Trochoid.EPITROCHOID:
+        def x_t(time_step):
+            t = time_t(time_step)
+            return ((A + B) * math.cos(t) - C * math.cos((A + B) * t / B))
+
+        def y_t(time_step):
+            t = time_t(time_step)
+            return ((A + B) * math.sin(t) - C * math.sin((A + B) * t / B))
+    else:
+        raise ValueError("Unhandled trochoid type: " + args.trochoid)
 
     def reg_y_t(time_step):
         x = x_t(time_step)
@@ -203,9 +231,14 @@ def describe_curve(args):
     B = args.hypoB
     C = args.hypoC
 
-    print("Generating x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
-    print("           y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
-
+    if args.trochoid == Trochoid.HYPOTROCHOID:
+        print("Generating Hypotrochoid: x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
+        print("                         y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
+    elif args.trochoid == Trochoid.EPITROCHOID:
+        print("Generating Epitrochoid: x(t) = %d cos(t) - %.4f cos((%d / %d) t)" % (A + B, C, A+B, B))
+        print("                        y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A + B, C, A+B, B))
+    else:
+        raise ValueError("Unhandled trochoid type: " + args.trochoid)
 
 def generate_hypotrochoid(args):
     describe_curve(args)
@@ -312,6 +345,8 @@ def parse_args(sys_args=None):
     parser.add_argument('--closest_approach', default=None, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')
 
+    parser.add_argument('--trochoid', default=Trochoid.HYPOTROCHOID, type=lambda x: Trochoid[x.upper()],
+                        help='What formula to use.  Options are hypotrochoid and epitrochoid.')
     # TODO: add a macro argument for a flower, an N pointed star, etc
 
     args = parser.parse_args(args=sys_args)
