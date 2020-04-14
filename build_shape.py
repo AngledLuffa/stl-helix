@@ -34,7 +34,7 @@ def generate_shape(module, args):
     # the same, this will disrupt any attempt to set a scale such as
     # in generate_hypotrochoid's closest_approach.  For now, those
     # arguments are incompatible
-    if args.kink_replace_circle:
+    if 'kink_replace_circle' in dir(args) and args.kink_replace_circle:
         x_t, y_t, r_t = combine_functions.replace_kinks_with_circles(args=args,
                                                                      time_t=time_t,
                                                                      x_t=x_t,
@@ -43,17 +43,17 @@ def generate_shape(module, args):
                                                                      kink_args=args,
                                                                      num_time_steps=args.num_time_steps)
 
-    print_stats(x_t, y_t, args.num_time_steps)
+    print_stats(x_t, y_t, num_time_steps)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,
                                                   time_t=time_t,
                                                   slope_angle=args.slope_angle,
-                                                  num_time_steps=args.num_time_steps,
+                                                  num_time_steps=num_time_steps,
                                                   overlap_args=args,
-                                                  kink_args=None)
+                                                  kink_args=args)
     
-    z_t = marble_path.arclength_height_function(x_t, y_t, args.num_time_steps, args.slope_angle)
+    z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, slope_angle_t=slope_angle_t)
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
