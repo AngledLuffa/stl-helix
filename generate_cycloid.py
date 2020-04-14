@@ -1,7 +1,8 @@
 import argparse
-import ast
 import math
+import sys
 
+import build_shape
 import marble_path
 import slope_function
 
@@ -97,43 +98,10 @@ def build_y_t(args):
 
     return y_t
 
-def generate_cycloid(args):
-    time_t = build_time_t(args)
-    x_t = build_x_t(args)
-    y_t = build_y_t(args)
-
-    r_t = marble_path.numerical_rotation_function(x_t, y_t)
-
-    slope_angle_t = slope_function.slope_function(x_t=x_t,
-                                                  y_t=y_t,
-                                                  time_t=time_t,
-                                                  slope_angle=args.slope_angle,
-                                                  num_time_steps=args.num_time_steps,
-                                                  overlap_args=args,
-                                                  kink_args=args)
-    
-    z_t = marble_path.arclength_height_function(x_t, y_t, args.num_time_steps,
-                                                slope_angle_t=slope_angle_t)
-    #for i in range(args.num_time_steps+1):
-    #    print("%.4f %.4f %.4f %.4f" % (time_t(i), x_t(i), y_t(i), z_t(i)))
-    
-    x0 = x_t(0)
-    y0 = y_t(0)
-    z0 = z_t(0)
-    x1 = x_t(args.num_time_steps)
-    y1 = y_t(args.num_time_steps)
-    z1 = z_t(args.num_time_steps)
-    
-    print("X,Y,Z of start:   %.4f %.4f %.4f" % (x0, y0, z0))
-    print("X,Y,Z of end:     %.4f %.4f %.4f" % (x1, y1, z1))
-    print("dx, dy, dz:       %.4f %.4f %.4f" % ((x1 - x0), (y1 - y0), (z1 - z0)))
-    print("Corner to corner: %.4f" % ((y1 - y0) ** 2 + (x1 - x0) ** 2) ** 0.5)
-
-    for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
-                                              tube_args=args,
-                                              num_time_steps=args.num_time_steps,
-                                              slope_angle_t=slope_angle_t):
-        yield triangle
+def describe_curve(args):
+    print("Building cycloid")
+    print("  x(t) = t + %.4f sin(%.4f t)" % (args.x_coeff, args.x_t_coeff))
+    print("  y(t) = %.4f + %.4f cos(%.4ft + %.4f)" % (args.y0, args.y_coeff, args.y_t_coeff, args.y_phase))
 
 def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl cycloid.')
@@ -211,10 +179,8 @@ def parse_args(sys_args=None):
     
 
 def main(sys_args=None):
-    args = parse_args(sys_args)
-    marble_path.print_args(args)
-
-    marble_path.write_stl(generate_cycloid(args), args.output_name)
+    module = sys.modules[__name__]
+    build_shape.main(module, sys_args)
 
 if __name__ == '__main__':
     main()
