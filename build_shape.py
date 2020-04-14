@@ -34,7 +34,7 @@ def generate_shape(module, args):
     # the same, this will disrupt any attempt to set a scale such as
     # in generate_hypotrochoid's closest_approach.  For now, those
     # arguments are incompatible
-    if 'kink_replace_circle' in dir(args) and args.kink_replace_circle:
+    if getattr(args, 'kink_replace_circle', None):
         x_t, y_t, r_t = combine_functions.replace_kinks_with_circles(args=args,
                                                                      time_t=time_t,
                                                                      x_t=x_t,
