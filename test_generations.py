@@ -66,7 +66,7 @@ TESTS = [Test(name='Tube Basic',
               gold_file='test_files/helix_clockwise.stl'),
          
          # clockwise test starting from 72 rotation.
-         Test(name='Helix Clockwise',
+         Test(name='Helix Clockwise Rotated',
               model=generate_helix,
               args=["--vertical_displacement", '30',
                     "--clockwise",
