@@ -73,6 +73,31 @@ python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.356
 33 degree rotation on the top
 """
 
+
+def build_base_x_t(args):
+    scale = args.width / (max_t(args) - min_t(args))
+
+    def x_t(t):
+        reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
+        return (t + reg * args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
+
+    return x_t
+
+def build_base_y_t(args):
+    scale = args.width / (max_t(args) - min_t(args))
+    use_sign = args.use_sign
+
+    def y_t(t):
+        if t < 0 and use_sign:
+            sign = -1
+        else:
+            sign = 1
+        reg = (1.0 - args.reg_y) + args.reg_y * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
+        return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
+                scale * args.y_scale * reg)
+
+    return y_t
+    
 def min_t(args):
     return args.min_domain - args.extra_t
 
@@ -88,21 +113,23 @@ def build_time_t(args):
     return time_t
 
 def build_x_t(args):
-    scale = args.width / (max_t(args) - min_t(args))
     time_t = build_time_t(args)
+    scale = args.width / (max_t(args) - min_t(args))
 
+    base_x_t = build_base_x_t(args)
+    
     def x_t(time_step):
         t = time_t(time_step)
         if t < args.min_domain or t > args.max_domain:
             return t * scale
-        reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
-        return (t + reg * args.x_coeff * math.sin(args.x_t_coeff * t)) * scale
+        return base_x_t(t)
 
     return x_t
 
 def build_y_t(args):
-    scale = args.width / (max_t(args) - min_t(args))
     time_t = build_time_t(args)
+
+    base_y_t = build_base_y_t(args)
 
     def y_t(time_step):
         t = time_t(time_step)
@@ -110,13 +137,7 @@ def build_y_t(args):
             t = args.min_domain
         elif t > args.max_domain:
             t = args.max_domain
-        if t < 0 and args.use_sign:
-            sign = -1
-        else:
-            sign = 1
-        reg = (1.0 - args.reg_y) + args.reg_y * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
-        return ((sign * (args.y0 + args.y_coeff * math.cos(args.y_t_coeff * t + args.y_phase))) *
-                scale * args.y_scale * reg)
+        return base_y_t(t)
 
     return y_t
 
