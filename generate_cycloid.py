@@ -35,15 +35,15 @@ TODO: the description below produces one which is too shallow.  Need a different
 loops in this cycloid:
 0.95215~0.95216   ..  2.18944~2.18945
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2.5 --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 46.3392 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2.5 --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
 
 
 this will be good on & off holes
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360  --kinks "(-0.3927, 0.3927)" --kink_width 0.15  --kink_slope 0.5
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 46.3392 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4  --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360  --kinks "(-0.3927, 0.3927)" --kink_width 0.15  --kink_slope 0.5
 
 this will clear up tiny notches
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 218.369 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 5 --tube_radius 10.5 --tube_wall_height 10  --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 46.3392 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --reg_x 0.4 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.19 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 5 --tube_radius 10.5 --tube_wall_height 10  --kinks "(-0.3927, 0.3927)" --kink_width 0.15 --kink_slope 0.5
 
 put the first squiggle at
 0, 0, 16.47
@@ -58,17 +58,17 @@ so it goes at 1.99, 2, 18.47
 
 Alternate formulation that stops it from ever going below 2.2 degrees slope:
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 47.01455 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
 
 Can make the bottoms of loops connect to the tops of loops as follows:
 
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 14 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 47.01455 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 14 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
 
 This removes the extra material that comes out through the bottom (the rest of the unwanted stuff can be removed with boxes)
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 11.5 --wall_thickness 12 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 47.01455 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 11.5 --wall_thickness 12 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
 
 This is the holes for the start & stop
-python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 47.01455 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
 
 33 degree rotation on the top
 """
@@ -81,10 +81,7 @@ def max_t(args):
     return args.max_domain + args.extra_t
 
 def build_base_x_t(args):
-    if args.scale:
-        scale = args.scale
-    else:
-        scale = args.width / (max_t(args) - min_t(args))
+    scale = args.scale
 
     def x_t(t):
         reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
@@ -93,11 +90,7 @@ def build_base_x_t(args):
     return x_t
 
 def build_base_y_t(args):
-    if args.scale:
-        scale = args.scale
-    else:
-        scale = args.width / (max_t(args) - min_t(args))
-
+    scale = args.scale
     use_sign = args.use_sign
 
     def y_t(t):
@@ -211,9 +204,6 @@ def parse_args(sys_args=None):
     parser.add_argument('--extra_t', default=0.1, type=float,
                         help='Extra time to build the model as a straight line before & after the domain')
 
-    # TODO: eliminate --width, since it is currently broken
-    parser.add_argument('--width', default=134.0, type=float,
-                        help='How far apart to make the endpoints of the curve.  Note that the curve itself may extend past the endpoints')
     parser.add_argument('--scale', default=None, type=float,
                         help='Scale by which to multiple f_t')
 
