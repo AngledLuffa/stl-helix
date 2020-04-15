@@ -184,11 +184,11 @@ def parse_args(sys_args=None):
     parser.add_argument('--x_t_coeff', default=4, type=int,
                       help='Coefficient B of x=t+A sin(Bt)')
     parser.add_argument('--y0', default=1, type=float,
-                        help='Coefficient y0 of y = y0 + C cos(Dt)')
+                        help='Coefficient y0 of y(t) = y0 + C cos(Dt + phase)')
     parser.add_argument('--y_coeff', default=-1, type=float,
-                        help='Coefficient C of y(t) = y0 + C cos(Dt)')
+                        help='Coefficient C of y(t) = y0 + C cos(Dt + phase)')
     parser.add_argument('--y_t_coeff', default=4, type=int,
-                      help='Coefficient D of y(t) = y0 + C cos(Dt)')
+                      help='Coefficient D of y(t) = y0 + C cos(Dt + phase)')
 
     parser.add_argument('--use_sign', dest='use_sign',
                         default=True, action='store_true',
