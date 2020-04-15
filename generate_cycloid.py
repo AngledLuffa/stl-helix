@@ -3,11 +3,13 @@ import math
 import sys
 
 import build_shape
+import combine_functions
 import marble_path
 import slope_function
 
 """
 Generates a cycloid of the form (t + sin(4t), 1 - cos(4t))
+----------------------------------------------------------
 There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
@@ -18,9 +20,13 @@ Note that other arguments can make pretty interesting curves as well
 
 p67 of Practical Handbook of Curve Design and Generation
 
+
 a possibly interesting variant:
+------------------------------
   t - sin 4t, cos 3t
 from -5pi/4 to pi/4
+
+Initial construction:
 
 the regularization here is because otherwise the graph curves so much in the middle section that there is a kink
 the phase change means it can go from -3pi/4 to 3pi/4
@@ -49,6 +55,22 @@ squiggle for the holes:
 229.40 x 132.21 x 81.40
 tube is 22 high
 so it goes at 1.99, 2, 18.47
+
+Alternate formulation that stops it from ever going below 2.2 degrees slope:
+
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 6 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+
+Can make the bottoms of loops connect to the tops of loops as follows:
+
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method oval --tube_wall_height 14 --wall_thickness 2 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+
+This removes the extra material that comes out through the bottom (the rest of the unwanted stuff can be removed with boxes)
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 11.5 --wall_thickness 12 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+
+This is the holes for the start & stop
+python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --width 221.5514 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
+
+33 degree rotation on the top
 """
 
 def min_t(args):
@@ -109,6 +131,7 @@ def parse_args(sys_args=None):
     marble_path.add_tube_arguments(parser, default_slope_angle=8.0, default_output_name='cycloid.stl')
     slope_function.add_kink_args(parser)
     slope_function.add_overlap_args(parser)
+    combine_functions.add_kink_circle_args(parser)
 
     # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,
