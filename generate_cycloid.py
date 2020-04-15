@@ -14,7 +14,7 @@ There is a loop here from .16675 to 1.40405 which must go down >= 23mm
 (Also the negative of that obviously needs to happen as well)
 
 To get walls to hopefully stop the marble from jumping:
-python generate_cycloid.py --extra_t 0.5 --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))" --overlap_separation 25
+python generate_cycloid.py --extra_t 0.1 --slope_angle 3.0 --tube_method oval --tube_wall_height 6 --overlaps "((.16675,1.40405),(-.16675,-1.40405))" --overlap_separation 25 --scale 32.3547
 
 Note that other arguments can make pretty interesting curves as well
 
@@ -74,8 +74,17 @@ python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.356
 """
 
 
+def min_t(args):
+    return args.min_domain - args.extra_t
+
+def max_t(args):
+    return args.max_domain + args.extra_t
+
 def build_base_x_t(args):
-    scale = args.width / (max_t(args) - min_t(args))
+    if args.scale:
+        scale = args.scale
+    else:
+        scale = args.width / (max_t(args) - min_t(args))
 
     def x_t(t):
         reg = (1.0 - args.reg_x) + args.reg_x * math.exp(args.reg_power * t ** 2) / (1.0 + math.exp(args.reg_power * t ** 2))
@@ -84,7 +93,11 @@ def build_base_x_t(args):
     return x_t
 
 def build_base_y_t(args):
-    scale = args.width / (max_t(args) - min_t(args))
+    if args.scale:
+        scale = args.scale
+    else:
+        scale = args.width / (max_t(args) - min_t(args))
+
     use_sign = args.use_sign
 
     def y_t(t):
@@ -98,12 +111,6 @@ def build_base_y_t(args):
 
     return y_t
     
-def min_t(args):
-    return args.min_domain - args.extra_t
-
-def max_t(args):
-    return args.max_domain + args.extra_t
-
 
 def build_time_t(args):
     t0 = min_t(args)
@@ -112,17 +119,30 @@ def build_time_t(args):
         return t0 + (tn - t0) * time_step / args.num_time_steps
     return time_t
 
+def build_extension(base_f_t, t0):
+    epsilon = 0.001
+    f0 = base_f_t(t0)
+    derivative = (base_f_t(t0 + epsilon) - base_f_t(t0 - epsilon)) / (epsilon * 2)
+    print("Extenstion at %.4f.  Derivative %.4f f0 %.4f" % (t0, derivative, f0))
+    def extension_t(t):
+        return f0 + derivative * (t - t0)
+    return extension_t
+
 def build_x_t(args):
     time_t = build_time_t(args)
-    scale = args.width / (max_t(args) - min_t(args))
 
     base_x_t = build_base_x_t(args)
+    begin_x_t = build_extension(base_x_t, args.min_domain)
+    end_x_t = build_extension(base_x_t, args.max_domain)
     
     def x_t(time_step):
         t = time_t(time_step)
-        if t < args.min_domain or t > args.max_domain:
-            return t * scale
-        return base_x_t(t)
+        if args.extra_t and t < args.min_domain:
+            return begin_x_t(t)
+        elif args.extra_t and t > args.max_domain:
+            return end_x_t(t)
+        else:
+            return base_x_t(t)
 
     return x_t
 
@@ -130,14 +150,17 @@ def build_y_t(args):
     time_t = build_time_t(args)
 
     base_y_t = build_base_y_t(args)
+    begin_y_t = build_extension(base_y_t, args.min_domain)
+    end_y_t = build_extension(base_y_t, args.max_domain)
 
     def y_t(time_step):
         t = time_t(time_step)
-        if t < args.min_domain:
-            t = args.min_domain
-        elif t > args.max_domain:
-            t = args.max_domain
-        return base_y_t(t)
+        if args.extra_t and t < args.min_domain:
+            return begin_y_t(t)
+        elif args.extra_t and t > args.max_domain:
+            return end_y_t(t)
+        else:
+            return base_y_t(t)
 
     return y_t
 
@@ -185,12 +208,16 @@ def parse_args(sys_args=None):
     parser.add_argument('--num_time_steps', default=400, type=int,
                       help='Number of time steps to model')
 
-    parser.add_argument('--extra_t', default=0.5, type=float,
+    parser.add_argument('--extra_t', default=0.1, type=float,
                         help='Extra time to build the model as a straight line before & after the domain')
 
+    # TODO: eliminate --width, since it is currently broken
     parser.add_argument('--width', default=134.0, type=float,
                         help='How far apart to make the endpoints of the curve.  Note that the curve itself may extend past the endpoints')
+    parser.add_argument('--scale', default=None, type=float,
+                        help='Scale by which to multiple f_t')
 
+    # TODO: just make separate x_scale & y_scale arguments
     parser.add_argument('--y_scale', default=0.8, type=float,
                         help='Make the model a little squished or stretched vertically')
     parser.add_argument('--y_phase', default=0.0, type=float,
