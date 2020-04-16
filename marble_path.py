@@ -289,7 +289,7 @@ def build_tube_angle_t(tube_angles, time_t):
 
     Given a sequence of tuples, times before the start will get
     angle0, times after the end will get angleN, and times between two
-    times will be interpolated between the two using a sine for smoothness
+    times will be interpolated between the two using a tanh for smoothness
     """
     if isinstance(tube_angles, (float, int)):
         tube_t = lambda t: tube_angles
@@ -312,8 +312,8 @@ def build_tube_angle_t(tube_angles, time_t):
                     break
             prev = tube_angles[i - 1]
             ratio = (t - prev[0]) / (interval[0] - prev[0])
-            # use math.sin so that we have a smooth transition rather than a corner
-            return prev[1] + math.sin(ratio * math.pi / 2) * (interval[1] - prev[1])
+            # use math.tanh so that we have a smooth transition rather than a corner
+            return prev[1] + (math.tanh((ratio * 8) - 4) + 1.0) / 2.0 * (interval[1] - prev[1])
     return tube_t
 
 def compose_triangles(x_t, y_t, z_t, r_t,
