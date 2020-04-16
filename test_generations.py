@@ -105,6 +105,26 @@ TESTS = [Test(name='Tube Basic',
                     "--num_time_steps", "40"],
               gold_file='test_files/cycloid_two_loops.stl'),
 
+         # Test that the extra_t production works at a different angle
+         Test(name='Cycloid with two omegas',
+              model=generate_cycloid,
+              args=["--extra_t", "0.3",
+                    "--slope_angle", "9.0",
+                    "--tube_method", "ellipse",
+                    "--scale", "40",
+                    "--x_coeff", "-0.8",
+                    "--x_t_coeff", "4",
+                    "--y0", "0",
+                    "--y_coeff", "1.5",
+                    "--y_t_coeff", "2",
+                    "--y_phase", "1.5708",
+                    "--min_domain", "-1.5708",
+                    "--max_domain", "1.5708",
+                    "--no_use_sign",
+                    "--tube_sides", "10",
+                    "--num_time_steps", "40"],
+              gold_file='test_files/cycloid_two_omegas.stl'),
+
          # This tests a variety of cycloid arguments and the old style
          # of smoothing kinks
          Test(name='Cycloid with crazy shape',
