@@ -71,6 +71,11 @@ This is the holes for the start & stop
 python generate_cycloid.py --extra_t 0.0 --min_domain -2.3562 --max_domain 2.3562 --x_coeff -1 --y0 0.0 --y_coeff 1.0 --y_t_coeff 3 --scale 47.01455 --no_use_sign --y_scale 1.2 --y_phase 1.5708 --overlaps "((0.95215,2.18945),(-0.95215,-2.18945))" --slope_angle 2.2 --overlap_separation 23 --tube_method ellipse --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11 --kink_replace_circle "((-0.55,-0.2),(0.2,0.55))"
 
 33 degree rotation on the top
+
+another variant: two omega symbols
+----------------------------------
+
+python generate_cycloid.py --slope_angle 7.0 --tube_method ellipse --scale 46 --x_coeff -0.6 --x_t_coeff 4 --y0 0 --y_coeff 1.5 --y_t_coeff 2 --y_phase 1.5708 --min_domain -1.5708 --max_domain 1.5708 --no_use_sign --extra_t 0.094243
 """
 
 
