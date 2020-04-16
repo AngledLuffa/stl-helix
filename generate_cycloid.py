@@ -76,6 +76,9 @@ another variant: two omega symbols
 ----------------------------------
 
 python generate_cycloid.py --slope_angle 7.0 --tube_method ellipse --scale 46 --x_coeff -0.6 --x_t_coeff 4 --y0 0 --y_coeff 1.5 --y_t_coeff 2 --y_phase 1.5708 --min_domain -1.5708 --max_domain 1.5708 --no_use_sign --extra_t 0.094243 --tube_end_angle "((-0.2,240),(0.0,180))"  --tube_start_angle "((0.0,0),(0.2,-60))"
+
+hole:
+python generate_cycloid.py --slope_angle 7.0 --tube_method ellipse --scale 46 --x_coeff -0.6 --x_t_coeff 4 --y0 0 --y_coeff 1.5 --y_t_coeff 2 --y_phase 1.5708 --min_domain -1.5708 --max_domain 1.5708 --no_use_sign --extra_t 0.094243 --tube_end_angle 360   --tube_start_angle 0 --tube_radius 10.5 --wall_thickness 11
 """
 
 
