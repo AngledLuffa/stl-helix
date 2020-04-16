@@ -125,6 +125,28 @@ TESTS = [Test(name='Tube Basic',
                     "--num_time_steps", "40"],
               gold_file='test_files/cycloid_two_omegas.stl'),
 
+         # Test overhangs on both start & end angle
+         Test(name='Cycloid with two omegas and overhangs',
+              model=generate_cycloid,
+              args=["--extra_t", "0.0",
+                    "--slope_angle", "9.0",
+                    "--tube_method", "ellipse",
+                    "--scale", "40",
+                    "--x_coeff", "-0.8",
+                    "--x_t_coeff", "4",
+                    "--y0", "0",
+                    "--y_coeff", "1.5",
+                    "--y_t_coeff", "2",
+                    "--y_phase", "1.5708",
+                    "--min_domain", "-0.5",
+                    "--max_domain", "0.5",
+                    "--no_use_sign",
+                    "--tube_sides", "8",
+                    "--tube_end_angle", "((-0.2,240),(0.0,180))",
+                    "--tube_start_angle", "((0.0,0),(0.2,-60))",
+                    "--num_time_steps", "40"],
+              gold_file='test_files/cycloid_two_omegas_overhangs.stl'),
+
          # This tests a variety of cycloid arguments and the old style
          # of smoothing kinks
          Test(name='Cycloid with crazy shape',
