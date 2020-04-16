@@ -256,23 +256,23 @@ def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_t
             
 def coordinates(x_t, y_t, z_t, r_t,
                 tube_function, tube_subdivision, inside,
-                time_t):
+                time_step):
     """
     Given the functions describing x, y, z, and r, along with a
     function describing how to build the tube, calculate the current
     location offset by the tube location
     """
-    location = (x_t(time_t),
-                y_t(time_t),
-                z_t(time_t))
+    location = (x_t(time_step),
+                y_t(time_step),
+                z_t(time_step))
 
     tube_offset = tube_function(tube_subdivision=tube_subdivision,
                                 inside=inside,
-                                rotation=r_t(time_t),
-                                time_t=time_t)
+                                rotation=r_t(time_step),
+                                time_step=time_step)
 
     #print("%.4f %d    %.4f %.4f %.4f   %.4f %.4f %.4f" %
-    #      (time_t, tube_subdivision, location[0], location[1], location[2],
+    #      (time_step, tube_subdivision, location[0], location[1], location[2],
     #       tube_offset[0], tube_offset[1], tube_offset[2]))
 
     location = (location[0] + tube_offset[0],
@@ -362,28 +362,26 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                     for t in range(num_time_steps+1))
         num_tube_subdivisions = min(num_tube_subdivisions, tube_args.tube_sides)
         print("Num tube: {}".format(num_tube_subdivisions))
-        def tube_function(tube_subdivision, inside, rotation, time_t):
+        def tube_function(tube_subdivision, inside, rotation, time_step):
             """
             Using the parameters given to the helix, create a function which
             returns the x, y, z offset from the tube coordinates.
             This will be an ellipsoid shell
             """
-            # TODO: rename time_t, since that is usually used as a
-            # function name for converting time_step to t
             return ellipse_tube_coordinates(tube_method=tube_args.tube_method,
                                             tube_radius=tube_args.tube_radius,
                                             tube_eccentricity=tube_args.tube_eccentricity,
                                             wall_thickness=wall_thickness,
-                                            tube_start_angle=tube_start_t(time_t),
-                                            tube_end_angle=tube_end_t(time_t),
+                                            tube_start_angle=tube_start_t(time_step),
+                                            tube_end_angle=tube_end_t(time_step),
                                             num_tube_subdivisions=num_tube_subdivisions,
                                             tube_subdivision=tube_subdivision,
-                                            slope_angle=slope_angle_t(time_t),
+                                            slope_angle=slope_angle_t(time_step),
                                             inside=inside,
                                             rotation=rotation)
     elif tube_args.tube_method is Tube.OVAL or tube_args.tube_method is Tube.DEEP_OVAL:
         num_tube_subdivisions = tube_args.tube_sides
-        def tube_function(tube_subdivision, inside, rotation, time_t):
+        def tube_function(tube_subdivision, inside, rotation, time_step):
             """
             Create an oval instead.
             """
@@ -391,11 +389,11 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                          tube_radius=tube_args.tube_radius,
                                          wall_height=tube_args.tube_wall_height,
                                          wall_thickness=wall_thickness,
-                                         tube_start_angle=tube_start_t(time_t),
-                                         tube_end_angle=tube_end_t(time_t),
+                                         tube_start_angle=tube_start_t(time_step),
+                                         tube_end_angle=tube_end_t(time_step),
                                          num_tube_subdivisions=tube_args.tube_sides,
                                          tube_subdivision=tube_subdivision,
-                                         slope_angle=slope_angle_t(time_t),
+                                         slope_angle=slope_angle_t(time_step),
                                          inside=inside,
                                          rotation=rotation)
 
@@ -415,7 +413,7 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                               tube_function=tube_function,
                               tube_subdivision=tube_subdivision,
                               inside=inside,
-                              time_t=time_step)
+                              time_step=time_step)
             index = len(vertex_list)
             position_to_vertex_index[position] = index
             vertex_list.append(xyz)
