@@ -268,7 +268,7 @@ def generate_hypotrochoid(args):
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps,
                                                 slope_angle_t=slope_angle_t)
 
-    build_shape.print_stats(x_t, y_t, z_t, num_time_steps)
+    build_shape.print_stats(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t, num_time_steps=num_time_steps)
 
     print("Z goes from %.4f to %.4f" % (z_t(0), z_t(num_time_steps)))
     
