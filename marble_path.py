@@ -282,6 +282,40 @@ def coordinates(x_t, y_t, z_t, r_t,
     return location
 
 
+def build_tube_angle_t(tube_angles, time_t):
+    """Build a function from time to tube angle
+
+    Expects time to either be a single number, or a sequence of tuples: (time, angle)
+
+    Given a sequence of tuples, times before the start will get
+    angle0, times after the end will get angleN, and times between two
+    times will be interpolated between the two using a sine for smoothness
+    """
+    if isinstance(tube_angles, (float, int)):
+        tube_t = lambda t: tube_angles
+    else:
+        def tube_t(time_step):
+            t = time_t(time_step)
+            if t < tube_angles[0][0]:
+                # before the first interval: return that angle
+                return tube_angles[0][1]
+            if t > tube_angles[-1][0]:
+                # after the last interval: return that angle
+                return tube_angles[-1][1]
+            for i in tube_angles:
+                # exactly on a interval boundary: return that angle
+                if t == i[0]:
+                    return i[1]
+            # at this point, we are between two intervals.  figure out which one
+            for i, interval in enumerate(tube_angles):
+                if t < interval[0]:
+                    break
+            prev = tube_angles[i - 1]
+            ratio = (t - prev[0]) / (interval[0] - prev[0])
+            # use math.sin so that we have a smooth transition rather than a corner
+            return prev[1] + math.sin(ratio * math.pi / 2) * (interval[1] - prev[1])
+    return tube_t
+
 def compose_triangles(x_t, y_t, z_t, r_t,
                       tube_args, num_time_steps,
                       time_t=None,
@@ -309,37 +343,12 @@ def compose_triangles(x_t, y_t, z_t, r_t,
 
     if time_t is None:
         time_t = lambda t: t
-        
-    def tube_start_t(time_step):
-        return tube_args.tube_start_angle
 
-    if isinstance(tube_args.tube_end_angle, (float, int)):
-        tube_end_t = lambda t: tube_args.tube_end_angle
-    else:
-        tube_end_angles = tube_args.tube_end_angle
-        def tube_end_t(time_step):
-            t = time_t(time_step)
-            if t < tube_end_angles[0][0]:
-                # before the first interval: return that angle
-                return tube_end_angles[0][1]
-            if t > tube_args.tube_end_angle[-1][0]:
-                # after the last interval: return that angle
-                return tube_end_angles[-1][1]
-            for i in tube_end_angles:
-                # exactly on a interval boundary: return that angle
-                if t == i[0]:
-                    return i[1]
-            # at this point, we are between two intervals.  figure out which one
-            for i, interval in enumerate(tube_end_angles):
-                if t < interval[0]:
-                    break
-            prev = tube_end_angles[i - 1]
-            ratio = (t - prev[0]) / (interval[0] - prev[0])
-            # use math.sin so that we have a smooth transition rather than a corner
-            return prev[1] + math.sin(ratio * math.pi / 2) * (interval[1] - prev[1])
+    tube_start_t = build_tube_angle_t(tube_args.tube_start_angle, time_t)
+    tube_end_t = build_tube_angle_t(tube_args.tube_end_angle, time_t)
 
-        #for i in range(0, num_time_steps+1):
-        #    print("  %d %.4f" % (i, tube_end_t(i)))
+    #for i in range(0, num_time_steps+1):
+    #    print("  %d %.4f %.4f" % (i, tube_start_t(i), tube_end_t(i)))
 
     def full_tube_t(first_step, second_step):
         if tube_end_t(first_step) < tube_start_t(first_step) + 360:
@@ -495,7 +504,7 @@ def add_tube_arguments(parser,
                         help='measurement from the center of ramp to its outer wall')
     parser.add_argument('--wall_thickness', default=2, type=float,
                         help='how thick to make the wall. special case: if wall_thickness >= tube_radius, there is no inner opening')
-    parser.add_argument('--tube_start_angle', default=0, type=float,
+    parser.add_argument('--tube_start_angle', default=0, type=lambda arg: marble_util.parse_float_or_tuple_tuple(arg, '--tube_start_angle'),
                         help='angle to the start of the ramp.  0 represents the part furthest from the axis, 180 represents closest to the axis, -90 represents the top of the ramp, 90 represents the bottom.  0..180 represents the bottom of a ramp with no cover.  -90..90 will look like a loop-d-loop')
     parser.add_argument('--tube_end_angle', default=180, type=lambda arg: marble_util.parse_float_or_tuple_tuple(arg, '--tube_end_angle'),
                         help='angle to the end of the ramp.  same values as tube_start_angle')

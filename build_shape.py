@@ -61,6 +61,7 @@ def generate_shape(module, args):
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
                                               num_time_steps=args.num_time_steps,
+                                              time_t=time_t,
                                               slope_angle_t=slope_angle_t):
         yield triangle
 
