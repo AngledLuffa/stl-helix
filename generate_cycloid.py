@@ -120,14 +120,14 @@ def build_x_t(args):
     base_x_t = build_base_x_t(args)
     return extend_function.extend_f_t(time_t, base_x_t,
                                       args.min_domain, args.max_domain,
-                                      args.extra_t, args.extra_t)
+                                      args)
 
 def build_y_t(args):
     time_t = build_time_t(args)
     base_y_t = build_base_y_t(args)
     return extend_function.extend_f_t(time_t, base_y_t,
                                       args.min_domain, args.max_domain,
-                                      args.extra_t, args.extra_t)
+                                      args)
 
 def describe_curve(args):
     print("Building cycloid")
@@ -141,6 +141,7 @@ def parse_args(sys_args=None):
     slope_function.add_kink_args(parser)
     slope_function.add_overlap_args(parser)
     combine_functions.add_kink_circle_args(parser)
+    extend_function.add_extend_args(parser)
 
     # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,
@@ -172,9 +173,6 @@ def parse_args(sys_args=None):
     
     parser.add_argument('--num_time_steps', default=400, type=int,
                       help='Number of time steps to model')
-
-    parser.add_argument('--extra_t', default=0.1, type=float,
-                        help='Extra time to build the model as a straight line before & after the domain')
 
     parser.add_argument('--scale', default=None, type=float,
                         help='Scale by which to multiple f_t')
