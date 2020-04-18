@@ -109,11 +109,7 @@ def build_base_y_t(args):
     
 
 def build_time_t(args):
-    t0 = args.min_domain - args.extra_t
-    tn = args.max_domain + args.extra_t
-    def time_t(time_step):
-        return t0 + (tn - t0) * time_step / args.num_time_steps
-    return time_t
+    return extend_function.build_time_t(args.min_domain, args.max_domain, args.num_time_steps, args)
 
 def build_x_t(args):
     time_t = build_time_t(args)

@@ -2,6 +2,41 @@
 Has a method to extend a function in the direction of the derivative at the endpoints given.
 """
 
+def get_extensions(extension_args):
+    if extension_args.extra_t is None:
+        extra_start_t = extension_args.extra_start_t
+        extra_end_t = extension_args.extra_end_t
+    else:
+        if (extension_args.extra_start_t is not None and
+            extension_args.extra_t != extension_args.extra_start_t):
+            raise ValueError("extra_start_t and extra_t both set, but do not agree")
+        if (extension_args.extra_end_t is not None and
+            extension_args.extra_t != extension_args.extra_end_t):
+            raise ValueError("extra_end_t and extra_t both set, but do not agree")
+        extra_start_t = extension_args.extra_t
+        extra_end_t = extension_args.extra_t
+
+    if extra_start_t is None:
+        extra_start_t = 0.0
+    if extra_end_t is None:
+        extra_end_t = 0.0
+
+    return extra_start_t, extra_end_t
+
+def build_time_t(start_t, end_t, num_time_steps, extension_args):
+    extra_start_t, extra_end_t = get_extensions(extension_args)
+
+    t0 = start_t
+    if extra_start_t:
+        t0 = t0 - extra_start_t
+    tn = end_t
+    if extra_end_t:
+        tn = tn + extra_end_t
+    def time_t(time_step):
+        return t0 + (tn - t0) * time_step / num_time_steps
+    return time_t
+
+
 def build_extension(base_f_t, t0):
     epsilon = 0.001
     f0 = base_f_t(t0)
@@ -15,19 +50,7 @@ def extend_f_t(time_t, base_f_t, start_t, end_t, extension_args):
     begin_f_t = build_extension(base_f_t, start_t)
     end_f_t = build_extension(base_f_t, end_t)
 
-    extra_t = extension_args.extra_t
-    if extra_t is None:
-        extra_start_t = extension_args.extra_start_t
-        extra_end_t = extension_args.extra_end_t
-    else:
-        if (extension_args.extra_start_t is not None and
-            extension_args.extra_t != extension_args.extra_start_t):
-            raise ValueError("extra_start_t and extra_t both set, but do not agree")
-        if (extension_args.extra_end_t is not None and
-            extension_args.extra_t != extension_args.extra_end_t):
-            raise ValueError("extra_end_t and extra_t both set, but do not agree")
-        extra_start_t = extra_t
-        extra_end_t = extra_t
+    extra_start_t, extra_end_t = get_extensions(extension_args)
 
     def f_t(time_step):
         t = time_t(time_step)
