@@ -19,6 +19,25 @@ same general issue, kink at the turns.  Ending is not curved but needs an extens
 python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74
 """
 
+
+def build_base_x_t(args):
+    x_scale = args.x_scale
+
+    def x_t(t):
+        x = math.sin((args.lissA / args.lissC) * 2 * math.pi * t + args.lissB * math.pi)
+        return x * x_scale
+
+    return x_t
+
+def build_base_y_t(args):
+    y_scale = args.y_scale
+
+    def y_t(t):
+        y = math.sin(2 * math.pi * t)
+        return y * y_scale
+
+    return y_t
+
 def build_time_t(args):
     def time_t(time_step):
         return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
@@ -27,19 +46,19 @@ def build_time_t(args):
 
 def build_x_t(args):
     time_t = build_time_t(args)
+    base_x_t = build_base_x_t(args)
     def x_t(time_step):
         t = time_t(time_step)
-        x = math.sin((args.lissA / args.lissC) * 2 * math.pi * t + args.lissB * math.pi)
-        return x * args.x_scale
+        return base_x_t(t)
 
     return x_t
 
 def build_y_t(args):
     time_t = build_time_t(args)
+    base_y_t = build_base_y_t(args)
     def y_t(time_step):
         t = time_t(time_step)
-        y = math.sin(2 * math.pi * t)
-        return y * args.y_scale    
+        return base_y_t(t)
 
     return y_t
 
