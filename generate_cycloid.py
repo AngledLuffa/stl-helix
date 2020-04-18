@@ -141,7 +141,7 @@ def parse_args(sys_args=None):
     slope_function.add_kink_args(parser)
     slope_function.add_overlap_args(parser)
     combine_functions.add_kink_circle_args(parser)
-    extend_function.add_extend_args(parser)
+    extend_function.add_extend_args(parser, default_extra_t=0.1)
 
     # Start & end times for the curve
     parser.add_argument('--domain', default=None, type=float,

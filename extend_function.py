@@ -20,6 +20,12 @@ def extend_f_t(time_t, base_f_t, start_t, end_t, extension_args):
         extra_start_t = extension_args.extra_start_t
         extra_end_t = extension_args.extra_end_t
     else:
+        if (extension_args.extra_start_t is not None and
+            extension_args.extra_t != extension_args.extra_start_t):
+            raise ValueError("extra_start_t and extra_t both set, but do not agree")
+        if (extension_args.extra_end_t is not None and
+            extension_args.extra_t != extension_args.extra_end_t):
+            raise ValueError("extra_end_t and extra_t both set, but do not agree")
         extra_start_t = extra_t
         extra_end_t = extra_t
 
@@ -34,11 +40,11 @@ def extend_f_t(time_t, base_f_t, start_t, end_t, extension_args):
 
     return f_t
 
-def add_extend_args(parser):
-    parser.add_argument('--extra_t', default=None, type=float,
+def add_extend_args(parser, default_extra_t=None):
+    parser.add_argument('--extra_t', default=default_extra_t, type=float,
                         help='Extra time to build the model as a straight line before & after the domain')
-    parser.add_argument('--extra_start_t', default=0.1, type=float,
+    parser.add_argument('--extra_start_t', default=None, type=float,
                         help='Extra time to build the model as a straight line before the domain')
-    parser.add_argument('--extra_end_t', default=0.1, type=float,
+    parser.add_argument('--extra_end_t', default=None, type=float,
                         help='Extra time to build the model as a straight line after the domain')
 
