@@ -4,6 +4,7 @@ import sys
 
 import build_shape
 import combine_functions
+import extend_function
 import marble_path
 import slope_function
 
@@ -82,12 +83,6 @@ python generate_cycloid.py --slope_angle 7.0 --tube_method ellipse --scale 46 --
 """
 
 
-def min_t(args):
-    return args.min_domain - args.extra_t
-
-def max_t(args):
-    return args.max_domain + args.extra_t
-
 def build_base_x_t(args):
     scale = args.scale
 
@@ -114,56 +109,25 @@ def build_base_y_t(args):
     
 
 def build_time_t(args):
-    t0 = min_t(args)
-    tn = max_t(args)
+    t0 = args.min_domain - args.extra_t
+    tn = args.max_domain + args.extra_t
     def time_t(time_step):
         return t0 + (tn - t0) * time_step / args.num_time_steps
     return time_t
 
-def build_extension(base_f_t, t0):
-    epsilon = 0.001
-    f0 = base_f_t(t0)
-    derivative = (base_f_t(t0 + epsilon) - base_f_t(t0 - epsilon)) / (epsilon * 2)
-    print("Extenstion at %.4f.  Derivative %.4f f0 %.4f" % (t0, derivative, f0))
-    def extension_t(t):
-        return f0 + derivative * (t - t0)
-    return extension_t
-
 def build_x_t(args):
     time_t = build_time_t(args)
-
     base_x_t = build_base_x_t(args)
-    begin_x_t = build_extension(base_x_t, args.min_domain)
-    end_x_t = build_extension(base_x_t, args.max_domain)
-    
-    def x_t(time_step):
-        t = time_t(time_step)
-        if args.extra_t and t < args.min_domain:
-            return begin_x_t(t)
-        elif args.extra_t and t > args.max_domain:
-            return end_x_t(t)
-        else:
-            return base_x_t(t)
-
-    return x_t
+    return extend_function.extend_f_t(time_t, base_x_t,
+                                      args.min_domain, args.max_domain,
+                                      args.extra_t, args.extra_t)
 
 def build_y_t(args):
     time_t = build_time_t(args)
-
     base_y_t = build_base_y_t(args)
-    begin_y_t = build_extension(base_y_t, args.min_domain)
-    end_y_t = build_extension(base_y_t, args.max_domain)
-
-    def y_t(time_step):
-        t = time_t(time_step)
-        if args.extra_t and t < args.min_domain:
-            return begin_y_t(t)
-        elif args.extra_t and t > args.max_domain:
-            return end_y_t(t)
-        else:
-            return base_y_t(t)
-
-    return y_t
+    return extend_function.extend_f_t(time_t, base_y_t,
+                                      args.min_domain, args.max_domain,
+                                      args.extra_t, args.extra_t)
 
 def describe_curve(args):
     print("Building cycloid")
