@@ -17,7 +17,7 @@ def print_stats(x_t, y_t, z_t, r_t, num_time_steps):
     print("Start of the curve: (%.4f, %.4f)" % (x0, y0))
     print("End of the curve:   (%.4f, %.4f)" % (xn, yn))
     dist = ((xn - x0) ** 2 + (yn - y0) ** 2) ** 0.5
-    print("Distance: %.4f" % dist)
+    print("Distance: %.4f (x %.4f, y %.4f)" % (dist, (xn - x0), (yn - y0)))
     print("Top: %.4f  Bottom: %.4f" % (z_t(0), z_t(num_time_steps)))
     print("Begin rotation: %.4f" % r_t(0))
     print("End rotation:   %.4f" % r_t(num_time_steps))
