@@ -31,7 +31,12 @@ python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0
 TODO: Lissajous Crossover
 -------------------
 
-python generate_lissajous.py --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --extra_t 0.0 --scale 30 --slope_angle 4
+# To get exactly horizontal:
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 82.055 --y_scale 87.038 --slope_angle 4 --start_t 0.0979574 --end_t 0.4020426
+
+
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 85 --y_scale 90 --slope_angle 10 --start_t 0.096 --end_t 0.404
+
 
 TODO: Lissajous Knot
 --------------
@@ -103,7 +108,7 @@ def describe_curve(args):
     else:
         raise ValueError("Unknown lissajous type %s" % args.lissajous.name)
 
-    print("  x(t) = sin((%d / %d) 2 pi t) + %.4f pi" % (args.lissA, args.lissC, args.lissB))
+    print("  x(t) = sin((%d / %d) 2 pi t + %.4f pi)" % (args.lissA, args.lissC, args.lissB))
 
     if args.lissajous is Lissajous.BASIC:
         print("  y(t) = sin(2 pi t)")
