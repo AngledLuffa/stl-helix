@@ -41,7 +41,11 @@ TODO: Lissajous Knot
 --------------
 
 maybe a Lissajous product of harmonics like 9.5.8 but with n=7.  poles at the two corners, two paths, and the paths cross in the middle
-  a=2, b=0, c=1, d=0.5, n=2
+  a=2, b=0, c=1, d=0.5, n=7
+
+python generate_lissajous.py --lissajous PRODUCT_HARMONICS --lissA 2 --lissB 0.0 --lissC 1 --lissD 0.5 --lissN 7 --x_scale 95 --y_scale 85.8 --slope_angle 7.2 --start_t -0.12 --end_t 0.12 --extra_t 0.01 --kink_replace_circle "((-0.088,-0.07),(0.07,0.088))"
+
+python generate_lissajous.py --lissajous PRODUCT_HARMONICS --lissA 2 --lissB 0.0 --lissC 1 --lissD 0.5 --lissN 7 --x_scale 104 --y_scale 70 --slope_angle 7.2 --start_t 0.16 --end_t 0.34 --extra_t 0.01
 """
 
 class Lissajous(Enum):
