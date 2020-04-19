@@ -35,8 +35,7 @@ TODO: Lissajous Crossover
 python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 82.055 --y_scale 87.038 --slope_angle 4 --start_t 0.0979574 --end_t 0.4020426
 
 
-python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 85 --y_scale 90 --slope_angle 10 --start_t 0.096 --end_t 0.404
-
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 87 --y_scale 88.5 --slope_angle 2.9 --start_t 0.11 --end_t 0.39
 
 TODO: Lissajous Knot
 --------------
