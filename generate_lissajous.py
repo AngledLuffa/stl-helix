@@ -14,6 +14,9 @@ import slope_function
 """
 Implements various curves from section 9.4 of "Practical Handbook of Curve Design and Generation"
 
+Basic Pretzel
+-------------
+
 A=5, B=0, C=3
 time -0.74 .. 0.74
 --y_scale 54 --x_scale 40
@@ -25,14 +28,22 @@ If placed at 0,0, then one 31mm pole goes at (85.41,-3.74), the other at (-8.79,
 
 python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 40.5 --x_scale 30 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74 --extra_t 0.69 --tube_start_angle 0  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
+TODO: Lissajous Crossover
+-------------------
 
-# TODO: maybe a Lissajous product of harmonics like 9.5.8 but with n=7.  poles at the two corners, two paths, and the paths cross in the middle
+python generate_lissajous.py --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --extra_t 0.0 --scale 30 --slope_angle 4
+
+TODO: Lissajous Knot
+--------------
+
+maybe a Lissajous product of harmonics like 9.5.8 but with n=7.  poles at the two corners, two paths, and the paths cross in the middle
   a=2, b=0, c=1, d=0.5, n=2
 """
 
 class Lissajous(Enum):
     BASIC = 1
-    PRODUCT_HARMONICS = 2
+    SUM_HARMONICS = 2
+    PRODUCT_HARMONICS = 3
 
 def build_base_x_t(args):
     x_scale = args.x_scale
@@ -49,6 +60,10 @@ def build_base_y_t(args):
     if args.lissajous is Lissajous.BASIC:
         def y_t(t):
             y = math.sin(2 * math.pi * t)
+            return y * y_scale
+    elif args.lissajous is Lissajous.SUM_HARMONICS:
+        def y_t(t):
+            y = 0.5 * (math.sin(2 * math.pi * t) + math.sin(args.lissN * 2 * math.pi * t + args.lissD * math.pi))
             return y * y_scale
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         def y_t(t):
@@ -81,6 +96,8 @@ def build_y_t(args):
 def describe_curve(args):
     if args.lissajous is Lissajous.BASIC:
         print("Building basic lissajous curve")
+    elif args.lissajous is Lissajous.SUM_HARMONICS:
+        print("Building a sum of harmonics lissajous curve")
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         print("Building a product of harmonics lissajous curve")
     else:
@@ -90,6 +107,8 @@ def describe_curve(args):
 
     if args.lissajous is Lissajous.BASIC:
         print("  y(t) = sin(2 pi t)")
+    elif args.lissajous is Lissajous.SUM_HARMONICS:
+        print("  y(t) = 0.5 * (sin(2 pi t) + sin(%.4f * pi * t + %.4f * pi))" % (2 * args.lissN, args.lissD))
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         print("  y(t) = sin(2 pi t) sin(%.4f pi t + %.4f pi)" % (2 * args.lissN, args.lissD))
 
@@ -104,9 +123,9 @@ def parse_args(sys_args=None):
 
     parser.add_argument('--lissA', default=5, type=int,
                         help='value A in the lissajous formula')
-    parser.add_argument('--lissB', default=0, type=int,
+    parser.add_argument('--lissB', default=0, type=float,
                         help='value B in the lissajous formula')
-    parser.add_argument('--lissC', default=3, type=float,
+    parser.add_argument('--lissC', default=3, type=int,
                         help='value C in the lissajous formula')
     parser.add_argument('--lissD', default=0, type=float,
                         help='value D in the y(t) expression if an alternate formulation is used')
