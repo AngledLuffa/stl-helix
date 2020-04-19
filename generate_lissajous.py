@@ -4,6 +4,7 @@ import sys
 
 import build_shape
 import combine_functions
+import extend_function
 import marble_path
 import slope_function
 
@@ -14,9 +15,14 @@ Implements various curves from section 9.4 of "Practical Handbook of Curve Desig
 A=5, B=0, C=3
 time -0.74 .. 0.74
 --y_scale 54 --x_scale 40
-same general issue, kink at the turns.  Ending is not curved but needs an extension to fit the posts
+Kink at the turns.  Ending is not curved but needs an extension to fit the posts
 
-python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 54 --x_scale 40 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74
+python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 40.5 --x_scale 30 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74 --extra_t 0.69 --tube_start_angle "((-0.1,0),(0.1,-60))"  --tube_end_angle "((-0.1,240),(0.1,180))"
+
+If placed at 0,0, then one 31mm pole goes at (85.41,-3.74), the other at (-8.79,91.56)
+
+python generate_lissajous.py --lissA 5 --lissB 0 --lissC 3 --overlaps "((-0.55,0.05),(-0.05, 0.55))" --overlap_separation 25 --y_scale 40.5 --x_scale 30 --slope_angle 4 --kink_replace_circle "((-0.21,-0.10),(0.10,0.21))" --start_t -0.74 --end_t 0.74 --extra_t 0.69 --tube_start_angle 0  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
 """
 
 
@@ -39,28 +45,23 @@ def build_base_y_t(args):
     return y_t
 
 def build_time_t(args):
-    def time_t(time_step):
-        return args.start_t + time_step * (args.end_t - args.start_t) / args.num_time_steps
-
-    return time_t
+    return extend_function.build_time_t(args.start_t, args.end_t, args.num_time_steps, args)
 
 def build_x_t(args):
     time_t = build_time_t(args)
     base_x_t = build_base_x_t(args)
-    def x_t(time_step):
-        t = time_t(time_step)
-        return base_x_t(t)
+    return extend_function.extend_f_t(time_t, base_x_t,
+                                      args.start_t, args.end_t,
+                                      extension_args=args)
 
     return x_t
 
 def build_y_t(args):
     time_t = build_time_t(args)
     base_y_t = build_base_y_t(args)
-    def y_t(time_step):
-        t = time_t(time_step)
-        return base_y_t(t)
-
-    return y_t
+    return extend_function.extend_f_t(time_t, base_y_t,
+                                      args.start_t, args.end_t,
+                                      extension_args=args)
 
 def describe_curve(args):
     print("Building ordinary lissajous curve")
@@ -74,6 +75,7 @@ def parse_args(sys_args=None):
     marble_path.add_tube_arguments(parser, default_slope_angle=10.0, default_output_name='lissajous.stl')
     slope_function.add_overlap_args(parser)
     combine_functions.add_kink_circle_args(parser)
+    extend_function.add_extend_args(parser)
 
     parser.add_argument('--lissA', default=5, type=float,
                         help='value A in the lissajous formula')
