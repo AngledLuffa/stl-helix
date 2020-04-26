@@ -533,7 +533,8 @@ def write_stl(triangles, filename):
             fout.write("facet normal 0 0 0\n")
             fout.write(" outer loop\n")
             for vertex in triangle:
-                fout.write("  vertex %f %f %f\n" % vertex)
+                vertex = tuple(["%.4f".rstrip("0").rstrip(".") % v for v in vertex])
+                fout.write("  vertex %s %s %s\n" % vertex)
             fout.write(" endloop\n")
             fout.write("endfacet\n")
 
