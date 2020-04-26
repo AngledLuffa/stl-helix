@@ -531,10 +531,10 @@ def write_stl(triangles, filename):
         for triangle in triangles:
             # facet normal of 0 0 0 is often used as a convention - processing program can figure it out
             fout.write("facet normal 0 0 0\n")
-            fout.write("    outer loop\n")
+            fout.write(" outer loop\n")
             for vertex in triangle:
-                fout.write("        vertex %f %f %f\n" % vertex)
-            fout.write("    endloop\n")
+                fout.write("  vertex %f %f %f\n" % vertex)
+            fout.write(" endloop\n")
             fout.write("endfacet\n")
 
 
