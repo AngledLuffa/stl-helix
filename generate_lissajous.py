@@ -59,12 +59,25 @@ python generate_lissajous.py --lissajous PRODUCT_HARMONICS --lissA 2 --lissB 0.0
 
 # hole
 python generate_lissajous.py --lissajous PRODUCT_HARMONICS --lissA 2 --lissB 0.0 --lissC 1 --lissD 0.5 --lissN 7 --x_scale 113.2899 --y_scale 91.8058 --slope_angle 5.50394 --start_t 0.16 --end_t 0.34 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
+
+Lissajous Splitter
+------------------
+
+This represents one branch of a splitter.  What you can do is line up
+the wall and the hole, then copy it and mirror it so that the ends
+align.  The three end points will be 134mm apart each.
+
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0.25 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85.8538 --y_scale 71.8232 --slope_angle 9 --extra_start_t 0.04 --start_t 0.25 --end_t .5625 --tube_end_angle "((.245,180),(.305,240))" --tube_start_angle "((.24,-60),(.32,-30))"
+
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0.25 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85.8538 --y_scale 71.8232 --slope_angle 9 --extra_start_t 0.04 --start_t 0.25 --end_t .5625 --tube_radius 10.6 --wall_thickness 11 --tube_end_angle 360
 """
 
 class Lissajous(Enum):
     BASIC = 1
     SUM_HARMONICS = 2
     PRODUCT_HARMONICS = 3
+    COMPOUND_HARMONICS = 4
 
 def build_base_x_t(args):
     x_scale = args.x_scale
@@ -89,6 +102,10 @@ def build_base_y_t(args):
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         def y_t(t):
             y = math.sin(2 * math.pi * t) * math.sin(args.lissN * 2 * math.pi * t + args.lissD * math.pi)
+            return y * y_scale
+    elif args.lissajous is Lissajous.COMPOUND_HARMONICS:
+        def y_t(t):
+            y = math.sin(args.lissN * math.pi * math.sin(2 * math.pi * t) + args.lissD * math.pi)
             return y * y_scale
     else:
         raise ValueError("Unknown lissajous type %s" % args.lissajous.name)
@@ -121,6 +138,8 @@ def describe_curve(args):
         print("Building a sum of harmonics lissajous curve")
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         print("Building a product of harmonics lissajous curve")
+    elif args.lissajous is Lissajous.COMPOUND_HARMONICS:
+        print("Building a compound harmonic lissajous curve")
     else:
         raise ValueError("Unknown lissajous type %s" % args.lissajous.name)
 
@@ -131,7 +150,11 @@ def describe_curve(args):
     elif args.lissajous is Lissajous.SUM_HARMONICS:
         print("  y(t) = 0.5 * (sin(2 pi t) + sin(%.4f * pi * t + %.4f * pi))" % (2 * args.lissN, args.lissD))
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
-        print("  y(t) = sin(2 pi t) sin(%.4f pi t + %.4f pi)" % (2 * args.lissN, args.lissD))
+        print("  y(t) = sin(2 pi t) sin(%.4f pi t + %.4f * pi)" % (2 * args.lissN, args.lissD))
+    elif args.lissajous is Lissajous.COMPOUND_HARMONICS:
+        print("  y(t) = sin(%.4f pi sin(2 pi t) + %.4f * pi)" % (args.lissN, args.lissD))
+    else:
+        raise ValueError("Unknown lissajous type %s" % args.lissajous.name)
 
 
 def parse_args(sys_args=None):
