@@ -153,10 +153,10 @@ python generate_hypotrochoid.py --hypoA 7 --hypoB 3 --hypoC 5 --slope_angle 3 --
 python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))"
 
 # wall
-python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi.stl --tube_start_angle -60 --tube_sides 48
+python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi.stl --tube_start_angle -60 --tube_sides 48
 
 # hole
-python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi_hole.stl --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360 --tube_sides 48
+python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi_hole.stl --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360 --tube_sides 48
 
 # tower in the middle goes at 84.74, 87.18.  rotate 36.5 degrees
 """
