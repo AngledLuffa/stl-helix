@@ -15,6 +15,12 @@ Generates a hypotrochoid, a curve on a circle defined by 3 parameters.
 x(t) = ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
 y(t) = ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
 
+Also has an option for generating an epitrochoid instead.
+
+x(t) = ((A - B) * math.cos(t) + C * math.cos((A - B) * t / B))
+y(t) = ((A - B) * math.sin(t) - C * math.sin((A - B) * t / B))
+
+
 to make a 3 lobed flower:
 ------------------------
 this is the ramp
@@ -128,15 +134,31 @@ this goes at 2,2,17
 rotation on post: 36 degrees
 
 
-TODO:  Epitrochoid
-------------------
+Epitrochoid - Giant piece
+-------------------------
 
-python generate_hypotrochoid.py --hypoA 15 --hypoB 3 --hypoC 9 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
-
+# boring
 python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 3 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
 
-python generate_hypotrochoid.py --hypoA 21 --hypoB 6 --hypoC 15 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
+# boring
+python generate_hypotrochoid.py --hypoA 15 --hypoB 3 --hypoC 9 --slope_angle 3 --tube_method OVAL --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID
 
+# 8 loops, 3 times around... huge
+python generate_hypotrochoid.py --hypoA 8 --hypoB 3 --hypoC 5 --slope_angle 3 --tube_wall_height 7 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.8912, 2.8212),(4.2474, 5.1774),(6.6036, 7.5336),(8.9598, 9.8898),(11.3160, 12.2460),(13.6722, 14.6022),(16.0284, 16.9584))"
+
+# 7 loops, 3 times around... reasonably tall, but the corners don't work
+python generate_hypotrochoid.py --hypoA 7 --hypoB 3 --hypoC 5 --slope_angle 3 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((2.0528, 3.3328),(4.7456, 6.0256),(7.4384, 8.7184),(10.1312, 11.4112),(12.8240, 14.1040),(15.5168, 16.7968))"
+
+# 7 loops, 2 times around... works
+python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))"
+
+# wall
+python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi.stl --tube_start_angle -60 --tube_sides 48
+
+# hole
+python generate_hypotrochoid.py --hypoA 7 --hypoB 2 --hypoC 5 --slope_angle 3.2 --closest_approach 26 --overlap_separation 23 --start_t 0.0 --trochoid EPITROCHOID --overlaps "((1.2602, 2.3302),(3.0554, 4.1254),(4.8506, 5.9206),(6.6458, 7.7158),(8.4410, 9.5110),(10.2362, 11.3062))" --zero_circle --start_t 0.3 --end_t 12.266 --num_time_steps 800 --output_name epi_hole.stl --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360 --tube_sides 48
+
+# tower in the middle goes at 84.74, 87.18.  rotate 36.5 degrees
 """
 
 class Trochoid(Enum):
