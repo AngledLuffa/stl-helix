@@ -12,6 +12,11 @@ def describe_curve(args):
         print("A basic tube of length {}, rotated {}".format(args.length, args.rotation))
 
 def build_x_y_r_t(args):
+    """
+    Build x, y, r for a basic tube.
+    A rotation of 0 is treated as going south to north along the y axis.
+    Rotation is the number of degrees CCW.
+    """
     rad = args.rotation * math.pi / 180
     x_r = -math.sin(rad)
     y_r = math.cos(rad)
