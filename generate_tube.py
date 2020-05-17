@@ -1,24 +1,30 @@
 import argparse
+import math
 import sys
 
 import build_shape
 import marble_path
 
 def describe_curve(args):
-    print("A basic tube of length {}".format(args.length))
+    if args.rotation == 0:
+        print("A basic tube of length {}".format(args.length))
+    else:
+        print("A basic tube of length {}, rotated {}".format(args.length, args.rotation))
 
 def build_x_y_r_t(args):
+    rad = args.rotation * math.pi / 180
+    x_r = -math.sin(rad)
+    y_r = math.cos(rad)
     def x_t(time_step):
-        return 0
+        return x_r * args.length * time_step / args.num_time_steps
 
     def y_t(time_step):
-        return args.length * time_step / args.num_time_steps
+        return y_r * args.length * time_step / args.num_time_steps
 
     def r_t(time_step):
-        return 0
+        return args.rotation
 
     return x_t, y_t, r_t
-
 
 def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for an stl tube.')
@@ -31,6 +37,8 @@ def parse_args(sys_args=None):
                         help='Length of the tube')
     parser.add_argument('--num_time_steps', default=100, type=int,
                         help='How refined to make the tube')
+    parser.add_argument('--rotation', default=0, type=float,
+                        help='Rotation on the tube, in degrees.  0 is going north')
 
     args = parser.parse_args(args=sys_args)
     return args
