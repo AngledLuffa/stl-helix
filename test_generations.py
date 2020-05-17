@@ -25,6 +25,13 @@ TESTS = [Test(name='Tube Basic',
                     "--slope_angle", "10"],
               gold_file='test_files/tube_basic.stl'),
 
+         Test(name='Tube High Slope',
+              model=generate_tube,
+              args=["--time_steps", "25",
+                    "--tube_sides", "16",
+                    "--slope_angle", "45"],
+              gold_file='test_files/tube_slope.stl'),
+
          Test(name='Helix Basic',
               model=generate_helix,
               args=["--slope_angle", "5",
