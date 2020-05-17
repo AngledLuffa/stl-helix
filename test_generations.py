@@ -20,14 +20,14 @@ Test = namedtuple('Test', ['name', 'model', 'args', 'gold_file'])
 
 TESTS = [Test(name='Tube Basic',
               model=generate_tube,
-              args=["--time_steps", "25",
+              args=["--num_time_steps", "25",
                     "--tube_sides", "16",
                     "--slope_angle", "10"],
               gold_file='test_files/tube_basic.stl'),
 
          Test(name='Tube High Slope',
               model=generate_tube,
-              args=["--time_steps", "25",
+              args=["--num_time_steps", "25",
                     "--tube_sides", "16",
                     "--slope_angle", "45"],
               gold_file='test_files/tube_slope.stl'),

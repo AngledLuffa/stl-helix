@@ -25,13 +25,19 @@ def print_stats(x_t, y_t, z_t, r_t, num_time_steps):
 def generate_shape(module, args):
     module.describe_curve(args)
 
-    time_t = module.build_time_t(args)
-    x_t = module.build_x_t(args)
-    y_t = module.build_y_t(args)
+    if getattr(module, 'build_time_t', None) is not None:
+        time_t = module.build_time_t(args)
+    else:
+        time_t = lambda t: t
+
+    if getattr(module, 'build_x_y_r_t', None) is not None:
+        x_t, y_t, r_t = module.build_x_y_r_t(args)
+    else:
+        x_t = module.build_x_t(args)
+        y_t = module.build_y_t(args)
+        r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
     num_time_steps = args.num_time_steps
-    
-    r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
     # TODO: because the circle replacement does not keep the endpoints
     # the same, this will disrupt any attempt to set a scale such as
