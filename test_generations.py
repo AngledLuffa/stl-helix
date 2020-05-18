@@ -7,6 +7,7 @@ import unittest
 
 from collections import namedtuple
 
+import generate_basic_ramp
 import generate_cycloid
 import generate_helix
 import generate_hypotrochoid
@@ -92,6 +93,13 @@ TESTS = [Test(name='Tube Basic',
                     "--rotations", "1.5"],
               gold_file='test_files/helix_clockwise_rotated.stl'),
          
+         Test(name='Basic Ramp',
+              model=generate_basic_ramp,
+              args=["--num_time_steps", "24",
+                    "--tube_sides", "10",
+                    "--slope_angle", "2.9"],
+              gold_file='test_files/basic_ramp.stl'),
+
          Test(name='Limacon Basic',
               model=generate_limacon,
               args=["--time_steps", "30",
