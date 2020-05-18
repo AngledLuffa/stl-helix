@@ -31,11 +31,20 @@ def append_functions(x1_t, y1_t, slope1_t, r1_t,
         else:
             return y2_t(t - inflection_t) + y_off
 
+    if isinstance(slope1_t, (int, float)):
+        s1_t = lambda x: slope1_t
+    else:
+        s1_t = slope1_t
+    if isinstance(slope2_t, (int, float)):
+        s2_t = lambda x: slope2_t
+    else:
+        s2_t = slope2_t
+        
     def slope_t(t):
         if t < inflection_t:
-            return slope1_t(t)
+            return s1_t(t)
         else:
-            return slope2_t(t - inflection_t)
+            return s2_t(t - inflection_t)
 
     def r_t(t):
         if t < inflection_t:
