@@ -32,6 +32,9 @@ def generate_shape(module, args):
 
     if getattr(module, 'build_x_y_r_t', None) is not None:
         x_t, y_t, r_t = module.build_x_y_r_t(args)
+    elif getattr(module, 'build_x_y_t', None) is not None:
+        x_t, y_t = module.build_x_y_t(args)
+        r_t = marble_path.numerical_rotation_function(x_t, y_t)
     else:
         x_t = module.build_x_t(args)
         y_t = module.build_y_t(args)

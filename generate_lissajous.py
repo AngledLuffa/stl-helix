@@ -123,22 +123,21 @@ def build_base_y_t(args):
 def build_time_t(args):
     return extend_function.build_time_t(args.start_t, args.end_t, args.num_time_steps, args)
 
-def build_x_t(args):
+def build_x_y_t(args):
     time_t = build_time_t(args)
     base_x_t = build_base_x_t(args)
-    return extend_function.extend_f_t(time_t, base_x_t,
-                                      args.start_t, args.end_t,
-                                      extension_args=args)
+    x_t = extend_function.extend_f_t(time_t, base_x_t,
+                                     args.start_t, args.end_t,
+                                     extension_args=args)
 
-    return x_t
-
-def build_y_t(args):
     time_t = build_time_t(args)
     base_y_t = build_base_y_t(args)
-    return extend_function.extend_f_t(time_t, base_y_t,
-                                      args.start_t, args.end_t,
-                                      extension_args=args)
+    y_t = extend_function.extend_f_t(time_t, base_y_t,
+                                     args.start_t, args.end_t,
+                                     extension_args=args)
 
+    return x_t, y_t
+    
 def describe_curve(args):
     if args.lissajous is Lissajous.BASIC:
         print("Building basic lissajous curve")
