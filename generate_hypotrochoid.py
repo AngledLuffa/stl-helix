@@ -211,8 +211,8 @@ def build_reg_f_t(args):
     else:
         raise ValueError("Unhandled trochoid type: " + args.trochoid)
 
-    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args.regularization)
-    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args.regularization)
+    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args)
+    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args)
     
     return reg_x_t, reg_y_t
 
@@ -319,6 +319,7 @@ def parse_args(sys_args=None):
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
     slope_function.add_overlap_args(parser)
     combine_functions.add_zero_circle_args(parser)
+    regularization.add_regularization_args(parser)
 
     parser.add_argument('--hypoA', default=9, type=int,
                         help='value A in the hypo formula')
@@ -340,9 +341,6 @@ def parse_args(sys_args=None):
                         help='Time to end the equation.  If None, will be 2pi * b / gcd(a, b)')
     parser.add_argument('--num_time_steps', default=250, type=int,
                         help='Number of time steps in the whole curve')
-
-    parser.add_argument('--regularization', default=0.0, type=float,
-                        help='Hypotrochoids often get long lobes.  This can help smooth them out')
 
     parser.add_argument('--closest_approach', default=None, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')

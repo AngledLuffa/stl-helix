@@ -76,7 +76,7 @@ TODO: Lissajous Butterfly
 Compound harmonic as per 9.5.12 on p140
 a/c = 2/1, b = 0, d = 0, n = 1
 
-python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 80 --y_scale 80 --slope_angle 5  --regularization 0.01  --start_t 0 --end_t 1.0 
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 140 --y_scale 140 --slope_angle 4  --regularization 1.0 --regularization_radius 0.4 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 25 --num_time_steps 500 --tube_start_angle "((0.48,0),(0.52,-60))" --tube_end_angle "((0.48,240),(0.52,180))"
 
 Lissajous Splitter
 ------------------
@@ -141,15 +141,15 @@ def build_x_y_t(args):
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
-    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args.regularization)    
+    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args)
     x_scale = args.x_scale
     def scale_x_t(t):
         return reg_x_t(t) * x_scale
     
-    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args.regularization)
+    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args)
     y_scale = args.y_scale
     def scale_y_t(t):
-        return y_t(t) * y_scale
+        return reg_y_t(t) * y_scale
     
     return scale_x_t, scale_y_t
     
@@ -186,6 +186,7 @@ def parse_args(sys_args=None):
     slope_function.add_overlap_args(parser)
     combine_functions.add_kink_circle_args(parser)
     extend_function.add_extend_args(parser)
+    regularization.add_regularization_args(parser)
 
     parser.add_argument('--lissA', default=5, type=int,
                         help='value A in the lissajous formula')
@@ -217,8 +218,6 @@ def parse_args(sys_args=None):
                         help='What formula to use.  Options are ' + " ".join(i.name for i in Lissajous))
 
     # TODO: refactor the regularization argument?
-    parser.add_argument('--regularization', default=0.0, type=float,
-                        help='A lot of interesting shapes get long lobes.  This can help smooth them out')
 
     args = parser.parse_args(args=sys_args)
 
