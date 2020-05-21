@@ -69,6 +69,14 @@ Center of piece:
   sine component: 0.48,     0
   wiggle:            0, 45.55
 
+TODO: Lissajous Butterfly
+-------------------
+
+Compound harmonic as per 9.5.12 on p140
+a/c = 2/1, b = 0, d = 0, n = 1
+
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 80 --y_scale 80 --slope_angle 5  --regularization 0.01  --start_t 0 --end_t 1.0 
+
 Lissajous Splitter
 ------------------
 
