@@ -96,33 +96,29 @@ class Lissajous(Enum):
     COMPOUND_HARMONICS = 4
 
 def build_base_x_t(args):
-    x_scale = args.x_scale
-
     def x_t(t):
         x = math.sin((args.lissA / args.lissC) * 2 * math.pi * t + args.lissB * math.pi)
-        return x * x_scale
+        return x
 
     return x_t
 
 def build_base_y_t(args):
-    y_scale = args.y_scale
-
     if args.lissajous is Lissajous.BASIC:
         def y_t(t):
             y = math.sin(2 * math.pi * t)
-            return y * y_scale
+            return y
     elif args.lissajous is Lissajous.SUM_HARMONICS:
         def y_t(t):
             y = 0.5 * (math.sin(2 * math.pi * t) + math.sin(args.lissN * 2 * math.pi * t + args.lissD * math.pi))
-            return y * y_scale
+            return y
     elif args.lissajous is Lissajous.PRODUCT_HARMONICS:
         def y_t(t):
             y = math.sin(2 * math.pi * t) * math.sin(args.lissN * 2 * math.pi * t + args.lissD * math.pi)
-            return y * y_scale
+            return y
     elif args.lissajous is Lissajous.COMPOUND_HARMONICS:
         def y_t(t):
             y = math.sin(args.lissN * math.pi * math.sin(2 * math.pi * t) + args.lissD * math.pi)
-            return y * y_scale
+            return y
     else:
         raise ValueError("Unknown lissajous type %s" % args.lissajous.name)
 
@@ -138,13 +134,21 @@ def build_x_y_t(args):
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
+    x_scale = args.x_scale
+    def scale_x_t(t):
+        return x_t(t) * x_scale
+    
     time_t = build_time_t(args)
     base_y_t = build_base_y_t(args)
     y_t = extend_function.extend_f_t(time_t, base_y_t,
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
-    return x_t, y_t
+    y_scale = args.y_scale
+    def scale_y_t(t):
+        return y_t(t) * y_scale
+    
+    return scale_x_t, scale_y_t
     
 def describe_curve(args):
     if args.lissajous is Lissajous.BASIC:
