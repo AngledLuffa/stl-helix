@@ -7,6 +7,7 @@ import build_shape
 import combine_functions
 import generate_helix
 import marble_path
+import regularization
 import slope_function
 
 """
@@ -210,29 +211,8 @@ def build_reg_f_t(args):
     else:
         raise ValueError("Unhandled trochoid type: " + args.trochoid)
 
-    def reg_y_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-
-        length = (x ** 2 + y ** 2) ** 0.5
-        if length < 1:
-            length = 0
-        else:
-            length = length - 1
-        reg = 1 / (args.regularization * length + 1)
-        return y * reg
-
-    def reg_x_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-
-        length = (x ** 2 + y ** 2) ** 0.5
-        if length < 1:
-            length = 0
-        else:
-            length = length - 1
-        reg = 1 / (args.regularization * length + 1)
-        return x * reg
+    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args.regularization)
+    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args.regularization)
     
     return reg_x_t, reg_y_t
 

@@ -8,6 +8,7 @@ import build_shape
 import combine_functions
 import extend_function
 import marble_path
+import regularization
 import slope_function
 
 
@@ -134,16 +135,18 @@ def build_x_y_t(args):
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
-    x_scale = args.x_scale
-    def scale_x_t(t):
-        return x_t(t) * x_scale
-    
     time_t = build_time_t(args)
     base_y_t = build_base_y_t(args)
     y_t = extend_function.extend_f_t(time_t, base_y_t,
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
+    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args.regularization)    
+    x_scale = args.x_scale
+    def scale_x_t(t):
+        return reg_x_t(t) * x_scale
+    
+    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args.regularization)
     y_scale = args.y_scale
     def scale_y_t(t):
         return y_t(t) * y_scale
@@ -212,6 +215,10 @@ def parse_args(sys_args=None):
 
     parser.add_argument('--lissajous', default=Lissajous.BASIC, type=lambda x: Lissajous[x.upper()],
                         help='What formula to use.  Options are ' + " ".join(i.name for i in Lissajous))
+
+    # TODO: refactor the regularization argument?
+    parser.add_argument('--regularization', default=0.0, type=float,
+                        help='A lot of interesting shapes get long lobes.  This can help smooth them out')
 
     args = parser.parse_args(args=sys_args)
 
