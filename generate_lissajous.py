@@ -76,7 +76,7 @@ TODO: Lissajous Butterfly
 Compound harmonic as per 9.5.12 on p140
 a/c = 2/1, b = 0, d = 0, n = 1
 
-python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 140 --y_scale 140 --slope_angle 4  --regularization 1.0 --regularization_radius 0.4 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 25 --num_time_steps 500 --tube_start_angle "((0.48,0),(0.52,-60))" --tube_end_angle "((0.48,240),(0.52,180))"
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 80 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle "((0.49,0),(0.53,-60))" --tube_end_angle "((0.47,240),(0.51,180))"
 
 Lissajous Splitter
 ------------------
