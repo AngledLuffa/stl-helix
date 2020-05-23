@@ -70,13 +70,23 @@ Center of piece:
   sine component: 0.48,     0
   wiggle:            0, 45.55
 
-TODO: Lissajous Butterfly
+Lissajous Butterfly
 -------------------
 
 Compound harmonic as per 9.5.12 on p140
 a/c = 2/1, b = 0, d = 0, n = 1
 
-python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 80 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle "((0.49,0),(0.53,-60))" --tube_end_angle "((0.47,240),(0.51,180))"
+rotation at top: 28.1
+
+# travel path
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle "((0.49,0),(0.53,-60))" --tube_end_angle "((0.47,240),(0.51,180))"
+
+# tunnel walls for the central post
+# this goes 2.1 higher than the travel path
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0.04 --end_t 0.96 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle 0 --tube_end_angle 360
+
+# holes to go through the central post
+python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
 Lissajous Splitter
 ------------------
