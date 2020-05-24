@@ -98,6 +98,11 @@ align.  The three end points will be 134mm apart each.
 python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0.25 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85.8538 --y_scale 71.8232 --slope_angle 9 --extra_start_t 0.04 --start_t 0.25 --end_t .5625 --tube_end_angle "((.245,180),(.305,240))" --tube_start_angle "((.24,-60),(.32,-30))"
 
 python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0.25 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85.8538 --y_scale 71.8232 --slope_angle 9 --extra_start_t 0.04 --start_t 0.25 --end_t .5625 --tube_radius 10.6 --wall_thickness 11 --tube_end_angle 360
+
+
+TODO: really crazy compound something
+-------------------------------------
+\left(\sin(8\pi t),\sin(2\pi\sin(2\pi t))\left(1+0\sin\left(4\pi t\right)\right)\right)
 """
 
 class Lissajous(Enum):
