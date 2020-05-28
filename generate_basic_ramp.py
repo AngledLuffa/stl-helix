@@ -70,10 +70,10 @@ def build_x_y_r_t(args):
     helix_args.helix_sides = outer_time_steps / helix_args.rotations
     helix_args.clockwise = True
 
-    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=2.9, r1_t=r_t,
+    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=args.slope_angle, r1_t=r_t,
                                                           x2_t=generate_helix.helix_x_t(helix_args),
                                                           y2_t=generate_helix.helix_y_t(helix_args),
-                                                          slope2_t=2.9,
+                                                          slope2_t=args.slope_angle,
                                                           r2_t=generate_helix.helix_r_t(helix_args),
                                                           inflection_t=time_divisions[1])
 
@@ -85,10 +85,10 @@ def build_x_y_r_t(args):
     helix_args.helix_sides = inner_time_steps / helix_args.rotations
     helix_args.clockwise = True
 
-    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=2.9, r1_t=r_t,
+    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=args.slope_angle, r1_t=r_t,
                                                           x2_t=generate_helix.helix_x_t(helix_args),
                                                           y2_t=generate_helix.helix_y_t(helix_args),
-                                                          slope2_t=2.9,
+                                                          slope2_t=args.slope_angle,
                                                           r2_t=generate_helix.helix_r_t(helix_args),
                                                           inflection_t=time_divisions[2])
 
