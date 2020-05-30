@@ -88,6 +88,11 @@ python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0
 # holes to go through the central post
 python generate_lissajous.py  --lissajous COMPOUND_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD 0.0 --lissN 1.0 --x_scale 85 --y_scale 105 --slope_angle 4  --y_regularization 0.4 --regularization 0.2 --regularization_radius 0.2 --start_t 0 --end_t 1.0 --overlaps "((0.01,0.24),(0.26, 0.49),(0.51,0.74),(0.76, 0.99))" --overlap_separation 24 --num_time_steps 500 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
+TODO: Overlapping Lissajous Butterfly
+-------------------------------------
+sin(2t), sin(t) * sin(4t)
+figure it out
+
 Lissajous Splitter
 ------------------
 
