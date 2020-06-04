@@ -4,7 +4,6 @@ import sys
 
 import build_shape
 import combine_functions
-import generate_helix
 import generate_tube
 import marble_path
 
