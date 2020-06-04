@@ -42,56 +42,23 @@ def build_x_y_r_t(args):
     print("Post distance: {}".format(args.post_distance))
     print("x_dist: {} y_dist: {}".format(x_dist, y_dist))
 
-    time_divisions = [0, int(args.num_time_steps / 2),
-                      int(args.num_time_steps * 3 / 4), args.num_time_steps]
-
     tube_args = argparse.Namespace(**vars(args))
     tube_args.rotation = 90
     # increase the length by post_radius so that the tube can be used
     # for the landing tube inside the first post
     tube_args.length = x_dist + args.ramp_extension
-    tube_args.num_time_steps = time_divisions[1]
+    tube_args.num_time_steps = args.num_time_steps // 2
     x_t, y_t, r_t = generate_tube.build_x_y_r_t(tube_args)
 
-    if args.post_radius - wall_thickness < tube_radius:
-        raise ValueError("Post is too narrow for the final helix piece to adequately fit")
-
-    # We want to wrap around the post at least 1/2 of the way, but less than 3/4 of the way
-    # The way we do this is to figure out what angle the turn finishes at
-    final_rotation = math.asin(tube_radius / (args.post_radius - wall_thickness)) * 180 / math.pi
-    inner_rotation = (90 + final_rotation) / 360
-    outer_rotation = 1.0 - inner_rotation
-    
-    outer_time_steps = time_divisions[2] - time_divisions[1]
-    helix_args = argparse.Namespace(**vars(args))
-    helix_args.rotations = outer_rotation
-    helix_args.initial_rotation = 90
-    helix_args.helix_radius = args.post_radius + tube_radius - wall_thickness
-    helix_args.helix_sides = outer_time_steps / helix_args.rotations
-    helix_args.clockwise = True
-
-    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=args.slope_angle, r1_t=r_t,
-                                                          x2_t=generate_helix.helix_x_t(helix_args),
-                                                          y2_t=generate_helix.helix_y_t(helix_args),
-                                                          slope2_t=args.slope_angle,
-                                                          r2_t=generate_helix.helix_r_t(helix_args),
-                                                          inflection_t=time_divisions[1])
-
-    inner_time_steps = time_divisions[3] - time_divisions[2]
-    helix_args = argparse.Namespace(**vars(args))
-    helix_args.rotations = inner_rotation
-    helix_args.initial_rotation = 90 - 360.0 * outer_rotation
-    helix_args.helix_radius = tube_radius
-    helix_args.helix_sides = inner_time_steps / helix_args.rotations
-    helix_args.clockwise = True
-
-    x_t, y_t, _, r_t = combine_functions.append_functions(x1_t=x_t, y1_t=y_t, slope1_t=args.slope_angle, r1_t=r_t,
-                                                          x2_t=generate_helix.helix_x_t(helix_args),
-                                                          y2_t=generate_helix.helix_y_t(helix_args),
-                                                          slope2_t=args.slope_angle,
-                                                          r2_t=generate_helix.helix_r_t(helix_args),
-                                                          inflection_t=time_divisions[2])
-
+    updated_functions = combine_functions.add_post_exit(args,
+                                                        clockwise=True,
+                                                        num_time_steps=tube_args.num_time_steps,
+                                                        post_time_steps=args.num_time_steps - tube_args.num_time_steps,
+                                                        x_t=x_t,
+                                                        y_t=y_t,
+                                                        slope_angle_t=lambda t: args.slope_angle,
+                                                        r_t=r_t)
+    _, x_t, y_t, _, r_t = updated_functions
     return x_t, y_t, r_t
 
 
