@@ -292,6 +292,14 @@ def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t,
 def add_both_zero_circles(args, num_time_steps, x_t, y_t, slope_angle_t, r_t):
     """
     Adds zero circles at both the start and the end of a curve.
+
+    num_time_steps: how many time steps the original curve has
+    x_t, y_t, slope_angle_t, r_t: functions from time step to position
+
+    Returns a tuple of the new pieces:
+      num_time_steps, x_t, y_t, slope_angle_t, r_t
+    The updated num_time_steps is the original number plus two times args.zero_circle_args*2
+    x_t, y_t, slope_angle_t, r_t will describe the new circles combined with the original curve
     """
     updated_functions = add_zero_circle(args=args,
                                         circle_start=True,
