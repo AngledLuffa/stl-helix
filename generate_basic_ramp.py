@@ -17,7 +17,7 @@ python generate_basic_ramp.py --num_time_steps 200 --tube_end_angle "((90,180),(
 
 python generate_basic_ramp.py --num_time_steps 200 --tube_method OVAL --tube_wall_height 4
 python generate_basic_ramp.py --num_time_steps 200
-python generate_basic_ramp.py --num_time_steps 200 --tube_radius 10.5 --wall_thickness 11 --effective_tube_radius 12.5 --effective_wall_thickness 2 --tube_start_angle 0 --tube_end_angle 360 --ramp_extension 0.0
+python generate_basic_ramp.py --num_time_steps 200 --tube_radius 10.5 --wall_thickness 11 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2 --tube_start_angle 0 --tube_end_angle 360 --ramp_extension 0.0
 """
 
 def describe_curve(args):
@@ -31,8 +31,8 @@ def build_x_y_r_t(args):
     """
     # the effective radius & thickness are so that holes can be made
     # at the right size for the shell they are in the middle of
-    tube_radius = args.effective_tube_radius
-    wall_thickness = args.effective_wall_thickness
+    tube_radius = args.post_effective_tube_radius
+    wall_thickness = args.post_effective_wall_thickness
 
     # The y distance between the centers of the posts will be:
     #   radius of a post + radius of the tube - wall_thickness
@@ -66,26 +66,27 @@ def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for a basic ramp')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=2.9, default_output_name='ramp.stl')
+    parser.add_argument('--num_time_steps', default=200, type=int,
+                        help='Number of time steps in the whole ramp')
+
     parser.add_argument('--post_distance', default=134, type=float,
                         help='Distance from one post to another')
     parser.add_argument('--post_radius', default=15.5, type=float,
                         help='Radius of a post')
-    parser.add_argument('--num_time_steps', default=200, type=int,
-                        help='Number of time steps in the whole ramp')
-
-    parser.add_argument('--effective_tube_radius', default=None, type=float,
+    parser.add_argument('--post_effective_tube_radius', default=None, type=float,
                         help='If set, do the calculations assuming this tube radius.  Useful for the hole of a ramp, for example')
-    parser.add_argument('--effective_wall_thickness', default=None, type=float,
+    parser.add_argument('--post_effective_wall_thickness', default=None, type=float,
                         help='If set, do the calculations assuming this wall thickness.  Useful for the hole of a ramp, for example')
+
     parser.add_argument('--ramp_extension', default=None, type=float,
-                        help='How far to extend the ramp past the post')
+                        help='How far to extend the ramp past the first post')
 
     args = parser.parse_args(args=sys_args)
 
-    if args.effective_tube_radius is None:
-        args.effective_tube_radius = args.tube_radius
-    if args.effective_wall_thickness is None:
-        args.effective_wall_thickness = args.wall_thickness
+    if args.post_effective_tube_radius is None:
+        args.post_effective_tube_radius = args.tube_radius
+    if args.post_effective_wall_thickness is None:
+        args.post_effective_wall_thickness = args.wall_thickness
     if args.ramp_extension is None:
         args.ramp_extension = args.post_radius
 

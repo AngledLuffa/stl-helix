@@ -335,8 +335,8 @@ def add_post_exit(args, clockwise, num_time_steps, post_time_steps,
 
     TODO: add clockwise / counterclockwise as possibilities
     """
-    tube_radius = args.effective_tube_radius
-    wall_thickness = args.effective_wall_thickness
+    tube_radius = args.post_effective_tube_radius
+    wall_thickness = args.post_effective_wall_thickness
 
     if args.post_radius - wall_thickness < tube_radius:
         raise ValueError("Post is too narrow for the final helix piece to adequately fit")
