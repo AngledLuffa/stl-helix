@@ -70,6 +70,8 @@ def parse_args(sys_args=None):
                         help='Number of time steps in the whole ramp')
     parser.add_argument('--ramp_extension', default=None, type=float,
                         help='How far to extend the ramp past the first post')
+    parser.add_argument('--post_distance', default=134, type=float,
+                        help='Distance from one post to another')
 
     args = parser.parse_args(args=sys_args)
 

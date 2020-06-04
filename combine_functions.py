@@ -383,8 +383,6 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     return (num_time_steps + post_time_steps), x_t, y_t, slope_angle_t, r_t
 
 def add_post_args(parser, post_exit=True, post_entrance=True):
-    parser.add_argument('--post_distance', default=134, type=float,
-                        help='Distance from one post to another')
     parser.add_argument('--post_radius', default=15.5, type=float,
                         help='Radius of a post')
     parser.add_argument('--post_effective_tube_radius', default=None, type=float,
