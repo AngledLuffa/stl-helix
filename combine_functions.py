@@ -332,8 +332,6 @@ def add_post_exit(args, num_time_steps, post_time_steps,
                   x_t, y_t, slope_angle_t, r_t):
     """
     Wraps the path around a post on the way out.  One full revolution
-
-    TODO: add clockwise / counterclockwise as possibilities
     """
     tube_radius = args.post_effective_tube_radius
     wall_thickness = args.post_effective_wall_thickness
