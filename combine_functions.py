@@ -380,3 +380,20 @@ def add_post_exit(args, clockwise, num_time_steps, post_time_steps,
                                                     inflection_t=num_time_steps + outer_time_steps)
 
     return (num_time_steps + post_time_steps), x_t, y_t, slope_angle_t, r_t
+
+def add_post_args(parser):
+    parser.add_argument('--post_distance', default=134, type=float,
+                        help='Distance from one post to another')
+    parser.add_argument('--post_radius', default=15.5, type=float,
+                        help='Radius of a post')
+    parser.add_argument('--post_effective_tube_radius', default=None, type=float,
+                        help='If set, do the calculations assuming this tube radius.  Useful for the hole of a ramp, for example')
+    parser.add_argument('--post_effective_wall_thickness', default=None, type=float,
+                        help='If set, do the calculations assuming this wall thickness.  Useful for the hole of a ramp, for example')
+
+def process_post_args(args):
+    # TODO: is there a way to add this kind of post-processing to the parser itself?
+    if args.post_effective_tube_radius is None:
+        args.post_effective_tube_radius = args.tube_radius
+    if args.post_effective_wall_thickness is None:
+        args.post_effective_wall_thickness = args.wall_thickness

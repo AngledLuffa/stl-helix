@@ -66,27 +66,17 @@ def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for a basic ramp')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=2.9, default_output_name='ramp.stl')
+    combine_functions.add_post_args(parser)
+
     parser.add_argument('--num_time_steps', default=200, type=int,
                         help='Number of time steps in the whole ramp')
-
-    parser.add_argument('--post_distance', default=134, type=float,
-                        help='Distance from one post to another')
-    parser.add_argument('--post_radius', default=15.5, type=float,
-                        help='Radius of a post')
-    parser.add_argument('--post_effective_tube_radius', default=None, type=float,
-                        help='If set, do the calculations assuming this tube radius.  Useful for the hole of a ramp, for example')
-    parser.add_argument('--post_effective_wall_thickness', default=None, type=float,
-                        help='If set, do the calculations assuming this wall thickness.  Useful for the hole of a ramp, for example')
-
     parser.add_argument('--ramp_extension', default=None, type=float,
                         help='How far to extend the ramp past the first post')
 
     args = parser.parse_args(args=sys_args)
 
-    if args.post_effective_tube_radius is None:
-        args.post_effective_tube_radius = args.tube_radius
-    if args.post_effective_wall_thickness is None:
-        args.post_effective_wall_thickness = args.wall_thickness
+    combine_functions.process_post_args(args)
+
     if args.ramp_extension is None:
         args.ramp_extension = args.post_radius
 
