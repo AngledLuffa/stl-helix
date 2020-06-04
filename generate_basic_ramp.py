@@ -64,7 +64,7 @@ def parse_args(sys_args=None):
     parser = argparse.ArgumentParser(description='Arguments for a basic ramp')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=2.9, default_output_name='ramp.stl')
-    combine_functions.add_post_args(parser)
+    combine_functions.add_post_args(parser, post_entrance=False)
 
     parser.add_argument('--num_time_steps', default=200, type=int,
                         help='Number of time steps in the whole ramp')

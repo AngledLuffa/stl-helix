@@ -351,7 +351,7 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     helix_args.initial_rotation = 90
     helix_args.helix_radius = args.post_radius + tube_radius - wall_thickness
     helix_args.helix_sides = outer_time_steps / helix_args.rotations
-    helix_args.clockwise = args.post_clockwise
+    helix_args.clockwise = args.post_exit_clockwise
 
     slope_angle = slope_angle_t(num_time_steps)
     post_slope_angle_t = lambda t: slope_angle
@@ -365,13 +365,13 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     inner_time_steps = post_time_steps - outer_time_steps
     helix_args = argparse.Namespace(**vars(args))
     helix_args.rotations = inner_rotation
-    if args.post_clockwise:
+    if args.post_exit_clockwise:
         helix_args.initial_rotation = 90 - 360.0 * outer_rotation
     else:
         helix_args.initial_rotation = 90 + 360.0 * outer_rotation
     helix_args.helix_radius = tube_radius
     helix_args.helix_sides = inner_time_steps / helix_args.rotations
-    helix_args.clockwise = args.post_clockwise
+    helix_args.clockwise = args.post_exit_clockwise
 
     x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
                                                     x2_t=generate_helix.helix_x_t(helix_args),
@@ -382,7 +382,7 @@ def add_post_exit(args, num_time_steps, post_time_steps,
 
     return (num_time_steps + post_time_steps), x_t, y_t, slope_angle_t, r_t
 
-def add_post_args(parser):
+def add_post_args(parser, post_exit=True, post_entrance=True):
     parser.add_argument('--post_distance', default=134, type=float,
                         help='Distance from one post to another')
     parser.add_argument('--post_radius', default=15.5, type=float,
@@ -391,12 +391,20 @@ def add_post_args(parser):
                         help='If set, do the calculations assuming this tube radius.  Useful for the hole of a ramp, for example')
     parser.add_argument('--post_effective_wall_thickness', default=None, type=float,
                         help='If set, do the calculations assuming this wall thickness.  Useful for the hole of a ramp, for example')
-    parser.add_argument('--post_clockwise', dest='post_clockwise',
-                        default=True, action='store_true',
-                        help='Go clockwise around the post')
-    parser.add_argument('--post_counterclockwise', dest='post_clockwise',
-                        action='store_false',
-                        help="Go CCW around the post")
+    if post_exit:
+        parser.add_argument('--post_exit_clockwise', dest='post_exit_clockwise',
+                            default=True, action='store_true',
+                            help='Go clockwise around the exit post')
+        parser.add_argument('--post_exit_counterclockwise', dest='post_exit_clockwise',
+                            action='store_false',
+                            help="Go CCW around the exit post")
+    if post_entrance:
+        parser.add_argument('--post_entrance_clockwise', dest='post_entrance_clockwise',
+                            default=True, action='store_true',
+                            help='Go clockwise around the entrance post')
+        parser.add_argument('--post_entrance_counterclockwise', dest='post_entrance_clockwise',
+                            action='store_false',
+                            help="Go CCW around the entrance post")
 
 def process_post_args(args):
     # TODO: is there a way to add this kind of post-processing to the parser itself?

@@ -104,7 +104,7 @@ TESTS = [Test(name='Tube Basic',
               model=generate_basic_ramp,
               args=["--num_time_steps", "24",
                     "--tube_sides", "10",
-                    "--post_counterclockwise",
+                    "--post_exit_counterclockwise",
                     "--slope_angle", "2.9"],
               gold_file='test_files/basic_ramp_ccw.stl'),
 
