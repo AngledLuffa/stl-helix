@@ -37,6 +37,8 @@ def build_x_y_r_t(args):
     #   radius of a post + radius of the tube - wall_thickness
     # the wall thickness is so that the tube is fused to the second post
     y_dist = args.post_radius + tube_radius - wall_thickness
+    if y_dist > args.post_distance:
+        raise ValueError("Post distance too close for this post size")
     x_dist = (args.post_distance ** 2 - y_dist ** 2) ** 0.5
     print("Post distance: {}".format(args.post_distance))
     print("x_dist: {} y_dist: {}".format(x_dist, y_dist))
