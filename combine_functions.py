@@ -354,7 +354,7 @@ def add_post_outer(args, num_time_steps, outer_time_steps,
                                                         slope1_t=post_slope_angle_t,
                                                         r1_t=generate_helix.helix_r_t(helix_args),
                                                         x2_t=x_t, y2_t=y_t, slope2_t=slope_angle_t, r2_t=r_t,
-                                                        inflection_t=num_time_steps)
+                                                        inflection_t=outer_time_steps)
     else:
         helix_args.initial_rotation = 90
         x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
@@ -387,7 +387,7 @@ def add_post_inner(args, num_time_steps, inner_time_steps,
                                                         slope1_t=post_slope_angle_t,
                                                         r1_t=generate_helix.helix_r_t(helix_args),
                                                         x2_t=x_t, y2_t=y_t, slope2_t=slope_angle_t, r2_t=r_t,
-                                                        inflection_t=num_time_steps)
+                                                        inflection_t=inner_time_steps)
     else:
         if args.post_exit_clockwise:
             helix_args.initial_rotation = 90 - 360.0 * outer_rotation
@@ -423,10 +423,10 @@ def post_rotation(args):
 
     return inner_rotation, outer_rotation
 
-def add_post_exit(args, num_time_steps, post_time_steps,
-                  x_t, y_t, slope_angle_t, r_t):
+def add_post(args, num_time_steps, post_time_steps,
+             x_t, y_t, slope_angle_t, r_t, is_entrance):
     """
-    Wraps the path around a post on the way out.  One full revolution
+    Wraps the path around a post on the way in or out.  One full revolution
     """
     inner_rotation, outer_rotation = post_rotation(args)
 
@@ -436,7 +436,7 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     updated_functions = add_post_outer(args=args,
                                        num_time_steps=num_time_steps,
                                        outer_time_steps=outer_time_steps,
-                                       is_entrance=False,
+                                       is_entrance=is_entrance,
                                        inner_rotation=inner_rotation,
                                        outer_rotation=outer_rotation,
                                        x_t=x_t,
@@ -448,41 +448,7 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     updated_functions = add_post_inner(args=args,
                                        num_time_steps=num_time_steps,
                                        inner_time_steps=inner_time_steps,
-                                       is_entrance=False,
-                                       inner_rotation=inner_rotation,
-                                       outer_rotation=outer_rotation,
-                                       x_t=x_t,
-                                       y_t=y_t,
-                                       slope_angle_t=slope_angle_t,
-                                       r_t=r_t)
-    return updated_functions
-
-def add_post_entrance(args, num_time_steps, post_time_steps,
-                      x_t, y_t, slope_angle_t, r_t):
-    """
-    Wraps the path around a post at the start of a piece.  One full revolution
-    """
-    inner_rotation, outer_rotation = post_rotation(args)
-
-    outer_time_steps = post_time_steps // 2
-    inner_time_steps = post_time_steps - outer_time_steps
-
-    updated_functions = add_post_inner(args=args,
-                                       num_time_steps=num_time_steps,
-                                       inner_time_steps=inner_time_steps,
-                                       is_entrance=True,
-                                       inner_rotation=inner_rotation,
-                                       outer_rotation=outer_rotation,
-                                       x_t=x_t,
-                                       y_t=y_t,
-                                       slope_angle_t=slope_angle_t,
-                                       r_t=r_t)
-    num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
-
-    updated_functions = add_post_outer(args=args,
-                                       num_time_steps=num_time_steps,
-                                       outer_time_steps=outer_time_steps,
-                                       is_entrance=True,
+                                       is_entrance=is_entrance,
                                        inner_rotation=inner_rotation,
                                        outer_rotation=outer_rotation,
                                        x_t=x_t,

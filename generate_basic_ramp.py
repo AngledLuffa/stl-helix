@@ -51,13 +51,14 @@ def build_x_y_r_t(args):
     tube_args.num_time_steps = args.num_time_steps // 2
     x_t, y_t, r_t = generate_tube.build_x_y_r_t(tube_args)
 
-    updated_functions = combine_functions.add_post_exit(args,
-                                                        num_time_steps=tube_args.num_time_steps,
-                                                        post_time_steps=args.num_time_steps - tube_args.num_time_steps,
-                                                        x_t=x_t,
-                                                        y_t=y_t,
-                                                        slope_angle_t=lambda t: args.slope_angle,
-                                                        r_t=r_t)
+    updated_functions = combine_functions.add_post(args,
+                                                   num_time_steps=tube_args.num_time_steps,
+                                                   post_time_steps=args.num_time_steps - tube_args.num_time_steps,
+                                                   x_t=x_t,
+                                                   y_t=y_t,
+                                                   slope_angle_t=lambda t: args.slope_angle,
+                                                   r_t=r_t,
+                                                   is_entrance=False)
     _, x_t, y_t, _, r_t = updated_functions
     return x_t, y_t, r_t
 
