@@ -47,10 +47,14 @@ Post One: (28.15, 41.86)
 Post Two: (81.76, 164.67)
 
 # Tube
-python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_start_angle "((0.45,-60),(0.55,0))"  --tube_end_angle "((0.45,180),(0.55,240))" --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
+# Note the overhang at the start
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_method oval --tube_start_angle "((0.02,-30),(0.08,0))" --tube_wall_height 6 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
 
-# TODO: changed wall...
-python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_method oval --tube_start_angle "((-0.02,-45),(0.04,0))" --tube_wall_height 6 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
+# Stabilizer at the overlap
+# Plan: put at same spot as the tube, cut away everything that isn't the supporting piece
+# from the first level to the second
+# Can use a hole (the next piece) to make sure the support doesn't come through the bottom
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_method oval --tube_wall_height 14 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
 
 # Hole for the posts
 python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0  --tube_end_angle 360 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24 
