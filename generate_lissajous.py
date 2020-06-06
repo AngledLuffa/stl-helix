@@ -39,7 +39,7 @@ python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --l
 python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 1 --lissB 0.5 --lissC 1 --lissD 0 --lissN 3 --x_scale 87 --y_scale 88.5 --slope_angle 2.9 --start_t 0.11 --end_t 0.39
 
 Lissajous Wraparound
---------------------------
+--------------------
 
 Goal: make the tube wrap around the outside of the posts instead of going through the middle
 
@@ -49,11 +49,14 @@ Post Two: (81.76, 164.67)
 # Tube
 python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_start_angle "((0.45,-60),(0.55,0))"  --tube_end_angle "((0.45,180),(0.55,240))" --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
 
+# TODO: changed wall...
+python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 12.5 --tube_method oval --tube_start_angle "((-0.02,-45),(0.04,0))" --tube_wall_height 6 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24
+
 # Hole for the posts
 python generate_lissajous.py --lissajous SUM_HARMONICS --lissA 2 --lissB 0 --lissC 1 --lissD -0.5 --lissN 2.5 --x_scale 55.416 --y_scale 110.832 --slope_angle 3.7 --start_t -0.036 --end_t 1.036 --kink_replace_circle "((0.375, 0.425),(0.575, 0.625))" --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0  --tube_end_angle 360 --overlaps "((0.09,0.6),(0.4,0.91))" --overlap_separation 24 
 
-Lissajous Knot
---------------
+Lissajous Twist Tie
+-------------------
 
 maybe a Lissajous product of harmonics like 9.5.8 but with n=7.  poles at the two corners, two paths, and the paths cross in the middle
   a=2, b=0, c=1, d=0.5, n=7
