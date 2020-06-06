@@ -328,10 +328,86 @@ def add_zero_circle_args(parser):
                         help='Number of sides to make the circle to the middle')
 
 
-def add_post_exit(args, num_time_steps, post_time_steps,
-                  x_t, y_t, slope_angle_t, r_t):
+def add_post_outer(args, num_time_steps, outer_time_steps,
+                   is_entrance, inner_rotation, outer_rotation,
+                   x_t, y_t, slope_angle_t, r_t):
+    tube_radius = args.post_effective_tube_radius
+    wall_thickness = args.post_effective_wall_thickness
+
+    slope_angle = slope_angle_t(0 if is_entrance else num_time_steps)
+    post_slope_angle_t = lambda t: slope_angle
+
+    helix_args = argparse.Namespace(**vars(args))
+
+    helix_args.rotations = outer_rotation
+    helix_args.helix_radius = args.post_radius + tube_radius - wall_thickness
+    helix_args.helix_sides = outer_time_steps / helix_args.rotations
+    helix_args.clockwise = args.post_entrance_clockwise if is_entrance else args.post_exit_clockwise
+
+    if is_entrance:
+        if args.post_entrance_clockwise:
+            helix_args.initial_rotation = 90 - 360.0 * inner_rotation
+        else:
+            helix_args.initial_rotation = 90 + 360.0 * inner_rotation
+        x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=generate_helix.helix_x_t(helix_args),
+                                                        y1_t=generate_helix.helix_y_t(helix_args),
+                                                        slope1_t=post_slope_angle_t,
+                                                        r1_t=generate_helix.helix_r_t(helix_args),
+                                                        x2_t=x_t, y2_t=y_t, slope2_t=slope_angle_t, r2_t=r_t,
+                                                        inflection_t=num_time_steps)
+    else:
+        helix_args.initial_rotation = 90
+        x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
+                                                        x2_t=generate_helix.helix_x_t(helix_args),
+                                                        y2_t=generate_helix.helix_y_t(helix_args),
+                                                        slope2_t=post_slope_angle_t,
+                                                        r2_t=generate_helix.helix_r_t(helix_args),
+                                                        inflection_t=num_time_steps)
+    num_time_steps = num_time_steps + outer_time_steps
+    return num_time_steps, x_t, y_t, slope_angle_t, r_t
+    
+def add_post_inner(args, num_time_steps, inner_time_steps,
+                   is_entrance, inner_rotation, outer_rotation,
+                   x_t, y_t, slope_angle_t, r_t):
+    tube_radius = args.post_effective_tube_radius
+    slope_angle = slope_angle_t(0 if is_entrance else num_time_steps)
+    post_slope_angle_t = lambda t: slope_angle
+
+    helix_args = argparse.Namespace(**vars(args))
+
+    helix_args.rotations = inner_rotation
+    helix_args.helix_radius = tube_radius
+    helix_args.helix_sides = inner_time_steps / helix_args.rotations
+    helix_args.clockwise = args.post_entrance_clockwise if is_entrance else args.post_exit_clockwise
+
+    if is_entrance:
+        helix_args.initial_rotation = 90
+        x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=generate_helix.helix_x_t(helix_args),
+                                                        y1_t=generate_helix.helix_y_t(helix_args),
+                                                        slope1_t=post_slope_angle_t,
+                                                        r1_t=generate_helix.helix_r_t(helix_args),
+                                                        x2_t=x_t, y2_t=y_t, slope2_t=slope_angle_t, r2_t=r_t,
+                                                        inflection_t=num_time_steps)
+    else:
+        if args.post_exit_clockwise:
+            helix_args.initial_rotation = 90 - 360.0 * outer_rotation
+        else:
+            helix_args.initial_rotation = 90 + 360.0 * outer_rotation
+        x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
+                                                        x2_t=generate_helix.helix_x_t(helix_args),
+                                                        y2_t=generate_helix.helix_y_t(helix_args),
+                                                        slope2_t=post_slope_angle_t,
+                                                        r2_t=generate_helix.helix_r_t(helix_args),
+                                                        inflection_t=num_time_steps)
+    return num_time_steps + inner_time_steps, x_t, y_t, slope_angle_t, r_t
+
+def post_rotation(args):
     """
-    Wraps the path around a post on the way out.  One full revolution
+    Given the size of the post and the radius of the tube, calculate
+    the radius of the outer & inner circles to make the tube wrap
+    around the post exactly once and go in the post
+
+    Returns inner_rotation, outer_rotation
     """
     tube_radius = args.post_effective_tube_radius
     wall_thickness = args.post_effective_wall_thickness
@@ -345,42 +421,75 @@ def add_post_exit(args, num_time_steps, post_time_steps,
     inner_rotation = (90 + final_rotation) / 360
     outer_rotation = 1.0 - inner_rotation
 
+    return inner_rotation, outer_rotation
+
+def add_post_exit(args, num_time_steps, post_time_steps,
+                  x_t, y_t, slope_angle_t, r_t):
+    """
+    Wraps the path around a post on the way out.  One full revolution
+    """
+    inner_rotation, outer_rotation = post_rotation(args)
+
     outer_time_steps = post_time_steps // 2
-    helix_args = argparse.Namespace(**vars(args))
-    helix_args.rotations = outer_rotation
-    helix_args.initial_rotation = 90
-    helix_args.helix_radius = args.post_radius + tube_radius - wall_thickness
-    helix_args.helix_sides = outer_time_steps / helix_args.rotations
-    helix_args.clockwise = args.post_exit_clockwise
-
-    slope_angle = slope_angle_t(num_time_steps)
-    post_slope_angle_t = lambda t: slope_angle
-    x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
-                                                    x2_t=generate_helix.helix_x_t(helix_args),
-                                                    y2_t=generate_helix.helix_y_t(helix_args),
-                                                    slope2_t=post_slope_angle_t,
-                                                    r2_t=generate_helix.helix_r_t(helix_args),
-                                                    inflection_t=num_time_steps)
-
     inner_time_steps = post_time_steps - outer_time_steps
-    helix_args = argparse.Namespace(**vars(args))
-    helix_args.rotations = inner_rotation
-    if args.post_exit_clockwise:
-        helix_args.initial_rotation = 90 - 360.0 * outer_rotation
-    else:
-        helix_args.initial_rotation = 90 + 360.0 * outer_rotation
-    helix_args.helix_radius = tube_radius
-    helix_args.helix_sides = inner_time_steps / helix_args.rotations
-    helix_args.clockwise = args.post_exit_clockwise
 
-    x_t, y_t, slope_angle_t, r_t = append_functions(x1_t=x_t, y1_t=y_t, slope1_t=slope_angle_t, r1_t=r_t,
-                                                    x2_t=generate_helix.helix_x_t(helix_args),
-                                                    y2_t=generate_helix.helix_y_t(helix_args),
-                                                    slope2_t=post_slope_angle_t,
-                                                    r2_t=generate_helix.helix_r_t(helix_args),
-                                                    inflection_t=num_time_steps + outer_time_steps)
+    updated_functions = add_post_outer(args=args,
+                                       num_time_steps=num_time_steps,
+                                       outer_time_steps=outer_time_steps,
+                                       is_entrance=False,
+                                       inner_rotation=inner_rotation,
+                                       outer_rotation=outer_rotation,
+                                       x_t=x_t,
+                                       y_t=y_t,
+                                       slope_angle_t=slope_angle_t,
+                                       r_t=r_t)
+    num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
 
-    return (num_time_steps + post_time_steps), x_t, y_t, slope_angle_t, r_t
+    updated_functions = add_post_inner(args=args,
+                                       num_time_steps=num_time_steps,
+                                       inner_time_steps=inner_time_steps,
+                                       is_entrance=False,
+                                       inner_rotation=inner_rotation,
+                                       outer_rotation=outer_rotation,
+                                       x_t=x_t,
+                                       y_t=y_t,
+                                       slope_angle_t=slope_angle_t,
+                                       r_t=r_t)
+    return updated_functions
+
+def add_post_entrance(args, num_time_steps, post_time_steps,
+                      x_t, y_t, slope_angle_t, r_t):
+    """
+    Wraps the path around a post at the start of a piece.  One full revolution
+    """
+    inner_rotation, outer_rotation = post_rotation(args)
+
+    outer_time_steps = post_time_steps // 2
+    inner_time_steps = post_time_steps - outer_time_steps
+
+    updated_functions = add_post_inner(args=args,
+                                       num_time_steps=num_time_steps,
+                                       inner_time_steps=inner_time_steps,
+                                       is_entrance=True,
+                                       inner_rotation=inner_rotation,
+                                       outer_rotation=outer_rotation,
+                                       x_t=x_t,
+                                       y_t=y_t,
+                                       slope_angle_t=slope_angle_t,
+                                       r_t=r_t)
+    num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
+
+    updated_functions = add_post_outer(args=args,
+                                       num_time_steps=num_time_steps,
+                                       outer_time_steps=outer_time_steps,
+                                       is_entrance=True,
+                                       inner_rotation=inner_rotation,
+                                       outer_rotation=outer_rotation,
+                                       x_t=x_t,
+                                       y_t=y_t,
+                                       slope_angle_t=slope_angle_t,
+                                       r_t=r_t)
+    return updated_functions
 
 def add_post_args(parser, post_exit=True, post_entrance=True):
     parser.add_argument('--post_radius', default=15.5, type=float,
