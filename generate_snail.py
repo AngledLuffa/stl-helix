@@ -17,6 +17,20 @@ python generate_snail.py --slope_angle 2 --post_exit_clockwise --post_entrance_c
 
 Hole:
 python generate_snail.py --slope_angle 2 --post_exit_clockwise --post_entrance_counterclockwise --tube_end_angle 360 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
+
+Two branch spiral, same sides
+-----------------------------
+Doing this on a single level requires a very shallow angle.
+
+Problem with doing it on a steep angle over 2 levels is that the tube
+wraps around the lower post at a higher than the top of the lower post
+
+Tube:
+python generate_snail.py --slope_angle 1.7 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 240
+
+Hole:
+python generate_snail.py --slope_angle 1.7 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 360 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
+
 """
 
 def describe_curve(args):
