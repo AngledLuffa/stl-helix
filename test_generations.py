@@ -13,6 +13,7 @@ import generate_helix
 import generate_hypotrochoid
 import generate_limacon
 import generate_lissajous
+import generate_snail
 import generate_trig
 import generate_tube
 import generate_zigzag
@@ -121,6 +122,35 @@ TESTS = [Test(name='Tube Basic',
                     "--ramp_extension", "0.0",
                     "--slope_angle", "10"],
               gold_file='test_files/basic_ramp_hole.stl'),
+
+         Test(name='Snail Same Side',
+              model=generate_snail,
+              args=["--num_time_steps", "36",
+                    "--tube_sides", "8",
+                    "--slope_angle", "3",
+                    "--post_exit_clockwise",
+                    "--post_entrance_clockwise",
+                    "--tube_end_angle", "240",
+                    "--overlaps", "((13, 23))",
+                    "--overlap_separation", "37"],
+              gold_file='test_files/snail_same_side.stl'),
+
+         # note that this is testing the opposite side
+         Test(name='Snail Same Side Hole',
+              model=generate_snail,
+              args=["--num_time_steps", "36",
+                    "--tube_sides", "8",
+                    "--slope_angle", "3",
+                    "--post_exit_counterclockwise",
+                    "--post_entrance_counterclockwise",
+                    "--tube_end_angle", "360",
+                    "--overlaps", "((13, 23))",
+                    "--overlap_separation", "37",
+                    "--wall_thickness", "11",
+                    "--tube_radius", "10.5",
+                    "--post_effective_tube_radius", "12.5",
+                    "--post_effective_wall_thickness", "2"],
+              gold_file='test_files/snail_same_side_hole.stl'),
 
          Test(name='Limacon Basic',
               model=generate_limacon,
