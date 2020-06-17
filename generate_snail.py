@@ -13,11 +13,12 @@ Generates some of the shapes from the 'spirals' section of Curve Design and Gene
 
 Two branch spiral, opposite sides
 ---------------------------------
-Tube:
-python generate_snail.py --slope_angle 2 --post_exit_clockwise --post_entrance_counterclockwise --tube_end_angle "((180,180),(240,240))" --tube_start_angle "((120,-60),(180,0))"
 
-Hole:
-python generate_snail.py --slope_angle 2 --post_exit_clockwise --post_entrance_counterclockwise --tube_end_angle 360 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
+# Tube:
+python generate_snail.py --slope_angle 3 --post_exit_counterclockwise --post_entrance_clockwise --tube_end_angle "((110,240),(170,180))" --tube_start_angle "((190,0),(250,-60))" --overlaps "((130, 230))" --overlap_separation 37
+
+# Hole:
+python generate_snail.py --slope_angle 3 --post_exit_counterclockwise --post_entrance_clockwise --overlaps "((130, 230))" --overlap_separation 37 --tube_end_angle 360 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
 
 Two branch spiral, same sides
 -----------------------------
