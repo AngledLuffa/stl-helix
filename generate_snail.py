@@ -6,6 +6,7 @@ import build_shape
 import combine_functions
 import generate_tube
 import marble_path
+import slope_function
 
 """
 Generates some of the shapes from the 'spirals' section of Curve Design and Generation
@@ -25,11 +26,20 @@ Doing this on a single level requires a very shallow angle.
 Problem with doing it on a steep angle over 2 levels is that the tube
 wraps around the lower post at a higher than the top of the lower post
 
-Tube:
+# Tube:
 python generate_snail.py --slope_angle 1.7 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 240
 
-Hole:
+# Hole:
 python generate_snail.py --slope_angle 1.7 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 360 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
+
+
+# This version builds the piece on two levels, using the overlap functionality to make the drop between the posts
+
+# Tube:
+python generate_snail.py --slope_angle 3 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 240 --overlaps "((130, 230))" --overlap_separation 37
+
+# Hole:
+python generate_snail.py --slope_angle 3 --post_exit_clockwise --post_entrance_clockwise --tube_end_angle 360 --overlaps "((130, 230))" --overlap_separation 37 --wall_thickness 11 --tube_radius 10.5 --post_effective_tube_radius 12.5 --post_effective_wall_thickness 2
 
 """
 
@@ -99,6 +109,7 @@ def parse_args(sys_args=None):
 
     marble_path.add_tube_arguments(parser, default_slope_angle=2.5, default_output_name='snail.stl')
     combine_functions.add_post_args(parser)
+    slope_function.add_overlap_args(parser)
 
     parser.add_argument('--num_time_steps', default=360, type=int,
                         help='Number of time steps in the whole ramp')
