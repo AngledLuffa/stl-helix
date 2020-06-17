@@ -314,7 +314,7 @@ def tune_closest_approach(args):
     return scale
     
 def parse_args(sys_args=None):
-    parser = argparse.ArgumentParser(description='Arguments for an stl zigzag.')
+    parser = argparse.ArgumentParser(description='Arguments for an stl trochoid.')
 
     marble_path.add_tube_arguments(parser, default_slope_angle=12.0, default_output_name='hypo.stl')
     slope_function.add_overlap_args(parser)
