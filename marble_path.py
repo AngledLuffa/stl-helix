@@ -9,6 +9,8 @@ class Tube(Enum):
     OVAL = 2
     DEEP_ELLIPSE = 3
     DEEP_OVAL = 4
+    TRIANGLE_TOP = 5
+    
 
 def generate_quad(a, b, c, d):
     """
@@ -228,8 +230,45 @@ def oval_tube_coordinates(tube_method, tube_radius, wall_height, wall_thickness,
 
     y_disp, z_disp = slope_tube(vert_disp, slope_angle)
     return rotate_tube(x_disp, y_disp, z_disp, rotation)
-    
 
+def triangle_tube_coordinates(tube_radius, wall_thickness, roof_angle,
+                              num_tube_subdivisions, tube_subdivision,
+                              slope_angle, inside, rotation):
+    """
+    Calculates the x,y,z of a circle with a triangular roof
+
+    roof_angle: 0 for an actual circle, 90 would be completely open
+    """
+    if roof_angle >= 90:
+        raise ValueError("Cannot project a roof based on an angle more than 90 - the roof will never meet")
+    roof_angle = roof_angle * math.pi / 180
+
+    # TODO: use the arclength of the roof to spread things out
+    tube_angle = 2 * math.pi / num_tube_subdivisions * tube_subdivision
+
+    if inside:
+        tube_radius = tube_radius - wall_thickness
+
+    if tube_angle < roof_angle:
+        position = tube_angle / roof_angle
+        x_disp = math.sin(roof_angle) * position
+        vert_disp = math.cos(roof_angle) * position + 1.0 / math.cos(roof_angle) * (1.0 - position)
+    elif tube_angle > 2 * math.pi - roof_angle:
+        position = (2 * math.pi - tube_angle) / roof_angle
+        x_disp = -math.sin(roof_angle) * position
+        vert_disp = math.cos(roof_angle) * position + 1.0 / math.cos(roof_angle) * (1.0 - position)
+    else:        
+        x_disp = math.sin(tube_angle)
+        vert_disp = math.cos(tube_angle)
+
+    #print(tube_subdivision, tube_angle, x_disp, vert_disp)
+        
+    x_disp = tube_radius * x_disp
+    vert_disp = tube_radius * vert_disp
+    
+    y_disp, z_disp = slope_tube(vert_disp, slope_angle)
+    return rotate_tube(x_disp, y_disp, z_disp, rotation)
+    
 def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_thickness,
                              tube_start_angle, tube_end_angle,
                              num_tube_subdivisions, tube_subdivision,
@@ -237,7 +276,7 @@ def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_t
     """
     Calculate the x,y,z of an ellipse tube based on the tube parameters.
     Arguments have the same meaning as for generate_helix.
-    rotation means how much to rotate the tube.  
+    rotation means how much to rotate the tube.
       An unrotated tube will be along the x axis.
       For a helix, this probably represents where in the helix you are.
       For a zigzag, you will not want to rotate at all.
@@ -274,7 +313,7 @@ def ellipse_tube_coordinates(tube_method, tube_radius, tube_eccentricity, wall_t
     y_disp, z_disp = slope_tube(vert_disp, slope_angle)
     return rotate_tube(x_disp, y_disp, z_disp, rotation)
 
-            
+
 def coordinates(x_t, y_t, z_t, r_t,
                 tube_function, tube_subdivision, inside,
                 time_step):
@@ -371,12 +410,15 @@ def compose_triangles(x_t, y_t, z_t, r_t,
     #for i in range(0, num_time_steps+1):
     #    print("  %d %.4f %.4f" % (i, tube_start_t(i), tube_end_t(i)))
 
-    def full_tube_t(first_step, second_step):
-        if tube_end_t(first_step) < tube_start_t(first_step) + 360:
-            return False
-        if tube_end_t(second_step) < tube_start_t(second_step) + 360:
-            return False
-        return True
+    if tube_args.tube_method is Tube.TRIANGLE_TOP:
+        full_tube_t = lambda x, y: True
+    else:
+        def full_tube_t(first_step, second_step):
+            if tube_end_t(first_step) < tube_start_t(first_step) + 360:
+                return False
+            if tube_end_t(second_step) < tube_start_t(second_step) + 360:
+                return False
+            return True
         
     if tube_args.tube_method is Tube.ELLIPSE or tube_args.tube_method is Tube.DEEP_ELLIPSE:
         num_tube_subdivisions = max(math.ceil((tube_end_t(t) - tube_start_t(t)) * tube_args.tube_sides / 360)
@@ -417,6 +459,20 @@ def compose_triangles(x_t, y_t, z_t, r_t,
                                          slope_angle=slope_angle_t(time_step),
                                          inside=inside,
                                          rotation=rotation)
+    elif tube_args.tube_method is Tube.TRIANGLE_TOP:
+        num_tube_subdivisions = tube_args.tube_sides
+        def tube_function(tube_subdivision, inside, rotation, time_step):
+            """
+            Create an oval instead.
+            """
+            return triangle_tube_coordinates(tube_radius=tube_args.tube_radius,
+                                             wall_thickness=wall_thickness,
+                                             roof_angle=tube_args.tube_roof_angle,
+                                             num_tube_subdivisions=tube_args.tube_sides,
+                                             tube_subdivision=tube_subdivision,
+                                             slope_angle=slope_angle_t(time_step),
+                                             inside=inside,
+                                             rotation=rotation)
 
     # not thread safe, although that isn't a limitation
     vertex_list = []
@@ -535,8 +591,11 @@ def add_tube_arguments(parser,
     parser.add_argument('--tube_wall_height', default=0.0, type=float,
                         help='If creating an oval tube, how high to make the walls')
 
+    parser.add_argument('--tube_roof_angle', default=45, type=float,
+                        help='if using triangle_top, what angle to make the top')
+
     parser.add_argument('--tube_method', default=Tube.ELLIPSE, type=lambda x: Tube[x.upper()],
-                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls.  DEEP_OVAL and DEEP_ELLIPSE means the same, but with a deeper curve than a semicircle')
+                        help='How to generate the tube.  ELLIPSE means a circle, or an ellipse if tube_eccentricity is set.  OVAL means 0..180 half circle with vertical walls.  DEEP_OVAL and DEEP_ELLIPSE means the same, but with a deeper curve than a semicircle.  TRIANGLE_TOP means put a roof on top of a circle.')
 
     parser.add_argument('--slope_angle', default=default_slope_angle, type=float,
                         help='Angle to tilt the curve')
