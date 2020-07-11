@@ -95,8 +95,19 @@ python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --
 
 rotation on the out post: roughly 62 degrees
 
-TODO: update to this
-python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method TRIANGLE_TOP --tube_start_angle -60 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 27 --tube_roof_angle 30
+Here is a redo with a triangular roof in the center holes.  This hopefully means no supports are needed.
+
+ramp:
+x,y,z: 0, 0, 16
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method ELLIPSE --tube_start_angle -60 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 27
+
+tunnels through the pole:
+x,y,z: 0, 0, 18.827
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  1.885 --end_t 29.531 --num_time_steps 220 --tube_method TRIANGLE_TOP --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 27 --tube_roof_angle 30
+
+holes for the crossings, etc:
+x,y,z: 2, 2, 18
+python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method TRIANGLE_TOP --tube_radius 10.5 --wall_thickness 11 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 27 --tube_roof_angle 30
 
 TODO: Five Pointed Star
 -----------------
