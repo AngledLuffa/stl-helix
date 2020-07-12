@@ -109,12 +109,6 @@ holes for the crossings, etc:
 x,y,z: 2, 2, 18
 python generate_hypotrochoid.py --hypoA 3 --hypoB 5 --hypoC 2 --slope_angle 4 --scale 15 --start_t  0 --tube_method TRIANGLE_TOP --tube_radius 10.5 --wall_thickness 11 --overlaps "((8.2279,12.7160),(18.6995,23.188))" --overlap_separation 27 --tube_roof_angle 30
 
-TODO: Five Pointed Star
------------------
-
-python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 7 --tube_method deep_oval --tube_wall_height 6 --slope_angle 5 --start_t 1.885 --closest_approach 26
-
-
 
 5 lobed flower:
 --------------
@@ -227,7 +221,7 @@ def build_reg_f_t(args):
 
     reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args)
     reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args)
-    
+
     return reg_x_t, reg_y_t
 
 def build_f_t(args):
