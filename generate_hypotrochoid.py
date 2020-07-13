@@ -81,6 +81,8 @@ TODO: Five lobed outside flower
 
 python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.3 --overlap_separation 23 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.2566 --num_time_steps 400
 
+python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.25 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.2566 --num_time_steps 400
+
 Three leaf inside out flower
 ----------------------------
 This is the original version, but it has a very tight corner where it
@@ -241,6 +243,70 @@ def build_f_t(args):
     return scale_x_t, scale_y_t
 
 
+def rebalance_time(time_t, x_t, y_t, num_time_steps):
+    lengths = [((x_t(i) - x_t(i+1)) ** 2 +
+                (y_t(i) - y_t(i+1)) ** 2) ** 0.5
+               for i in range(num_time_steps)]
+    total_length = sum(lengths)
+    length_per_tick = total_length / num_time_steps
+
+    tick_mapping = []
+    
+    current_segment = 0
+    leftover_segment = 0.0
+    for i in range(num_time_steps):
+        tick_mapping.append(current_segment + leftover_segment)
+        length_needed = length_per_tick
+        if leftover_segment > 0.0:
+            if lengths[current_segment] * (1.0 - leftover_segment) > length_per_tick:
+                leftover_segment = leftover_segment + length_per_tick / lengths[current_segment]
+                continue
+            length_needed = length_needed - lengths[current_segment] * (1.0 - leftover_segment)
+            current_segment = current_segment + 1
+            leftover_segment = 0.0
+        # try to avoid precision errors
+        while length_needed > lengths[current_segment] and current_segment < num_time_steps:
+            length_needed = length_needed - lengths[current_segment]
+            current_segment = current_segment + 1
+        if current_segment < num_time_steps and length_needed > 0.0:
+            leftover_segment = length_needed / lengths[current_segment]
+    tick_mapping.append(current_segment + leftover_segment)
+
+    def remap_tick(t):
+        if t < -1 or t > num_time_steps + 1:
+            raise ValueError("Unable to estimate time {}".format(t))
+        if t < 0:
+            return (tick_mapping[1] - tick_mapping[0]) * t
+        if t > num_time_steps:
+            return (tick_mapping[num_time_steps] - tick_mapping[num_time_steps - 1]) * (t - num_time_steps)
+        segment = math.floor(t)
+        remainder = t - segment
+        if remainder == 0:
+            return tick_mapping[segment]
+        else:
+            return tick_mapping[segment] + (tick_mapping[segment+1] - tick_mapping[segment]) * remainder
+
+    def new_time_t(t):
+        return time_t(remap_tick(t))
+        
+    def new_x_t(t):
+        return x_t(remap_tick(t))
+
+    def new_y_t(t):
+        return y_t(remap_tick(t))
+
+    #print("Time remapping")
+    #for i in range(num_time_steps+1):
+    #    print(i, tick_mapping[i], new_time_t(i))
+    #print("Original functions")
+    #for i in range(num_time_steps+1):
+    #    print(time_t(i), x_t(i), y_t(i))
+    #print("New functions")
+    #for i in range(num_time_steps+1):
+    #    print(new_time_t(i), new_x_t(i), new_y_t(i))
+
+    return new_time_t, new_x_t, new_y_t
+
 def describe_curve(args):
     A = args.hypoA
     B = args.hypoB
@@ -259,17 +325,22 @@ def generate_hypotrochoid(args):
     describe_curve(args)
     x_t, y_t = build_f_t(args)
 
+    num_time_steps = args.num_time_steps
+    time_t = build_time_t(args)
+    if args.rebalance_time:
+        time_t, x_t, y_t = rebalance_time(time_t, x_t, y_t, num_time_steps)
+
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,
-                                                  time_t=build_time_t(args),
+                                                  time_t=time_t,
                                                   slope_angle=args.slope_angle,
-                                                  num_time_steps=args.num_time_steps,
+                                                  num_time_steps=num_time_steps,
                                                   overlap_args=args,
                                                   kink_args=None)
 
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
-
-    num_time_steps = args.num_time_steps
+    #for i in range(num_time_steps):
+    #    print('x, y, r: %.4f %.4f %.4f' % (x_t(i), y_t(i), r_t(i)))
 
     if args.zero_circle:
         updated_functions = combine_functions.add_both_zero_circles(args=args,
@@ -357,6 +428,13 @@ def parse_args(sys_args=None):
 
     parser.add_argument('--closest_approach', default=None, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  Will override scale.  26 for a 31mm connector connecting exactly to the tube')
+
+    parser.add_argument('--rebalance_time', dest='rebalance_time',
+                        default=False, action='store_true',
+                        help='Rebalance time_t so that ticks have roughly the same arclength')
+    parser.add_argument('--no_rebalance_time', dest='rebalance_time',
+                        action='store_false',
+                        help="Don't rebalance time_t so that ticks have roughly the same arclength")
 
     parser.add_argument('--trochoid', default=Trochoid.HYPOTROCHOID, type=lambda x: Trochoid[x.upper()],
                         help='What formula to use.  Options are hypotrochoid and epitrochoid.')
