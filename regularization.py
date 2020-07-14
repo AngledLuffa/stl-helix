@@ -5,6 +5,15 @@ def add_regularization_args(parser):
                         help='A lot of interesting shapes get long lobes.  This can help smooth them out - y direction only')
     parser.add_argument('--regularization_radius', default=1.0, type=float,
                         help='Minimum distance from the origin to start applying regularization')
+
+def radial_reg(x, y, regularization, regularization_radius):
+    length = (x ** 2 + y ** 2) ** 0.5
+    if length < regularization_radius:
+        length = 0
+    else:
+        length = length - regularization_radius
+    reg = 1 / (regularization * length + 1)
+    return reg
     
 def radial_reg_x_t(x_t, y_t, reg_args):
     regularization = reg_args.regularization
@@ -13,12 +22,7 @@ def radial_reg_x_t(x_t, y_t, reg_args):
         x = x_t(time_step)
         y = y_t(time_step)
 
-        length = (x ** 2 + y ** 2) ** 0.5
-        if length < regularization_radius:
-            length = 0
-        else:
-            length = length - regularization_radius
-        reg = 1 / (regularization * length + 1)
+        reg = radial_reg(x, y, regularization, regularization_radius)
         return x * reg
     return reg_x_t
 
@@ -29,12 +33,7 @@ def radial_reg_y_t(x_t, y_t, reg_args):
         x = x_t(time_step)
         y = y_t(time_step)
 
-        length = (x ** 2 + y ** 2) ** 0.5
-        if length < regularization_radius:
-            length = 0
-        else:
-            length = length - regularization_radius
-        reg = 1 / (regularization * length + 1)
+        reg = radial_reg(x, y, regularization, regularization_radius)
         return y * reg
 
     return reg_y_t
