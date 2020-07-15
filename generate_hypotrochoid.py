@@ -79,9 +79,8 @@ python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 -
 TODO: Five lobed outside flower
 -------------------------
 
-python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.3 --overlap_separation 23 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.2566 --num_time_steps 400
-
-python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.25 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.2566 --num_time_steps 400
+# the reg radius is needed to avoid a possible bend in the path
+python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.26 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3566 --end_t 13.7230 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle 
 
 Three leaf inside out flower
 ----------------------------
@@ -264,8 +263,9 @@ def rebalance_time(time_t, x_t, y_t, num_time_steps):
             length_needed = length_needed - lengths[current_segment] * (1.0 - leftover_segment)
             current_segment = current_segment + 1
             leftover_segment = 0.0
-        # try to avoid precision errors
-        while length_needed > lengths[current_segment] and current_segment < num_time_steps:
+        # try to avoid precision errors - this can go wrong when there is
+        # 0.0001 length needed on the last segment, for example
+        while current_segment < num_time_steps and length_needed > lengths[current_segment]:
             length_needed = length_needed - lengths[current_segment]
             current_segment = current_segment + 1
         if current_segment < num_time_steps and length_needed > 0.0:
