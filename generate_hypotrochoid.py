@@ -278,7 +278,7 @@ def rebalance_time(time_t, x_t, y_t, num_time_steps):
         if t < 0:
             return (tick_mapping[1] - tick_mapping[0]) * t
         if t > num_time_steps:
-            return (tick_mapping[num_time_steps] - tick_mapping[num_time_steps - 1]) * (t - num_time_steps)
+            return tick_mapping[num_time_steps] + (tick_mapping[num_time_steps] - tick_mapping[num_time_steps - 1]) * (t - num_time_steps)
         segment = math.floor(t)
         remainder = t - segment
         if remainder == 0:
