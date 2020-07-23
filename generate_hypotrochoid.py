@@ -76,11 +76,17 @@ rotate post 55 degrees
 
 python generate_hypotrochoid.py --hypoA 12 --hypoB 3 --hypoC 6 --slope_angle 3 --tube_method ELLIPSE --tube_radius 10.5 --wall_thickness 11 --closest_approach 26 --regularization 0.05 --overlap_separation 23 --overlaps "((0.9117, 2.2299),(2.4825, 3.8007),(4.0533, 5.3715),(5.6241, 6.9423))" --zero_circle --start_t 0.8854 --end_t 6.9886 --tube_start_angle 0 --tube_end_angle 360
 
-TODO: Five lobed outside flower
+Five lobed outside flower
 -------------------------
 
-# the reg radius is needed to avoid a possible bend in the path
-python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3.5 --closest_approach 26 --regularization 0.26 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3566 --end_t 13.7230 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle 
+ the reg radius is needed to avoid a possible bend in the path
+python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3 --closest_approach 26 --regularization 0.27 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3066 --end_t 13.7730 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle 
+
+needs the 200 long post
+91.813, 106.097
+
+ hole for the on/off:
+python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_wall_height 6 --slope_angle 3 --closest_approach 26 --regularization 0.27 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3066 --end_t 13.7730 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle  --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360
 
 Three leaf inside out flower
 ----------------------------
