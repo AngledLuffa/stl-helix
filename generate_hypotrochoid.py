@@ -86,7 +86,7 @@ needs the 200 long post
 91.813, 106.097
 
  hole for the on/off:
-python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_wall_height 6 --slope_angle 3 --closest_approach 26 --regularization 0.27 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3066 --end_t 13.7730 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle  --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360
+python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --slope_angle 3 --closest_approach 26 --regularization 0.27 --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3066 --end_t 13.7730 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle  --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360
 
 Three leaf inside out flower
 ----------------------------
