@@ -182,12 +182,12 @@ def build_x_y_t(args):
                                      args.start_t, args.end_t,
                                      extension_args=args)
 
-    reg_x_t = regularization.radial_reg_x_t(x_t, y_t, args)
+    reg_x_t, reg_y_t = regularization.regularize(x_t, y_t, args)
+
     x_scale = args.x_scale
     def scale_x_t(t):
         return reg_x_t(t) * x_scale
-    
-    reg_y_t = regularization.radial_reg_y_t(x_t, y_t, args)
+
     y_scale = args.y_scale
     def scale_y_t(t):
         return reg_y_t(t) * y_scale

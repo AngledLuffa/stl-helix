@@ -1,4 +1,13 @@
+from enum import Enum
+
+class Regularization(Enum):
+    INVERSE_QUADRATIC = 1
+
+
 def add_regularization_args(parser):
+    parser.add_argument('--regularization_method', default=Regularization.INVERSE_QUADRATIC,
+                        type=lambda x: Regularization[x.upper()],
+                        help='How to regularize.  Options are {}'.format(i.name for i in Regularization))
     parser.add_argument('--regularization', default=0.0, type=float,
                         help='A lot of interesting shapes get long lobes.  This can help smooth them out')
     parser.add_argument('--y_regularization', default=0.0, type=float,
@@ -37,3 +46,10 @@ def radial_reg_y_t(x_t, y_t, reg_args):
         return y * reg
 
     return reg_y_t
+
+def regularize(x_t, y_t, reg_args):
+    if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
+        reg_x_t = radial_reg_x_t(x_t, y_t, reg_args)
+        reg_y_t = radial_reg_y_t(x_t, y_t, reg_args)
+        return reg_x_t, reg_y_t
+    raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
