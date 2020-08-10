@@ -1,13 +1,18 @@
+import math
+
 from enum import Enum
 
 class Regularization(Enum):
     INVERSE_QUADRATIC = 1
+    CAPPED_LINEAR = 2
 
 
 def add_regularization_args(parser):
     parser.add_argument('--regularization_method', default=Regularization.INVERSE_QUADRATIC,
                         type=lambda x: Regularization[x.upper()],
                         help='How to regularize.  Options are {}'.format(i.name for i in Regularization))
+    parser.add_argument('--regularization_linear_cap', default=10.0, type=float,
+                        help='Limit for the capped linear regularization method')
     parser.add_argument('--regularization', default=0.0, type=float,
                         help='A lot of interesting shapes get long lobes.  This can help smooth them out')
     parser.add_argument('--y_regularization', default=0.0, type=float,
@@ -47,9 +52,43 @@ def radial_reg_y_t(x_t, y_t, reg_args):
 
     return reg_y_t
 
+def capped_linear_factor(cap):
+    cap_begin = cap * math.sqrt(2)
+    linear_end = cap_begin / 2
+    def factor(length):
+        if length >= cap_begin:
+            return cap / length
+        elif length <= linear_end:
+            return 1.0
+        else:
+            remainder = cap_begin - length
+            return math.sqrt(cap * cap - remainder * remainder) / length
+    return factor
+
+def capped_linear_x_t(x_t, y_t, reg_args):
+    factor = capped_linear_factor(reg_args.regularization_linear_cap)
+    def reg_x_t(time_step):
+        x = x_t(time_step)
+        y = y_t(time_step)
+        length = math.sqrt(x * x + y * y)
+        return x * factor(length)
+
+def capped_linear_y_t(x_t, y_t, reg_args):
+    factor = capped_linear_factor(reg_args.regularization_linear_cap)
+    def reg_x_t(time_step):
+        x = x_t(time_step)
+        y = y_t(time_step)
+        length = math.sqrt(x * x + y * y)
+        return y * factor(length)
+
 def regularize(x_t, y_t, reg_args):
     if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
         reg_x_t = radial_reg_x_t(x_t, y_t, reg_args)
         reg_y_t = radial_reg_y_t(x_t, y_t, reg_args)
-        return reg_x_t, reg_y_t
-    raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
+    elif reg_args.regularization_method is Regularization.CAPPED_LINEAR:
+        reg_x_t = capped_linear_x_t(x_t, y_t, reg_args)
+        reg_y_t = capped_linear_y_t(x_t, y_t, reg_args)
+    else:
+        raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
+
+    return reg_x_t, reg_y_t
