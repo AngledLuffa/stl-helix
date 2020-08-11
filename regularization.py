@@ -72,14 +72,16 @@ def capped_linear_x_t(x_t, y_t, reg_args):
         y = y_t(time_step)
         length = math.sqrt(x * x + y * y)
         return x * factor(length)
+    return reg_x_t
 
 def capped_linear_y_t(x_t, y_t, reg_args):
     factor = capped_linear_factor(reg_args.regularization_linear_cap)
-    def reg_x_t(time_step):
+    def reg_y_t(time_step):
         x = x_t(time_step)
         y = y_t(time_step)
         length = math.sqrt(x * x + y * y)
         return y * factor(length)
+    return reg_y_t
 
 def regularize(x_t, y_t, reg_args):
     if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
