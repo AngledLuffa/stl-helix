@@ -3,7 +3,12 @@ import math
 from enum import Enum
 
 class Regularization(Enum):
+    # Inverse Quadratic is 1 / (reg * length + 1)
     INVERSE_QUADRATIC = 1
+    # The curve this represents starts out as a line with slope 1,
+    # transitions to a circle, then flattens out at the cap value
+    # The second derivative might be a problem here, as the models
+    # this produces have noticeable kinks.
     CAPPED_LINEAR = 2
 
 
