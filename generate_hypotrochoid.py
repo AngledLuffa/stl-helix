@@ -344,8 +344,8 @@ def generate_hypotrochoid(args):
                                                   kink_args=None)
 
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
-    #for i in range(num_time_steps):
-    #    print('x, y, r: %.4f %.4f %.4f' % (x_t(i), y_t(i), r_t(i)))
+    #for i in range(num_time_steps+1):
+    #    print('i, x, y, r: %d %.4f %.4f %.4f' % (i, x_t(i), y_t(i), r_t(i)))
 
     if args.zero_circle:
         updated_functions = combine_functions.add_both_zero_circles(args=args,
