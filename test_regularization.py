@@ -2,11 +2,28 @@ import logging
 import math
 import unittest
 
+from argparse import Namespace
+
 import regularization
+
 log = logging.getLogger("unittest")
 
 class TestRegularization(unittest.TestCase):
-    def test_generations(self):
+    def test_hyperbolic_factor(self):
+        reg_args = Namespace(regularization_x_trans=1.0,
+                             regularization_y_trans=2.0,
+                             regularization_slope=0.5)
+        self.assertEqual("Hyperbolic regularization: y = 0.5 (0.5 (x - 1.0) + (4.0 + 0.25 (x - 1.0)^{2})^{0.5}) + 2.0",
+                          regularization.hyperbolic_function_string(reg_args))
+        factor = regularization.hyperbolic_factor(reg_args)
+        self.assertAlmostEqual(3.0, factor(1.0))
+        self.assertAlmostEqual(1.6403882, factor(2.0))
+        self.assertAlmostEqual(0.88284271, factor(5.0))
+        self.assertAlmostEqual(0, factor(-1000000000))
+        self.assertAlmostEqual(0.5, factor(1000000000))
+        
+
+    def test_capped_linear_factor(self):
         factor = regularization.capped_linear_factor(10.0)
 
         # on the linear part
