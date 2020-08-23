@@ -41,37 +41,15 @@ def add_regularization_args(parser):
     parser.add_argument('--regularization_slope', default=1.0, type=float,
                         help='Slope for the hyperbolic regularization')
 
-def radial_reg(x, y, regularization, regularization_radius):
-    length = (x ** 2 + y ** 2) ** 0.5
-    if length < regularization_radius:
-        length = 0
-    else:
-        length = length - regularization_radius
-    reg = 1 / (regularization * length + 1)
-    return reg
-    
-def radial_reg_x_t(x_t, y_t, reg_args):
-    regularization = reg_args.regularization
-    regularization_radius = reg_args.regularization_radius
-    def reg_x_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-
-        reg = radial_reg(x, y, regularization, regularization_radius)
-        return x * reg
-    return reg_x_t
-
-def radial_reg_y_t(x_t, y_t, reg_args):
-    regularization = reg_args.regularization + reg_args.y_regularization
-    regularization_radius = reg_args.regularization_radius
-    def reg_y_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-
-        reg = radial_reg(x, y, regularization, regularization_radius)
-        return y * reg
-
-    return reg_y_t
+def radial_reg_factor(regularization, regularization_radius):
+    def factor(length):
+        if length < regularization_radius:
+            length = 0
+        else:
+            length = length - regularization_radius
+        reg = 1 / (regularization * length + 1)
+        return reg
+    return factor
 
 def capped_linear_factor(reg_args):
     cap = reg_args.regularization_linear_cap
@@ -140,8 +118,11 @@ def regularized_function(f1_t, f2_t, factor):
 
 def regularize(x_t, y_t, reg_args):
     if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
-        reg_x_t = radial_reg_x_t(x_t, y_t, reg_args)
-        reg_y_t = radial_reg_y_t(x_t, y_t, reg_args)
+        regularization_radius = reg_args.regularization_radius
+        regularization = reg_args.regularization
+        reg_x_t = regularized_function(x_t, y_t, radial_reg_factor(regularization, regularization_radius))
+        regularization = reg_args.regularization + reg_args.y_regularization
+        reg_y_t = regularized_function(y_t, x_t, radial_reg_factor(regularization, regularization_radius))
     elif reg_args.regularization_method is Regularization.CAPPED_LINEAR:
         factor = capped_linear_factor(reg_args)
         reg_x_t = regularized_function(x_t, y_t, factor)
