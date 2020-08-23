@@ -70,7 +70,7 @@ class TestRegularization(unittest.TestCase):
         
 
     def test_capped_linear_factor(self):
-        factor = regularization.capped_linear_factor(10.0)
+        factor = regularization.capped_linear_factor(Namespace(regularization_linear_cap=10.0))
 
         # on the linear part
         self.assertAlmostEqual(factor(1), 1.0)

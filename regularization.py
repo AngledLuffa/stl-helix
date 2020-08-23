@@ -73,7 +73,8 @@ def radial_reg_y_t(x_t, y_t, reg_args):
 
     return reg_y_t
 
-def capped_linear_factor(cap):
+def capped_linear_factor(reg_args):
+    cap = reg_args.regularization_linear_cap
     cap_begin = cap * math.sqrt(2)
     linear_end = cap_begin / 2
     def factor(length):
@@ -85,24 +86,6 @@ def capped_linear_factor(cap):
             remainder = cap_begin - length
             return math.sqrt(cap * cap - remainder * remainder) / length
     return factor
-
-def capped_linear_x_t(x_t, y_t, reg_args):
-    factor = capped_linear_factor(reg_args.regularization_linear_cap)
-    def reg_x_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-        length = math.sqrt(x * x + y * y)
-        return x * factor(length)
-    return reg_x_t
-
-def capped_linear_y_t(x_t, y_t, reg_args):
-    factor = capped_linear_factor(reg_args.regularization_linear_cap)
-    def reg_y_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-        length = math.sqrt(x * x + y * y)
-        return y * factor(length)
-    return reg_y_t
 
 def hyperbolic_function_string(reg_args):
     x_trans = reg_args.regularization_x_trans
@@ -147,36 +130,27 @@ def hyperbolic_factor(reg_args):
 
     return factor
 
-# TODO: use a closure
-def hyperbolic_x_t(x_t, y_t, reg_args):
-    factor = hyperbolic_factor(reg_args)
-    def reg_x_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
+def regularized_function(f1_t, f2_t, factor):
+    def reg_f_t(time_step):
+        x = f1_t(time_step)
+        y = f2_t(time_step)
         length = math.sqrt(x * x + y * y)
         return x * factor(length)
-    return reg_x_t
-
-def hyperbolic_y_t(x_t, y_t, reg_args):
-    factor = hyperbolic_factor(reg_args)
-    def reg_y_t(time_step):
-        x = x_t(time_step)
-        y = y_t(time_step)
-        length = math.sqrt(x * x + y * y)
-        return y * factor(length)
-    return reg_y_t
+    return reg_f_t
 
 def regularize(x_t, y_t, reg_args):
     if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
         reg_x_t = radial_reg_x_t(x_t, y_t, reg_args)
         reg_y_t = radial_reg_y_t(x_t, y_t, reg_args)
     elif reg_args.regularization_method is Regularization.CAPPED_LINEAR:
-        reg_x_t = capped_linear_x_t(x_t, y_t, reg_args)
-        reg_y_t = capped_linear_y_t(x_t, y_t, reg_args)
+        factor = capped_linear_factor(reg_args)
+        reg_x_t = regularized_function(x_t, y_t, factor)
+        reg_y_t = regularized_function(y_t, x_t, factor)
     elif reg_args.regularization_method is Regularization.HYPERBOLIC:
         print(hyperbolic_function_string(reg_args))
-        reg_x_t = hyperbolic_x_t(x_t, y_t, reg_args)
-        reg_y_t = hyperbolic_y_t(x_t, y_t, reg_args)
+        factor = hyperbolic_factor(reg_args)
+        reg_x_t = regularized_function(x_t, y_t, factor)
+        reg_y_t = regularized_function(y_t, x_t, factor)
     else:
         raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
 
