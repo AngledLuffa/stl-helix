@@ -9,6 +9,26 @@ import regularization
 log = logging.getLogger("unittest")
 
 class TestRegularization(unittest.TestCase):
+    def test_hyperbolic_function(self):
+        reg_args = Namespace(regularization_x_trans=-1.0,
+                             regularization_y_trans=-2.0,
+                             regularization_slope=2,
+                             regularization_method=regularization.Regularization.HYPERBOLIC)
+        self.assertEqual("Hyperbolic regularization: y = 2 (0.5 (x + 1.0) + (0.25 + 0.25 (x + 1.0)^{2})^{0.5}) - 2.0",
+                         regularization.hyperbolic_function_string(reg_args))
+
+        x_t = lambda t: t
+        y_t = lambda t: 0
+        reg_x_t, reg_y_t = regularization.regularize(x_t, y_t, reg_args)
+        self.assertAlmostEqual(2.236067977, reg_x_t(1))
+        self.assertAlmostEqual(0, reg_y_t(1))
+
+        x_t = lambda t: t * 3 / 5
+        y_t = lambda t: t * 4 / 5
+        reg_x_t, reg_y_t = regularization.regularize(x_t, y_t, reg_args)
+        self.assertAlmostEqual(2.236067977 * 3 / 5, reg_x_t(1))
+        self.assertAlmostEqual(2.236067977 * 4 / 5, reg_y_t(1))
+
     def test_hyperbolic_factor(self):
         reg_args = Namespace(regularization_x_trans=1.0,
                              regularization_y_trans=2.0,
