@@ -239,6 +239,7 @@ def build_reg_f_t(args):
     else:
         raise ValueError("Unhandled trochoid type: " + args.trochoid)
 
+    regularization.describe_regularization(args)
     reg_x_t, reg_y_t = regularization.regularize(x_t, y_t, args)
 
     return reg_x_t, reg_y_t

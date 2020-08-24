@@ -172,6 +172,20 @@ def regularized_function(f1_t, f2_t, factor):
         return x * factor(length)
     return reg_f_t
 
+def describe_regularization(reg_args):
+    if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
+        print("Inverse quadratic regularization")
+    elif reg_args.regularization_method is Regularization.CAPPED_LINEAR:
+        print("Capped linear regularization")
+    elif reg_args.regularization_method is Regularization.HYPERBOLIC:
+        print(hyperbolic_function_string(reg_args))
+    elif reg_args.regularization_method is Regularization.LOGISTIC:
+        print(logistic_function_string(reg_args))
+    elif reg_args.regularization_method is None:
+        print("Regularization not used")
+    else:
+        raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
+
 def regularize(x_t, y_t, reg_args):
     if reg_args.regularization_method is Regularization.INVERSE_QUADRATIC:
         regularization_radius = reg_args.regularization_radius
@@ -184,15 +198,16 @@ def regularize(x_t, y_t, reg_args):
         reg_x_t = regularized_function(x_t, y_t, factor)
         reg_y_t = regularized_function(y_t, x_t, factor)
     elif reg_args.regularization_method is Regularization.HYPERBOLIC:
-        print(hyperbolic_function_string(reg_args))
         factor = hyperbolic_factor(reg_args)
         reg_x_t = regularized_function(x_t, y_t, factor)
         reg_y_t = regularized_function(y_t, x_t, factor)
     elif reg_args.regularization_method is Regularization.LOGISTIC:
-        print(logistic_function_string(reg_args))
         factor = logistic_factor(reg_args)
         reg_x_t = regularized_function(x_t, y_t, factor)
         reg_y_t = regularized_function(y_t, x_t, factor)
+    elif reg_args.regularization_method is None:
+        reg_x_t = x_t
+        reg_y_t = y_t
     else:
         raise ValueError("Regularization method {} not implemented".reg_args.regularization_method)
 
