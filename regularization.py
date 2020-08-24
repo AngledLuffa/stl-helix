@@ -20,6 +20,7 @@ class Regularization(Enum):
     #   y = 0.5x + sqrt(1 + 0.25x^2)
     # This can be translated or stretched as needed.
     HYPERBOLIC = 3
+    LOGISTIC = 4
 
 
 def add_regularization_args(parser):
@@ -38,6 +39,10 @@ def add_regularization_args(parser):
                         help='Amount to translate the hyperbolic regularization on the x axis')
     parser.add_argument('--regularization_y_trans', default=0.0, type=float,
                         help='Amount to translate the hyperbolic regularization on the y axis')
+    parser.add_argument('--regularization_x_scale', default=1.0, type=float,
+                        help='Amount to scale the hyperbolic regularization on the x axis')
+    parser.add_argument('--regularization_y_scale', default=1.0, type=float,
+                        help='Amount to scale the hyperbolic regularization on the y axis')
     parser.add_argument('--regularization_slope', default=1.0, type=float,
                         help='Slope for the hyperbolic regularization')
 
@@ -108,6 +113,57 @@ def hyperbolic_factor(reg_args):
 
     return factor
 
+def logistic_function_string(reg_args):
+    x_trans = reg_args.regularization_x_trans
+    y_trans = reg_args.regularization_y_trans
+    x_scale = reg_args.regularization_x_scale
+    y_scale = reg_args.regularization_y_scale
+
+    if x_scale == 0:
+        x_str = ""
+    elif x_scale == 1:
+        x_str = "-x"
+    elif x_scale > 0:
+        x_str = "-{}x".format(x_scale)
+    elif x_scale == -1:
+        x_str = "x"
+    else:
+        x_str = "{}x".format(-x_scale)
+
+    if x_trans > 0:
+        x_str = "{} + {}".format(x_str, x_trans)
+    elif x_trans < 0:
+        x_str = "{} - {}".format(x_str, -x_trans)
+
+    if y_trans == 0:
+        y_trans_str = ""
+    elif y_trans > 0:
+        y_trans_str = "+ {}".format(y_trans)
+    else:
+        y_trans_str = "- {}".format(-y_trans)
+
+    if y_scale == 1:
+        y_scale_str = ""
+    else:
+        y_scale_str = "{} ".format(y_scale)
+
+    return ("Logistic regularization: y = %s(1 / (1 + e^{%s}))%s" %
+            (y_scale_str, x_str, y_trans_str))
+
+def logistic_factor(reg_args):
+    x_trans = reg_args.regularization_x_trans
+    y_trans = reg_args.regularization_y_trans
+    x_scale = reg_args.regularization_x_scale
+    y_scale = reg_args.regularization_y_scale
+
+    def factor(length):
+        x = x_scale * length - x_trans
+        y = 1 / (1 + math.exp(-x))
+        y = y_scale * y + y_trans
+        return y / length
+
+    return factor
+
 def regularized_function(f1_t, f2_t, factor):
     def reg_f_t(time_step):
         x = f1_t(time_step)
@@ -130,6 +186,11 @@ def regularize(x_t, y_t, reg_args):
     elif reg_args.regularization_method is Regularization.HYPERBOLIC:
         print(hyperbolic_function_string(reg_args))
         factor = hyperbolic_factor(reg_args)
+        reg_x_t = regularized_function(x_t, y_t, factor)
+        reg_y_t = regularized_function(y_t, x_t, factor)
+    elif reg_args.regularization_method is Regularization.LOGISTIC:
+        print(logistic_function_string(reg_args))
+        factor = logistic_factor(reg_args)
         reg_x_t = regularized_function(x_t, y_t, factor)
         reg_y_t = regularized_function(y_t, x_t, factor)
     else:
