@@ -92,9 +92,11 @@ python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --slope_angle 3
 Five lobed outside flower v2 TODO
 ---------------------------------
 
-perhaps try LOGISTIC instead?
+start time: 6 pi / 10, end time 6 pi / 10 + 6pi
+but the both times are adjusted by .3 to leave room for the start/end circles
 
-python generate_hypotrochoid.py --hypoA 15 --hypoB 6 --hypoC 8.2 --tube_method oval --tube_wall_height 6 --slope_angle 3 --closest_approach 26 --regularization_method HYPERBOLIC --overlap_separation 25 --overlaps "((1.382,3.644),(3.895,6.157),(6.409,8.671),(8.922,11.184),(11.435,13.697))" --start_t 1.3066 --end_t 13.7730 --num_time_steps 400 --regularization_radius 0.3 --rebalance_time --zero_circle 
+python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 5 --tube_method oval --tube_wall_height 6 --slope_angle 3 --closest_approach 26 --start_t 2.185 --end_t 20.4345 --num_time_steps 400 --rebalance_time --zero_circle --regularization_method LOGISTIC --regularization_x_trans 2.5 --regularization_y_trans -1.0 --regularization_x_scale 0.7 --regularization_y_scale 4 --zero_circle
+
 
 Three leaf inside out flower
 ----------------------------
@@ -327,8 +329,10 @@ def describe_curve(args):
     C = args.hypoC
 
     if args.trochoid == Trochoid.HYPOTROCHOID:
-        print("Generating Hypotrochoid: x(t) = %d cos(t) + %.4f cos((%d / %d) t)" % (A - B, C, A-B, B))
-        print("                         y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A - B, C, A-B, B))
+        AmB = A - B
+        print("Generating Hypotrochoid: x(t) = {} cos(t) + {} cos(({} / {}) t)".format(AmB, C, AmB, B))
+        print("                         y(t) = {} sin(t) - {} sin(({} / {}) t)".format(AmB, C, AmB, B))
+        print("  ({} cos(t) + {} cos(({} / {}) t), {} sin(t) - {} sin(({} / {}) t))".format(AmB, C, AmB, B, AmB, C, AmB, B))
     elif args.trochoid == Trochoid.EPITROCHOID:
         print("Generating Epitrochoid: x(t) = %d cos(t) - %.4f cos((%d / %d) t)" % (A + B, C, A+B, B))
         print("                        y(t) = %d sin(t) - %.4f sin((%d / %d) t)" % (A + B, C, A+B, B))
