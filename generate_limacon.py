@@ -2,6 +2,20 @@ import argparse
 import math
 import marble_path
 
+"""
+Produces the bottom part of a limacon curve, specifically, the loop.
+
+The defaults produce a nice looking curve.
+
+python generate_limacon.py
+
+The hole can be generated as follows:
+
+python generate_limacon.py --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
+
+There are parameters to make the limacon stretched in different directions.
+"""
+
 def limacon_derivative(theta, x_scale, y_scale, a, b):
     # x(t) = math.cos(theta) * (a - b * math.cos(theta))
     # y(t) = math.sin(theta) * (a - b * math.cos(theta))
