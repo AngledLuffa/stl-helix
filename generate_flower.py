@@ -35,9 +35,10 @@ there be 7/2 petals per loop, and 2 loops makes for a very pleasing 7
 petals overlapping twice.  R=12/7 is also worth investigating, as is
 16/9 (set A=4.4, B=1.5 for 16/9)
 
+Basic problem: the 4 petal flower has a corner too tight at the central pole
 
 
-TODO: add C, R parameters
+TODO: add R parameters
 
 No idea what to call this function, since it's not in Curve Design...
 """
@@ -56,30 +57,33 @@ def build_x_t(args):
     flower_power = args.flower_power / 2
     pinch_power = args.pinch_power
     scale = args.scale
+    C = args.theta_factor
 
     time_t = build_time_t(args)
 
     def x_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.cos(t)
+        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.cos(t)
     return x_t
 
 def build_y_t(args):
     flower_power = args.flower_power / 2
     pinch_power = args.pinch_power
     scale = args.scale
+    C = args.theta_factor
 
     time_t = build_time_t(args)
 
     def y_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.sin(t)
+        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.sin(t)
     return y_t
 
 def describe_curve(args):
     print("Building flower")
     flower_power = args.flower_power / 2
-    print("  r(t) = ((cos^2 \\theta)^%.4f + (sin^2 \\theta)^%.4f) ^ %.4f" % (flower_power, flower_power, args.pinch_power))
+    C = args.theta_factor
+    print("  r(t) = ((cos^2 \\theta / %.4f)^%.4f + (sin^2 \\theta / %.4f)^%.4f) ^ %.4f" % (C, flower_power, C, flower_power, args.pinch_power))
 
 def tune_closest_approach(args):
     # Closest approach will always be at multiples of pi/4
@@ -98,9 +102,11 @@ def parse_args(sys_args=None):
     combine_functions.add_zero_circle_args(parser)
 
     parser.add_argument('--flower_power', default=4, type=float,
-                        help='Coefficient A of (cos^A theta + sin^A theta)^B')
+                        help='Coefficient A of (cos^A theta/C + sin^A theta/C)^B')
     parser.add_argument('--pinch_power', default=1.5, type=float,
-                        help='Coefficient B of (cos^A theta + sin^A theta)^B')
+                        help='Coefficient B of (cos^A theta/C + sin^A theta/C)^B')
+    parser.add_argument('--theta_factor', default=1.0, type=float,
+                        help='Coefficient C of (cos^A theta/C + sin^A theta/C)^B')
     parser.add_argument('--closest_approach', default=26.0, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  26 for a 31mm connector connecting exactly to the tube')
     parser.add_argument('--scale', default=None, type=float,
