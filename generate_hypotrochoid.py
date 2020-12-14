@@ -5,7 +5,6 @@ from enum import Enum
 
 import build_shape
 import combine_functions
-import generate_helix
 import marble_path
 import regularization
 import slope_function
