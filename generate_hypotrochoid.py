@@ -169,6 +169,20 @@ this goes at 2,2,17
 rotation on post: 36 degrees
 
 
+Updates for v2:
+
+ramp, at 0,0,15:
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 220 --slope_angle 7.71 --scale 8.5 --start_t 0.6283 --regularization 0.01
+
+hole that goes down the middle: 2, 2, 17
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 0.6283  --regularization 0.01  --tube_radius 10.5 --wall_thickness 11   --tube_method TRIANGLE_TOP --tube_roof_angle 30
+
+tunnels in the middle:
+0,0,15 -> 0,0.02,27.156
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 360 --slope_angle 7.71 --scale 8.5 --start_t 1.2  --end_t 6.2 --regularization 0.01   --tube_method TRIANGLE_TOP --tube_roof_angle 30
+# the triangle tops overlap the bottoms of the tunnels.  this removes the bumps as a hole
+python generate_hypotrochoid.py --hypoA 5 --hypoB 1 --hypoC 4 --tube_end_angle 180 --slope_angle 7.71 --scale 8.5 --start_t 0.58  --regularization 0.01  --tube_radius 10.5 --wall_thickness 11
+
 Epitrochoid - Giant piece
 -------------------------
 
