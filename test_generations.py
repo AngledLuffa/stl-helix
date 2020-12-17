@@ -587,6 +587,7 @@ TESTS = [Test(name='Tube Basic',
          Test(name='Zigzag',
               model=generate_zigzag,
               args=["--tube_sides", "10",
+                    "--slope_angle", "15",
                     "--subdivisions_per_zigzag", "6"],
               gold_file='test_files/zigzag.stl'),]
               

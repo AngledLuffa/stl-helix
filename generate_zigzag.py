@@ -17,6 +17,7 @@ Default tube_radius 13.25 so that the rotated tube is still 25mm wide
 Minor issue with a basic half circle tube: roughly 5% of marbles would
 bounce out of the piece.  Fixed it by adding deeper walls.
 
+python generate_zigzag.py
 """
 
 def generate_zigzag(args):
@@ -37,7 +38,8 @@ def generate_zigzag(args):
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, args.slope_angle)
 
     def r_t(time_step):
-        return 90
+        # west to east is represented by -90, since south to north is 0
+        return -90
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
