@@ -38,6 +38,17 @@ petals overlapping twice.  R=12/7 is also worth investigating, as is
 Basic problem: the 4 petal flower has a corner too tight at the central pole
 
 
+Flower with really fat petals
+-----------------------------
+
+python generate_flower.py --slope_angle 5 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3 --slope_angle 5.6   --tube_method oval --tube_wall_height 6
+
+150mm post goes 73.638, 73.647
+
+hole:
+python generate_flower.py --slope_angle 5 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3 --slope_angle 5.6   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
+
 TODO: add R parameters
 
 No idea what to call this function, since it's not in Curve Design...
