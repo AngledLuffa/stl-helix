@@ -53,7 +53,7 @@ def generate_shape(module, args):
                                                                      y_t=y_t,
                                                                      r_t=r_t,
                                                                      kink_args=args,
-                                                                     num_time_steps=args.num_time_steps)
+                                                                     num_time_steps=num_time_steps)
 
     slope_angle_t = slope_function.slope_function(x_t=x_t,
                                                   y_t=y_t,
@@ -62,6 +62,15 @@ def generate_shape(module, args):
                                                   num_time_steps=num_time_steps,
                                                   overlap_args=args,
                                                   kink_args=args)
+
+    if getattr(args, 'zero_circle', None):
+        updated_functions = combine_functions.add_both_zero_circles(args=args,
+                                                                    num_time_steps=num_time_steps,
+                                                                    x_t=x_t,
+                                                                    y_t=y_t,
+                                                                    slope_angle_t=slope_angle_t,
+                                                                    r_t=r_t)
+        num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
     
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, slope_angle_t=slope_angle_t)
 
@@ -69,7 +78,7 @@ def generate_shape(module, args):
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
-                                              num_time_steps=args.num_time_steps,
+                                              num_time_steps=num_time_steps,
                                               time_t=time_t,
                                               slope_angle_t=slope_angle_t):
         yield triangle
