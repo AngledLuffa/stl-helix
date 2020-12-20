@@ -1,4 +1,6 @@
 import argparse
+import math
+import build_shape
 import marble_path
 
 """
@@ -18,6 +20,8 @@ Minor issue with a basic half circle tube: roughly 5% of marbles would
 bounce out of the piece.  Fixed it by adding deeper walls.
 
 python generate_zigzag.py
+
+python generate_zigzag.py --output_name zigzig.hole.stl --tube_method ellipse --tube_end_angle 360 --wall_thickness 11.5 --tube_radius 11.13
 """
 
 def generate_zigzag(args):
@@ -40,6 +44,10 @@ def generate_zigzag(args):
     def r_t(time_step):
         # west to east is represented by -90, since south to north is 0
         return -90
+
+    build_shape.print_stats(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t, num_time_steps=num_time_steps)
+    tangent = math.atan(args.zigzag_length / (args.zigzag_width / 2))
+    print("Rotation of the zigzag: %.4f / %.4f degrees" % (tangent, tangent * 180 / math.pi))
 
     for triangle in marble_path.generate_path(x_t=x_t, y_t=y_t, z_t=z_t, r_t=r_t,
                                               tube_args=args,
