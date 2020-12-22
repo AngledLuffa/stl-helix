@@ -94,10 +94,10 @@ Five pointed star
 start time: 6 pi / 10, end time 6 pi / 10 + 6pi
 but the both times are adjusted by .3 to leave room for the start/end circles
 
-python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 5 --tube_method oval --tube_wall_height 6 --slope_angle 4.0 --closest_approach 26 --start_t 2.185 --end_t 20.4345 --num_time_steps 400 --rebalance_time --zero_circle --regularization_method LOGISTIC --regularization_x_trans 2.5 --regularization_y_trans -1.0 --regularization_x_scale 0.8 --regularization_y_scale 4.25 --zero_circle
+python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 5 --tube_method oval --tube_wall_height 6 --slope_angle 4.0 --closest_approach 26 --start_t 2.185 --end_t 20.4345 --num_time_steps 400 --rebalance_time --zero_circle --regularization_method LOGISTIC --regularization_x_trans 2.5 --regularization_y_trans -1.0 --regularization_x_scale 0.8 --regularization_y_scale 4.25
 
 hole for the on/off:
-python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 5 --tube_method oval --tube_wall_height 6 --slope_angle 4.0 --closest_approach 26 --start_t 2.185 --end_t 20.4345 --num_time_steps 400 --rebalance_time --zero_circle --regularization_method LOGISTIC --regularization_x_trans 2.5 --regularization_y_trans -1.0 --regularization_x_scale 0.8 --regularization_y_scale 4.25 --zero_circle --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360
+python generate_hypotrochoid.py --hypoA 5 --hypoB 3 --hypoC 5 --tube_method oval --tube_wall_height 6 --slope_angle 4.0 --closest_approach 26 --start_t 2.185 --end_t 20.4345 --num_time_steps 400 --rebalance_time --zero_circle --regularization_method LOGISTIC --regularization_x_trans 2.5 --regularization_y_trans -1.0 --regularization_x_scale 0.8 --regularization_y_scale 4.25 --tube_radius 10.5 --wall_thickness 11 --tube_end_angle 360
 
 100mm post at 75.30, 72.08 with a rotation of 20 degrees
 
