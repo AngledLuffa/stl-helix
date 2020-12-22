@@ -372,6 +372,7 @@ TESTS = [Test(name='Tube Basic',
                     "--tube_sides", "10"],
               gold_file='test_files/hypo_rebalance_time.stl'),
 
+         # test a shallow roof
          Test(name='Hypo segment with triangle roof (30) and overlap',
               model=generate_hypotrochoid,
               args=["--hypoA", "3",
@@ -391,6 +392,7 @@ TESTS = [Test(name='Tube Basic',
                     "--tube_sides", "12"],
               gold_file='test_files/hypo_triangle_30.stl'),
 
+         # test a steep roof
          Test(name='Hypo segment with triangle roof (60) and overlap',
               model=generate_hypotrochoid,
               args=["--hypoA", "3",
