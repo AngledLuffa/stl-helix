@@ -41,15 +41,18 @@ Basic problem: the 4 petal flower has a corner too tight at the central pole
 Flower with really fat petals
 -----------------------------
 
-python generate_flower.py --slope_angle 5 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3 --slope_angle 5.6   --tube_method oval --tube_wall_height 6
+python generate_flower.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6
 
 150mm post goes 73.638, 73.647
 
 hole:
-python generate_flower.py --slope_angle 5 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3 --slope_angle 5.6   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+python generate_flower.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
 
-TODO: add R parameters
+Flower with 7 petals in 3 loops
+-------------------------------
+
+python generate_flower.py --slope_angle 5 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 4.4 --zero_circle  --pinch_power 1.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 6
 
 No idea what to call this function, since it's not in Curve Design...
 """
@@ -71,10 +74,11 @@ def build_x_t(args):
     C = args.theta_factor
 
     time_t = build_time_t(args)
+    twist = args.twist_numerator / args.twist_denominator
 
     def x_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.cos(t)
+        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.cos(twist * t)
     return x_t
 
 def build_y_t(args):
@@ -84,17 +88,26 @@ def build_y_t(args):
     C = args.theta_factor
 
     time_t = build_time_t(args)
-
+    twist = args.twist_numerator / args.twist_denominator
+    
     def y_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.sin(t)
+        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.sin(twist * t)
     return y_t
 
 def describe_curve(args):
     print("Building flower")
     flower_power = args.flower_power / 2
     C = args.theta_factor
-    print("  r(t) = ((cos^2 \\theta / %.4f)^%.4f + (sin^2 \\theta / %.4f)^%.4f) ^ %.4f" % (C, flower_power, C, flower_power, args.pinch_power))
+    if args.twist_denominator == 1 and args.twist_numerator == 1:
+        print("  r(\\theta) = ((cos^2 (\\theta / %.4f))^(%.4f) + (sin^2 (\\theta / %.4f))^(%.4f)) ^ (%.4f)" % (C, flower_power, C, flower_power, args.pinch_power))
+    else:
+        twist = "%s/%s" % (args.twist_numerator, args.twist_denominator)
+        f_x = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} cos((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
+        f_y = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} sin((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
+        print("  x = %s" % f_x)
+        print("  y = %s" % f_y)
+        print("(%s, %s)" % (f_x, f_y))
 
 def tune_closest_approach(args):
     # Closest approach will always be at multiples of pi/4
@@ -120,6 +133,10 @@ def parse_args(sys_args=None):
                         help='Coefficient C of (cos^A theta/C + sin^A theta/C)^B')
     parser.add_argument('--closest_approach', default=26.0, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  26 for a 31mm connector connecting exactly to the tube')
+    parser.add_argument('--twist_numerator', default=1, type=int,
+                        help='Twist the flower - instead of cos(theta), use cos(m/n theta)')
+    parser.add_argument('--twist_denominator', default=1, type=int,
+                        help='Twist the flower - instead of cos(theta), use cos(m/n theta)')
     parser.add_argument('--scale', default=None, type=float,
                         help='Amount to scale in the x/y directions.  Will override closest_approach if set.')
     
