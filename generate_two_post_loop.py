@@ -43,11 +43,14 @@ def describe_curve(args):
     print("Ellipses making up the loops are {} long and {} wide".format(args.loop_length, args.loop_width))
 
 def build_x_y_r_t(args):
+    loop_through_post = abs(args.post_distance - args.loop_length) < 0.1
+    print("Loops go through post: {}".format(loop_through_post))
+
     # start and end segments are the curves into the post
     num_segments = 4 * args.num_loops + 2
-    start_length = args.num_time_steps // num_segments
-    end_length = args.num_time_steps // num_segments
-    num_loop_steps = args.num_time_steps - start_length - end_length
+    start_steps = args.num_time_steps // num_segments
+    end_steps = args.num_time_steps // num_segments
+    num_loop_steps = args.num_time_steps - start_steps - end_steps
 
     def time_t(time_step):
         return time_step * 2 * math.pi * args.num_loops / num_loop_steps - math.pi / 2
@@ -64,10 +67,10 @@ def build_x_y_r_t(args):
 
     slope_angle_t = lambda x: args.slope_angle
 
-    args.zero_circle_sides = start_length
+    args.zero_circle_sides = start_steps
     num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, True, num_loop_steps, x_t, y_t, slope_angle_t, r_t)
 
-    args.zero_circle_sides = end_length
+    args.zero_circle_sides = end_steps
     num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, False, num_time_steps, x_t, y_t, slope_angle_t, r_t, endpoint_x=args.post_distance)
     
     return x_t, y_t, r_t
