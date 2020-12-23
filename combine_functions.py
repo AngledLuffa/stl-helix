@@ -4,6 +4,12 @@ import math
 import generate_helix
 import marble_util
 
+def translate_function(x_t, x_0):
+    """
+    Translates an x_t (or y_t) by x_0
+    """
+    return lambda t: x_t(t) + x_0
+
 def append_functions(x1_t, y1_t, slope1_t, r1_t,
                      x2_t, y2_t, slope2_t, r2_t,
                      inflection_t):
@@ -263,18 +269,18 @@ def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t,
         
     if circle_start:
         helix_x_t0 = helix_x_t(args.zero_circle_sides) - x_0
-        trans_x_t = lambda t: helix_x_t(t) - helix_x_t0
+        trans_x_t = translate_function(helix_x_t, -helix_x_t0)
 
         helix_y_t0 = helix_y_t(args.zero_circle_sides) - y_0
-        trans_y_t = lambda t: helix_y_t(t) - helix_y_t0
+        trans_y_t = translate_function(helix_y_t, -helix_y_t0)
     else:
         trans_x_t = helix_x_t
         trans_y_t = helix_y_t
 
     if endpoint_x != 0:
-        trans_x_t = lambda t: trans_x_t + endpoint_x
+        trans_x_t = translate_function(trans_x_t, endpoint_x)
     if endpoint_y != 0:
-        trans_y_t = lambda t: trans_y_t + endpoint_y
+        trans_y_t = translate_function(trans_y_t, endpoint_y)
         
     if circle_start:
         x_t, y_t, slope_angle_t, r_t = append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
@@ -289,7 +295,7 @@ def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t,
         x_t, y_t, slope_angle_t, r_t = append_functions(x_t, y_t, slope_angle_t, r_t,
                                                         trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
                                                         num_time_steps)
-        print("  Updated circle-to-zero at end of hypo")
+        print("  Updated circle-to-zero at end of curve")
         print("  Start curve x, y:  %.4f %.4f" % (x_t(0), y_t(0)))
         print("  End curve x, y:    %.4f %.4f" % (x_t(num_time_steps), y_t(num_time_steps)))
         num_time_steps = num_time_steps + args.zero_circle_sides

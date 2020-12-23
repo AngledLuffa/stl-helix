@@ -68,7 +68,7 @@ def build_x_y_r_t(args):
     num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, True, num_loop_steps, x_t, y_t, slope_angle_t, r_t)
 
     args.zero_circle_sides = end_length
-    num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, False, num_time_steps, x_t, y_t, slope_angle_t, r_t)
+    num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, False, num_time_steps, x_t, y_t, slope_angle_t, r_t, endpoint_x=args.post_distance)
     
     return x_t, y_t, r_t
 
