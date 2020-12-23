@@ -213,9 +213,12 @@ def zero_circle_dimensions(x_0, y_0, r_0):
 
     return rad_0, theta
     
-def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t, r_t):
+def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t, r_t, endpoint_x = 0, endpoint_y = 0):
     """
     Constructs a partial helix and either prepends or appends it to make a curve touch the origin.
+
+    circle_start = True:  put the circle piece at the start of the curve
+                 = False: put the circle at the end
     """
     helix_args = argparse.Namespace(**vars(args))
     if circle_start:
@@ -226,12 +229,12 @@ def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t,
         r_0 = r_t(num_time_steps)
         x_0 = x_t(num_time_steps)
         y_0 = y_t(num_time_steps)
-    if abs(x_0) < 0.1 and abs(y_0) < 0.1:
+    if abs(x_0 - endpoint_x) < 0.1 and abs(y_0 - endpoint_y) < 0.1:
         print("Not processing circle at %s of curve: already reaches %.4f %.4f" % ("start" if circle_start else "end", x_0, y_0))
         return num_time_steps, x_t, y_t, slope_angle_t, r_t
     print("Adding zero circle at the %s of the curve" % ("start" if circle_start else "end"))
     print("  Parameters for the ramp: r %.4f x %.4f y %.4f" % (r_0, x_0, y_0))
-    rad_0, theta = zero_circle_dimensions(x_0, y_0, r_0)
+    rad_0, theta = zero_circle_dimensions(x_0 - endpoint_x, y_0 - endpoint_y, r_0)
     # TODO: determine if this was going backwards and needs more than half a loop
 
     if circle_start:
@@ -268,6 +271,11 @@ def add_zero_circle(args, circle_start, num_time_steps, x_t, y_t, slope_angle_t,
         trans_x_t = helix_x_t
         trans_y_t = helix_y_t
 
+    if endpoint_x != 0:
+        trans_x_t = lambda t: trans_x_t + endpoint_x
+    if endpoint_y != 0:
+        trans_y_t = lambda t: trans_y_t + endpoint_y
+        
     if circle_start:
         x_t, y_t, slope_angle_t, r_t = append_functions(trans_x_t, trans_y_t, helix_slope_t, helix_r_t,
                                                         x_t, y_t, slope_angle_t, r_t,
