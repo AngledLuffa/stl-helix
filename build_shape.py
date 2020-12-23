@@ -71,7 +71,7 @@ def generate_shape(module, args):
                                                                     slope_angle_t=slope_angle_t,
                                                                     r_t=r_t)
         num_time_steps, x_t, y_t, slope_angle_t, r_t = updated_functions
-    
+
     z_t = marble_path.arclength_height_function(x_t, y_t, num_time_steps, slope_angle_t=slope_angle_t)
 
     print_stats(x_t, y_t, z_t, r_t, num_time_steps)
