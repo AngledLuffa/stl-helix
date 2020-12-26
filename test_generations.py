@@ -8,6 +8,7 @@ import unittest
 from collections import namedtuple
 
 import generate_basic_ramp
+import generate_clover
 import generate_cycloid
 import generate_helix
 import generate_hypotrochoid
@@ -647,6 +648,24 @@ TESTS = [Test(name='Tube Basic',
                     "--tube_sides", "10"],
               gold_file='test_files/lissajous_compound_harmonics_splitter.stl'),
 
+         Test(name="Clover - 7/3 petals",
+              model=generate_clover,
+              args=["--slope_angle", "5.6",
+                    "--start_t", "1.1781",
+                    "--end_t", "11.3883",
+                    "--flower_power", "3.2",
+                    "--zero_circle",
+                    "--zero_circle_sides", "3",
+                    "--pinch_power", "2.1",
+                    "--twist_numerator", "12",
+                    "--twist_denominator", "7",
+                    "--tube_method", "oval",
+                    "--tube_wall_height", "6",
+                    "--num_time_steps", "40",
+                    "--tube_sides", "6"],
+              gold_file='test_files/clover_7_petals_3_loops.stl'),
+                    
+         
          # defaults for this model are 3 loops between posts
          # this tests the different endpoint zero circle
          Test(name='Two post loop between posts',
