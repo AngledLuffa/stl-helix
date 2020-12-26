@@ -36,11 +36,14 @@ petals overlapping twice.  R=12/7 is also worth investigating, as is
 16/9 (set A=4.4, B=1.5 for 16/9)
 
 The R coefficient could be substituted in the inner trig terms, such
-as these equations, but it is more convenient to put the term in the
-outer cos/sin because of the problem we describe next.
+as these equations.  This makes it possible to represent the entire
+equation as a polar equation.  However, it is more convenient to put
+the term in the outer cos/sin because of the problem we describe next.
 
 x = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2) cos theta
 y = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2) sin theta
+
+r = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2)
 
 Basic problem: the 4 petal flower has a corner too tight at the
 central pole.  However, we can wiggle the cos/sin R theta terms with
@@ -54,22 +57,23 @@ y = (((cos theta)^6 + (sin theta)^6) ^ 1/2) sin R (theta + .3 sin 8 theta)
 Clover with really fat petals
 -----------------------------
 
-python generate_clover.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6
+python generate_clover.py --slope_angle 5.6 --start_t 1.0472 --end_t 6.8068 --flower_power 4.4  --twist_numerator 3 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6
+
 
 150mm post goes 73.638, 73.647
 
 hole:
-python generate_clover.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+python generate_clover.py --slope_angle 5.6 --start_t 1.0472 --end_t 6.8068 --flower_power 4.4  --twist_numerator 3 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
 
 Clover with 7 petals in 3 loops
 -------------------------------
 
-python generate_clover.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 6 
+python generate_clover.py --slope_angle 5.6 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 6 
 
 
 hole: goes at 55.041, 58.158
-python generate_clover.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 3  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+python generate_clover.py --slope_angle 5.6 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 3  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
 No idea what to call this function, since it's not in Curve Design... for now, calling it a clover
 """
@@ -88,46 +92,42 @@ def build_x_t(args):
     flower_power = args.flower_power / 2
     pinch_power = args.pinch_power
     scale = args.scale
-    C = args.theta_factor
 
     time_t = build_time_t(args)
     twist = args.twist_numerator / args.twist_denominator
 
     def x_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.cos(twist * t)
+        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.cos(twist * t)
     return x_t
 
 def build_y_t(args):
     flower_power = args.flower_power / 2
     pinch_power = args.pinch_power
     scale = args.scale
-    C = args.theta_factor
 
     time_t = build_time_t(args)
     twist = args.twist_numerator / args.twist_denominator
     
     def y_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t/C) ** 2) ** flower_power + (math.sin(t/C) ** 2) ** flower_power) ** pinch_power * math.sin(twist * t)
+        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.sin(twist * t)
     return y_t
 
 def describe_curve(args):
     print("Building flower")
     flower_power = args.flower_power / 2
-    C = args.theta_factor
-    if args.twist_denominator == 1 and args.twist_numerator == 1:
-        print("  r(\\theta) = ((cos^2 (\\theta / %.4f))^{%.4f} + (sin^2 (\\theta / %.4f))^{%.4f}) ^ {%.4f}" % (C, flower_power, C, flower_power, args.pinch_power))
+    if args.twist_denominator == args.twist_numerator:
+        twist = ""
+    elif args.twist_denominator == 1:
+        twist = "%s" % args.twist_numerator
     else:
-        if args.twist_denominator == 1:
-            twist = "%s" % args.twist_numerator
-        else:
-            twist = "%s/%s" % (args.twist_numerator, args.twist_denominator)
-        f_x = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} cos((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
-        f_y = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} sin((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
-        print("  x = %s" % f_x)
-        print("  y = %s" % f_y)
-        print("(%s, %s)" % (f_x, f_y))
+        twist = "(%s/%s)" % (args.twist_numerator, args.twist_denominator)
+    f_x = "((cos^2 (t))^{%.4f} + (sin^2 (t))^{%.4f}) ^ {%.4f} cos(%s t)" % (flower_power, flower_power, args.pinch_power, twist)
+    f_y = "((cos^2 (t))^{%.4f} + (sin^2 (t))^{%.4f}) ^ {%.4f} sin(%s t)" % (flower_power, flower_power, args.pinch_power, twist)
+    print("  x = %s" % f_x)
+    print("  y = %s" % f_y)
+    print("(%s, %s)" % (f_x, f_y))
 
 def tune_closest_approach(args):
     # Closest approach will always be at multiples of pi/4
@@ -146,11 +146,9 @@ def parse_args(sys_args=None):
     combine_functions.add_zero_circle_args(parser)
 
     parser.add_argument('--flower_power', default=4, type=float,
-                        help='Coefficient A of (cos^A theta/C + sin^A theta/C)^B')
+                        help='Coefficient A of (cos^A theta + sin^A theta)^B')
     parser.add_argument('--pinch_power', default=1.5, type=float,
-                        help='Coefficient B of (cos^A theta/C + sin^A theta/C)^B')
-    parser.add_argument('--theta_factor', default=1.0, type=float,
-                        help='Coefficient C of (cos^A theta/C + sin^A theta/C)^B')
+                        help='Coefficient B of (cos^A theta + sin^A theta)^B')
     parser.add_argument('--closest_approach', default=26.0, type=float,
                         help='Measurement from 0,0 to the closest point of the tube center.  26 for a 31mm connector connecting exactly to the tube')
     parser.add_argument('--twist_numerator', default=1, type=int,
