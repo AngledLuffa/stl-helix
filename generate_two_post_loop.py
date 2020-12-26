@@ -34,6 +34,29 @@ To generate the holes in the post:
   python generate_two_post_loop.py --loop_length 82 --tube_radius 10.5 --wall_thickness 11 --tube_start_angle 0 --tube_end_angle 360
 
 Similar math puts the holes at 5.21
+
+1.5 loops going through the posts
+---------------------------------
+
+The previous model has the loops going between the posts.  This one
+has the loop going through the posts.  Only 1.5 loops, since more
+would make it incredibly unpleasant to get the supports out.
+
+python generate_two_post_loop.py --loop_length 134 --slope_angle 6.5 --num_loops 1 --tube_method OVAL --tube_wall_height 6 --tube_start_angle 0
+
+posts rotate by 158
+
+holes:
+
+left post, with a triangle hole:
+python generate_two_post_loop.py --loop_length 134 --slope_angle 6.5 --num_loops 1 --tube_method TRIANGLE_TOP --tube_roof_angle 30 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
+right post:
+python generate_two_post_loop.py --loop_length 134 --slope_angle 6.5 --num_loops 1 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
+the left bottom hole needs a tunnel.  this should work:
+
+python generate_two_post_loop.py --loop_length 134 --slope_angle 6.5 --num_loops 1 --tube_method TRIANGLE_TOP --tube_roof_angle 30 --tube_start_angle 0 --tube_end_angle 360 --tube_radius 12.5
 """
 
 
@@ -46,14 +69,22 @@ def build_x_y_r_t(args):
     loop_through_post = abs(args.post_distance - args.loop_length) < 0.1
     print("Loops go through post: {}".format(loop_through_post))
 
-    # start and end segments are the curves into the post
-    num_segments = 4 * args.num_loops + 2
-    start_steps = args.num_time_steps // num_segments
-    end_steps = args.num_time_steps // num_segments
-    num_loop_steps = args.num_time_steps - start_steps - end_steps
+    if loop_through_post:
+        # extra half curve so it starts and ends at different posts
+        num_loops = args.num_loops + 0.5
+        num_loop_steps = args.num_time_steps
+        t_offset = -math.pi
+    else:
+        # start and end segments are the curves into the post
+        num_loops = args.num_loops
+        num_segments = 4 * args.num_loops + 2
+        start_steps = args.num_time_steps // num_segments
+        end_steps = args.num_time_steps // num_segments
+        num_loop_steps = args.num_time_steps - start_steps - end_steps
+        t_offset = -math.pi / 2
 
     def time_t(time_step):
-        return time_step * 2 * math.pi * args.num_loops / num_loop_steps - math.pi / 2
+        return time_step * 2 * math.pi * num_loops / num_loop_steps + t_offset
     
     def x_t(time_step):
         t = time_t(time_step)
@@ -65,14 +96,15 @@ def build_x_y_r_t(args):
 
     r_t = marble_path.numerical_rotation_function(x_t, y_t)
 
-    slope_angle_t = lambda x: args.slope_angle
+    if not loop_through_post:
+        slope_angle_t = lambda x: args.slope_angle
 
-    args.zero_circle_sides = start_steps
-    num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, True, num_loop_steps, x_t, y_t, slope_angle_t, r_t)
+        args.zero_circle_sides = start_steps
+        num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, True, num_loop_steps, x_t, y_t, slope_angle_t, r_t)
 
-    args.zero_circle_sides = end_steps
-    num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, False, num_time_steps, x_t, y_t, slope_angle_t, r_t, endpoint_x=args.post_distance)
-    
+        args.zero_circle_sides = end_steps
+        num_time_steps, x_t, y_t, _, r_t = combine_functions.add_zero_circle(args, False, num_time_steps, x_t, y_t, slope_angle_t, r_t, endpoint_x=args.post_distance)
+
     return x_t, y_t, r_t
 
 
