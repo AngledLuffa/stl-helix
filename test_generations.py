@@ -686,14 +686,6 @@ TESTS = [Test(name='Tube Basic',
          # this tests the different endpoint zero circle
          Test(name='Two post loop between posts',
               model=generate_two_post_loop,
-              args=["--num_time_steps", "50",
-                    "--tube_sides", "8"],
-              gold_file='test_files/two_post_loop_between.stl'),
-         
-         # defaults for this model are 3 loops between posts
-         # this tests the different endpoint zero circle
-         Test(name='Two post loop between posts',
-              model=generate_two_post_loop,
               args=["--num_time_steps", "40",
                     "--tube_sides", "6"],
               gold_file='test_files/two_post_loop_between.stl'),
