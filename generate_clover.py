@@ -5,6 +5,7 @@ import sys
 import build_shape
 import combine_functions
 import marble_path
+import marble_util
 
 """
 Can produce graphs like this:
@@ -51,7 +52,6 @@ central pole.  However, we can wiggle the cos/sin R theta terms with
 
 x = (((cos theta)^6 + (sin theta)^6) ^ 1/2) cos R (theta + .3 sin 8 theta)
 y = (((cos theta)^6 + (sin theta)^6) ^ 1/2) sin R (theta + .3 sin 8 theta)
-
 
 
 Clover with really fat petals
@@ -116,15 +116,12 @@ def build_y_t(args):
 
 def describe_curve(args):
     print("Building flower")
-    flower_power = args.flower_power / 2
-    if args.twist_denominator == args.twist_numerator:
-        twist = ""
-    elif args.twist_denominator == 1:
-        twist = "%s" % args.twist_numerator
-    else:
-        twist = "(%s/%s)" % (args.twist_numerator, args.twist_denominator)
-    f_x = "((cos^2 (t))^{%.4f} + (sin^2 (t))^{%.4f}) ^ {%.4f} cos(%s t)" % (flower_power, flower_power, args.pinch_power, twist)
-    f_y = "((cos^2 (t))^{%.4f} + (sin^2 (t))^{%.4f}) ^ {%.4f} sin(%s t)" % (flower_power, flower_power, args.pinch_power, twist)
+    flower_power = marble_util.simplify_float_to_string(args.flower_power / 2)
+    pinch_power = marble_util.simplify_float_to_string(args.pinch_power)
+    twist = marble_util.simplify_integer_ratio(args.twist_numerator, args.twist_denominator)
+
+    f_x = "((cos^2 (t))^{%s} + (sin^2 (t))^{%s}) ^ {%s} cos(%s t)" % (flower_power, flower_power, pinch_power, twist)
+    f_y = "((cos^2 (t))^{%s} + (sin^2 (t))^{%s}) ^ {%s} sin(%s t)" % (flower_power, flower_power, pinch_power, twist)
     print("  x = %s" % f_x)
     print("  y = %s" % f_y)
     print("(%s, %s)" % (f_x, f_y))

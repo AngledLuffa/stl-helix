@@ -40,3 +40,17 @@ def get_time_step(times, t):
             return i
     raise AssertionError("Oops")
 
+def simplify_float_to_string(value, decimals=8):
+    template = "%." + str(decimals) + "f"
+    result = template % value
+    result = result.rstrip("0").rstrip(".")
+    return result
+
+def simplify_integer_ratio(numerator, denominator):
+    if denominator == numerator:
+        return ""
+    elif denominator == 1:
+        return "%s" % numerator
+    else:
+        return "(%s/%s)" % (numerator, denominator)
+
