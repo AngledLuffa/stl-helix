@@ -38,27 +38,27 @@ petals overlapping twice.  R=12/7 is also worth investigating, as is
 Basic problem: the 4 petal flower has a corner too tight at the central pole
 
 
-Flower with really fat petals
+Clover with really fat petals
 -----------------------------
 
-python generate_flower.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6
+python generate_clover.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6
 
 150mm post goes 73.638, 73.647
 
 hole:
-python generate_flower.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+python generate_clover.py --slope_angle 5.6 --theta_factor 3 --start_t 3.14159 --end_t 20.4204 --flower_power 4.4 --zero_circle  --pinch_power 1.3   --tube_method oval --tube_wall_height 6 --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
 
-Flower with 7 petals in 3 loops
+Clover with 7 petals in 3 loops
 -------------------------------
 
-python generate_flower.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 6 
+python generate_clover.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 6 
 
 
 hole: goes at 55.041, 58.158
-python generate_flower.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 3  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+python generate_clover.py --slope_angle 5.6 --theta_factor 1 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 3  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
-No idea what to call this function, since it's not in Curve Design...
+No idea what to call this function, since it's not in Curve Design... for now, calling it a clover
 """
 
 def build_time_t(args):
