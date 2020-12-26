@@ -35,7 +35,20 @@ there be 7/2 petals per loop, and 2 loops makes for a very pleasing 7
 petals overlapping twice.  R=12/7 is also worth investigating, as is
 16/9 (set A=4.4, B=1.5 for 16/9)
 
-Basic problem: the 4 petal flower has a corner too tight at the central pole
+The R coefficient could be substituted in the inner trig terms, such
+as these equations, but it is more convenient to put the term in the
+outer cos/sin because of the problem we describe next.
+
+x = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2) cos theta
+y = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2) sin theta
+
+Basic problem: the 4 petal flower has a corner too tight at the
+central pole.  However, we can wiggle the cos/sin R theta terms with
+(sin 8t) to spread out the central pole and the endpoints.  So (TODO):
+
+x = (((cos theta)^6 + (sin theta)^6) ^ 1/2) cos R (theta + .3 sin 8 theta)
+y = (((cos theta)^6 + (sin theta)^6) ^ 1/2) sin R (theta + .3 sin 8 theta)
+
 
 
 Clover with really fat petals
@@ -104,9 +117,12 @@ def describe_curve(args):
     flower_power = args.flower_power / 2
     C = args.theta_factor
     if args.twist_denominator == 1 and args.twist_numerator == 1:
-        print("  r(\\theta) = ((cos^2 (\\theta / %.4f))^(%.4f) + (sin^2 (\\theta / %.4f))^(%.4f)) ^ (%.4f)" % (C, flower_power, C, flower_power, args.pinch_power))
+        print("  r(\\theta) = ((cos^2 (\\theta / %.4f))^{%.4f} + (sin^2 (\\theta / %.4f))^{%.4f}) ^ {%.4f}" % (C, flower_power, C, flower_power, args.pinch_power))
     else:
-        twist = "%s/%s" % (args.twist_numerator, args.twist_denominator)
+        if args.twist_denominator == 1:
+            twist = "%s" % args.twist_numerator
+        else:
+            twist = "%s/%s" % (args.twist_numerator, args.twist_denominator)
         f_x = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} cos((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
         f_y = "((cos^2 (t / %.4f))^{%.4f} + (sin^2 (t / %.4f))^{%.4f}) ^ {%.4f} sin((%s) t)" % (C, flower_power, C, flower_power, args.pinch_power, twist)
         print("  x = %s" % f_x)
