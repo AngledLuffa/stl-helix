@@ -124,9 +124,9 @@ def tune_closest_approach(args):
 
 
 def parse_args(sys_args=None):
-    parser = argparse.ArgumentParser(description='Arguments for an stl flower.')
+    parser = argparse.ArgumentParser(description='Arguments for an stl clover.')
 
-    marble_path.add_tube_arguments(parser, default_slope_angle=6.0, default_output_name='flower.stl')
+    marble_path.add_tube_arguments(parser, default_slope_angle=6.0, default_output_name='clover.stl')
     combine_functions.add_zero_circle_args(parser)
 
     parser.add_argument('--flower_power', default=4, type=float,
