@@ -48,7 +48,7 @@ r = (((cos theta / R)^6 + (sin theta)^6) ^ 1/2)
 
 Basic problem: the 4 petal flower has a corner too tight at the
 central pole.  However, we can wiggle the cos/sin R theta terms with
-(sin 8t) to spread out the central pole and the endpoints.  So (TODO):
+(sin 8t) to spread out the central pole and the endpoints.
 
 x = (((cos theta)^6 + (sin theta)^6) ^ 1/2) cos R (theta + .3 sin 8 theta)
 y = (((cos theta)^6 + (sin theta)^6) ^ 1/2) sin R (theta + .3 sin 8 theta)
@@ -75,6 +75,16 @@ python generate_clover.py --slope_angle 5.6 --start_t 1.1781 --end_t 11.3883 --f
 hole: goes at 55.041, 58.158
 python generate_clover.py --slope_angle 5.6 --start_t 1.1781 --end_t 11.3883 --flower_power 3.2 --zero_circle  --pinch_power 2.1 --twist_numerator 12 --twist_denominator 7   --tube_method oval --tube_wall_height 3  --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
 
+
+Clover with 4 petals, corners wiggled a little
+----------------------------------------------
+
+python generate_clover.py --slope_angle 7.3 --start_t 0.9425 --end_t 6.9115 --flower_power 3.2 --zero_circle  --pinch_power 3 --twist_wiggle 0.2   --tube_method oval --tube_wall_height 6
+
+python generate_clover.py --slope_angle 7.3 --start_t 0.9425 --end_t 6.9115 --flower_power 3.2 --zero_circle  --pinch_power 3 --twist_wiggle 0.2   --tube_end_angle 360 --tube_radius 10.5 --wall_thickness 11
+
+
+
 No idea what to call this function, since it's not in Curve Design... for now, calling it a clover
 """
 
@@ -98,7 +108,7 @@ def build_x_t(args):
 
     def x_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.cos(twist * t)
+        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.cos(twist * (t + args.twist_wiggle * math.sin (8 * t)))
     return x_t
 
 def build_y_t(args):
@@ -111,7 +121,7 @@ def build_y_t(args):
     
     def y_t(t):
         t = time_t(t)
-        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.sin(twist * t)
+        return scale * ((math.cos(t) ** 2) ** flower_power + (math.sin(t) ** 2) ** flower_power) ** pinch_power * math.sin(twist * (t + args.twist_wiggle * math.sin (8 * t)))
     return y_t
 
 def describe_curve(args):
@@ -152,6 +162,9 @@ def parse_args(sys_args=None):
                         help='Twist the flower - instead of cos(theta), use cos(m/n theta)')
     parser.add_argument('--twist_denominator', default=1, type=int,
                         help='Twist the flower - instead of cos(theta), use cos(m/n theta)')
+
+    parser.add_argument('--twist_wiggle', default=0, type=float,
+                        help='Wiggle the twist - instead of cos(m/n theta), use cos(m/n (theta + w sin (8 theta)))')
     parser.add_argument('--scale', default=None, type=float,
                         help='Amount to scale in the x/y directions.  Will override closest_approach if set.')
     
