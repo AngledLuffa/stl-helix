@@ -60,11 +60,11 @@ def outer_function_z(t):
 
 def build_f_t_u(num_t_steps, num_u_steps):
     """
-    over the course of num_t_steps, go from t=0 to t=8 in the above functions
+    over the course of num_t_steps, go from t=0 to t=7.5 in the above functions
     over the course of num_u_steps, go from 0 to 360 degrees
     """
     def f_xyz(time_t, time_u, outer):
-        t = time_t / num_t_steps * 8.0
+        t = time_t / num_t_steps * 7.5
         time_u = time_u % num_u_steps
         u = time_u * math.pi * 2 / num_u_steps
 
@@ -83,7 +83,7 @@ def build_f_t_u(num_t_steps, num_u_steps):
     return f_xyz
 
 def generate_funnel():
-    num_t_steps = 80
+    num_t_steps = 75
     num_u_steps = 120
     f_xyz = build_f_t_u(num_t_steps, num_u_steps)
 
