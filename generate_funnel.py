@@ -51,8 +51,10 @@ def inner_function_z(t):
 def outer_function_x(t):
     """
     the inner x, moved slightly away to hopefully make the walls 2mm thick
+
+    14.5+\frac{47}{\left(1+e^{-3x+16.55}\right)}
     """
-    return 14.5 + 47 / (1 + math.exp(-3 * t + 16.55))
+    return 14.75 + 46.75 / (1 + math.exp(-3 * t + 16.55))
 
 def outer_function_z(t):
     return t * 10
