@@ -38,11 +38,11 @@ def inner_function_x(t):
     Tries to blend 27mm at the connection with a logistic function to represent the funnel
     """    
     if t < 2:
-        return 13.5
+        return 13.55
     if t < 3:
         offset = t - 2
         offset = offset ** 3
-        return 13.5 * (1 - offset) + offset * (11.5 + 47 / (1 + math.exp(-3 * t + 17)))
+        return 13.55 * (1 - offset) + offset * (11.5 + 47 / (1 + math.exp(-3 * t + 17)))
     return 11.5 + 47 / (1 + math.exp(-3 * t + 17))
 
 def inner_function_z(t):
