@@ -709,7 +709,7 @@ TESTS = [Test(name='Tube Basic',
                     "--subdivisions_per_zigzag", "6"],
               gold_file='test_files/zigzag.stl'),]
               
-class GenerationTests(unittest.TestCase):
+class TestGeneration(unittest.TestCase):
     def setUp(self):
         self.test_file = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
         self.test_file.close()
